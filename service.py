@@ -7,6 +7,21 @@ import json
 from gevent import socket
 
 
+class DB():
+    data = []
+
+    def __init__(self):
+        pass
+
+    def add(self, data=()):
+        try:
+            self.data += data
+        except:
+            pass
+
+        print 'DB data: ', self.data
+
+
 class UrlQueue():
     queue = [
         'http://www.douban.com/',
@@ -34,6 +49,7 @@ class UrlQueue():
 
 
 queue = UrlQueue()
+db = DB()
 
 
 def handle_request(data, address):
@@ -45,8 +61,11 @@ def handle_request(data, address):
         return json.dumps({'msg': '获取成功', 'urls': queue.get()})
 
     if request['method'] == 'put':
-        if 'urls_add' in request:
+        if 'urls_add' in request and request['urls_add']:
             queue.add(request['urls_add'])
+
+        if 'save' in request and request['save']:
+            db.add(request['save'])
 
         return json.dumps({'msg': '推送成功'})
 

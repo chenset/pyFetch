@@ -155,26 +155,36 @@ class Spider:
                 parse_result['url'] = url
             if 'runtime' not in parse_result:
                 parse_result['runtime'] = crawl_result[2]
+
             self.DataKit.put_data(save=parse_result)
 
-    def crawl(self, url):
+    def crawl(self, url=''):
+        """
+        仅加入远程待抓取队列
+        self.run()会死循环的从本地队列中获取url进行实际抓取
+        :param string url:
+        :return:
+        """
+
         self.DataKit.put_data(urls_add=(url,))
 
     def __get_queue_url(self):
         """
         每次从本地队列返回一条将要抓取的url
-        :return:url|None
+        如果本地队列为空则去远程获取, 当远程获取失败会sleep数秒后重试直到成功
+        远程获取的过程如果失败会因为等待重试的sleep而阻塞
+        :return:string url|None
         """
         while not self.pre_url_queue:
             response = self.DataKit.get_data()
-            if not response:  # 服务器响应异常
+            if not response:
                 echo_err('远程响应异常, 60秒后重试')
                 time.sleep(60)
                 continue
 
             if 'urls' not in response or not response['urls']:
                 echo_err('无法从远程获取url队列, 10秒后重试 ' + response['msg'] or '')
-                time.sleep(10)  # 取不到数据等待10秒重试
+                time.sleep(10)
                 continue
 
             self.pre_url_queue += response['urls']
