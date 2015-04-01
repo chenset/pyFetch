@@ -86,20 +86,20 @@ class DataKit():
         }
         return self.__request(data)
 
-    def put_data(self, parsed=(), urls_queue=(), save=()):
+    def put_data(self, parsed=(), urls_add=(), save=()):
 
         data = {
             'method': 'put',
             'urls_parsed': [],
-            'urls_queue': [],
+            'urls_add': [],
             'save': [],
         }
 
         for url in parsed:
             data['urls_parsed'].append(url)
 
-        for url in urls_queue:
-            data['urls_queue'].append(url)
+        for url in urls_add:
+            data['urls_add'].append(url)
 
         if save:
             data['save'].append(save)
@@ -133,22 +133,23 @@ class Spider:
             # todo 需要些速度控制方法.
 
             url = self.__get_queue_url()
+            print url
             if not url:
-                break
-                # continue
+                # break
+                continue
             crawl_result = self.Crawl.get(url)
             if crawl_result[1] not in (200, 201):
                 echo_err(
                     'URL: ' + url + ' 获取失败 HTTP code: ' + str(crawl_result[1]) + ' Runtime: ' + str(
                         crawl_result[2]) + 'ms')
-                break
-                # continue
+                # break
+                continue
 
             # 如果抓取自定义函数存在dict返回值则将dict推送至服务器
             parse_result = self.handle_method(crawl_result[0])
             if not isinstance(parse_result, dict):
-                break
-                # continue
+                # break
+                continue
 
             if 'url' not in parse_result:
                 parse_result['url'] = url
@@ -156,11 +157,8 @@ class Spider:
                 parse_result['runtime'] = crawl_result[2]
             self.DataKit.put_data(save=parse_result)
 
-
     def crawl(self, url):
-        print self.DataKit.put_data(urls_queue=(url,))
-        # crawl = Crawl()
-        # print crawl.get(url)
+        self.DataKit.put_data(urls_add=(url,))
 
     def __get_queue_url(self):
         """
@@ -172,11 +170,13 @@ class Spider:
             if not response:  # 服务器响应异常
                 echo_err('远程响应异常, 60秒后重试')
                 time.sleep(60)
+                continue
 
-            if 'urls' not in response:
+            if 'urls' not in response or not response['urls']:
                 echo_err('无法从远程获取url队列, 10秒后重试 ' + response['msg'] or '')
                 time.sleep(10)  # 取不到数据等待10秒重试
-            else:
-                self.pre_url_queue += response['urls']
+                continue
+
+            self.pre_url_queue += response['urls']
 
         return self.pre_url_queue.pop(0)  # 出栈首位

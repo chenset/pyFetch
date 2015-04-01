@@ -7,24 +7,48 @@ import json
 from gevent import socket
 
 
+class UrlQueue():
+    queue = [
+        'http://www.douban.com/',
+    ]
+
+    def __init__(self):
+        pass
+
+    def get(self):
+        urls = []
+        for i in xrange(2):
+            try:
+                urls += [self.queue.pop(0)]
+            except:
+                pass
+
+        print 'urls count: ', len(self.queue)
+        return urls
+
+    def add(self, urls=()):
+        try:
+            self.queue += urls
+        except:
+            pass
+
+
+queue = UrlQueue()
+
+
 def handle_request(data, address):
     request = json.loads(data)
     if not request or 'method' not in request:
         return json.dumps({'msg': '无法识别的请求'})
 
     if request['method'] == 'get':
-        return json.dumps({'msg': '获取成功', 'urls': [
-            'http://www.douban.com/',
-            'http://movie.douban.com/subject/23761370/',
-            'http://movie.douban.com/subject/23761360/',
-            'http://movie.douban.com/subject/23761350/',
-            'http://movie.douban.com/subject/23761340/',
-            'http://movie.douban.com/subject/23761330/',
-            'http://movie.douban.com/subject/23761320/',
-            'http://movie.douban.com/subject/23761310/',
-            'http://movie.douban.com/subject/23761380/',
-            'http://movie.douban.com/subject/23761390/',
-        ]})
+        return json.dumps({'msg': '获取成功', 'urls': queue.get()})
+
+    if request['method'] == 'put':
+        if 'urls_add' in request:
+            queue.add(request['urls_add'])
+
+        return json.dumps({'msg': '推送成功'})
 
     return json.dumps({'msg': '无法识别的请求'})
 
