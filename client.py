@@ -1,0 +1,40 @@
+# coding=utf-8
+import gevent
+import sys
+import math
+import time
+from gevent import socket
+
+
+def client(content):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(('127.0.0.1', 7777))
+
+    send_date = 's' + (str(content) * 100000) + 'e'
+
+    # content前10个字符串用于标识内容长度.
+    response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
+    sock.send(response_len + send_date)
+
+    buff_size = 1024
+    data = sock.recv(buff_size)
+
+
+    # content前10个字符串用于标识内容长度.
+    for i in xrange(int(math.ceil(float(data[0:10]) / buff_size)) - 1):
+        data += sock.recv(buff_size)
+
+    # sock.shutdown(socket.SHUT_WR)
+    print data
+
+    sock.close()
+
+
+start_time = time.time()
+pool = []
+for i in xrange(10):
+    # client(i)
+    pool.append(gevent.spawn(client, i))
+
+gevent.joinall(pool)
+print round((time.time() - start_time) * 1000, 2), 'ms'
