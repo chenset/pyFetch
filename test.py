@@ -1,7 +1,8 @@
 # coding=utf-8
+import time
 
-response_len = '123459'
-response_len = (response_len + ' ' * 10)[0:10]
+start_time = time.time()
+for i in xrange(100000):
+    len('2222' * i)
 
-print int(response_len) + 0.00
-print response_len
+print round((time.time() - start_time) * 1000, 2), 'ms'

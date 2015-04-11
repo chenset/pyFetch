@@ -18,7 +18,8 @@ def handle_request(s):
     try:
         buff_size = 1024
         data = s.recv(buff_size)
-        for i in xrange(int(math.ceil(float(data[0:10]) / buff_size)) - 1):
+        data_len = int(data[0:10])
+        while len(data) < data_len:
             data += s.recv(buff_size)
 
         send_date = str(data)
