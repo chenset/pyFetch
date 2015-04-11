@@ -1,39 +1,43 @@
 # coding=utf-8
 import gevent
 import time
-import math
 from gevent import socket
 
 
-def server(port):
+def handle_request(data, address):
+    print address
+    return data
+
+
+def socket_server(host, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('0.0.0.0', port))
+    sock.bind((host, port))
     sock.listen(256)
     while True:
-        cli, addr = sock.accept()
-        gevent.spawn(handle_request, cli)
+        client, address = sock.accept()
+        gevent.spawn(socket_accept, client, address)
 
 
-def handle_request(s):
+def socket_accept(sock, address):
     try:
         buff_size = 1024
-        data = s.recv(buff_size)
+        data = sock.recv(buff_size)
         data_len = int(data[0:10])
         while len(data) < data_len:
-            data += s.recv(buff_size)
+            data += sock.recv(buff_size)
 
-        send_date = str(data)
+        send_date = handle_request(data, address)
 
         # send content前10个字符串用于标识内容长度.
         response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
-        s.send(response_len + send_date)
-        s.shutdown(socket.SHUT_WR)
-    except Exception, ex:
-        print ex
+        sock.send(response_len + send_date)
+        sock.shutdown(socket.SHUT_WR)
+    except Exception, error:
+        print error
     finally:
 
-        s.close()
+        sock.close()
 
 
 if __name__ == '__main__':
-    server(7777)
+    socket_server('0.0.0.0', 7777)

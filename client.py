@@ -1,16 +1,16 @@
 # coding=utf-8
 import gevent
 import sys
-import math
 import time
 from gevent import socket
 
 
 def client(content):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('10.0.0.10', 7777))
+    # sock.connect(('10.0.0.10', 7777))
+    sock.connect(('127.0.0.1', 7777))
 
-    send_date = 's' + (str(content) * 300000) + 'e'
+    send_date = 's' + (str(content) * 1000) + 'e'
 
     # content前10个字符串用于标识内容长度.
     response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
