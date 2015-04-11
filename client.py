@@ -7,14 +7,14 @@ from gevent import socket
 
 def client(content):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('10.0.0.10', 7777))
-    # sock.connect(('127.0.0.1', 7777))
+    # sock.connect(('10.0.0.10', 7777))
+    sock.connect(('127.0.0.1', 7777))
 
-    send_date = 's' + (str(content) * 20000) + 'e'
+    send_date = 's' + (str(content) * 5000) + 'e'
 
     # content前10个字符串用于标识内容长度.
     response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
-    sock.send(response_len + send_date)
+    sock.sendall(response_len + send_date)
     print 1
     buff_size = 1024
     data = sock.recv(buff_size)
@@ -23,7 +23,9 @@ def client(content):
     # content前10个字符串用于标识内容长度.
     data_len = int(data[0:10])
     while len(data) < data_len:
-        data += sock.recv(buff_size)
+        s = sock.recv(buff_size)
+        print s
+        data += s
 
     print data
 

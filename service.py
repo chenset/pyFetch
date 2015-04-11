@@ -30,7 +30,7 @@ def socket_accept(sock, address):
 
         # send content前10个字符串用于标识内容长度.
         response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
-        sock.send(response_len + send_date)
+        sock.sendall(response_len + send_date)
         sock.shutdown(socket.SHUT_WR)
     except Exception, error:
         print error
