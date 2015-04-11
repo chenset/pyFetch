@@ -26,7 +26,7 @@ def socket_accept(sock, address):
         while len(data) < data_len:
             data += sock.recv(buff_size)
 
-        send_date = handle_request(data, address)
+        send_date = str(handle_request(data, address))
 
         # send content前10个字符串用于标识内容长度.
         response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
