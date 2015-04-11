@@ -7,7 +7,6 @@ from gevent import socket
 
 def server(port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(10)
     sock.bind(('0.0.0.0', port))
     sock.listen(256)
     while True:
