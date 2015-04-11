@@ -23,7 +23,6 @@ def handle_request(s):
             data += s.recv(buff_size)
 
         send_date = str(data)
-        print send_date
 
         # send content前10个字符串用于标识内容长度.
         response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]

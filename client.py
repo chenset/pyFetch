@@ -8,7 +8,7 @@ from gevent import socket
 
 def client(content):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('127.0.0.1', 7777))
+    sock.connect(('10.0.0.10', 7777))
 
     send_date = 's' + (str(content) * 300000) + 'e'
 
