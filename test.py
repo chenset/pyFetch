@@ -182,10 +182,6 @@ class Spider(Thread):
         return self.kit.put_data([self.url], queue_list, match_list)
 
 
-class Empty():
-    pass
-
-
 # spider1 = Spider(Empty())
 
 class Crawl():
@@ -205,8 +201,7 @@ class Crawl():
 
     def http_get(self):
         if self.num > 20:
-            self.cookie = cookielib.CookieJar()
-            self.session_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie))
+            self.new_cookie()
             self.num = 1
 
         self.num += 1
@@ -235,6 +230,9 @@ class Crawl():
             return None
         self.failures = 0
         return content
+
+crawl = Crawl()
+print crawl.http_get()
 
 
 print str(round((time.time() - timeStart) * 1000, 3)) + 'ms'
