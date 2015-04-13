@@ -2,6 +2,7 @@
 
 # -*-coding:utf-8 -*-
 import time
+import json
 
 timeStart = time.time()
 
@@ -239,9 +240,14 @@ class Crawl():
         return content, response.code
 
 
-crawl = Crawl()
-for i in xrange(10):
-    print crawl.http_get('http://www.flysay.com')[1]
+# crawl = Crawl()
+# for i in xrange(10):
+# print crawl.http_get('http://www.flysay.com')[1]
+
+import requests
+
+response = requests.get('http://www.douban.com')
+print response.status_code
 
 print str(round((time.time() - timeStart) * 1000, 3)) + 'ms'
 
