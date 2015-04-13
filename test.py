@@ -185,10 +185,9 @@ class Spider(Thread):
 # spider1 = Spider(Empty())
 
 class Crawl():
-    url = 'http://movie.douban.com/tag/'
+    url = ''
     host_url = ''
     num = 0
-    failures = 0
     cookie = None
     session_opener = None
 
@@ -199,41 +198,50 @@ class Crawl():
         self.cookie = cookielib.CookieJar()
         self.session_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie))
 
-    def http_get(self):
-        if self.num > 20:
+    def http_get(self, url):
+        self.url = url
+        if self.num >= 3:
             self.new_cookie()
-            self.num = 1
+            self.num = 0
 
         self.num += 1
+
+        user_agent = [
+            'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
+            'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 ' +
+            '(KHTML, like Gecko) Chrome/30.0.1599.69 Safari/537.36',
+            'User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) ' +
+            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36',
+        ]
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
             'Accept-Encoding': 'gzip',
             'Accept-Language': 'zh-CN,zh;q=0.8',
             'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.69 Safari/537.36'
+            'User-Agent': random.choice(user_agent),
         }
 
         try:
             req = urllib2.Request(self.url, headers=headers)
             response = self.session_opener.open(req, timeout=10)
-            print response.info()
+            # print req.header_items()
             content = response.read()
-            content = zlib.decompress(content, 16 + zlib.MAX_WBITS)
+
+            if str(response.headers).find('gzip') != -1:
+                content = zlib.decompress(content, 16 + zlib.MAX_WBITS)
+
         except urllib2.HTTPError, e:
-            self.failures += 1
-            print 'HTTP Code: ' + str(e.code)
-            return None
+            return None, e.code
         except Exception, e:
-            self.failures += 1
-            print traceback.format_exc()
-            return None
-        self.failures = 0
-        return content
+            # print traceback.format_exc()
+            return None, 400
+        return content, response.code
+
 
 crawl = Crawl()
-print crawl.http_get()
-
+for i in xrange(10):
+    print crawl.http_get('http://www.flysay.com')[1]
 
 print str(round((time.time() - timeStart) * 1000, 3)) + 'ms'
 
