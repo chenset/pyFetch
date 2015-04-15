@@ -244,11 +244,30 @@ class Crawl():
 # for i in xrange(10):
 # print crawl.http_get('http://www.flysay.com')[1]
 
-import requests
+# import requests
 
-response = requests.get('http://www.douban.com')
-print response.status_code
+# response = requests.get('http://www.douban.com')
+# print response.status_code
 
+import pymongo
+
+client = pymongo.MongoClient("localhost", 27017)
+db = client.test
+
+print db.name
+print db.my_collection
+print db.my_collection.insert_one({"x": 10}).inserted_id
+print db.my_collection.insert_one({"x": 8}).inserted_id
+print db.my_collection.insert_one({"x": 11}).inserted_id
+print db.my_collection.find_one()
+for item in db.my_collection.find():
+    print item["x"]
+
+db.my_collection.create_index("x")
+for item in db.my_collection.find().sort("x", pymongo.ASCENDING):
+    print item["x"]
+
+print [item["x"] for item in db.my_collection.find().limit(2).skip(1)]
 print str(round((time.time() - timeStart) * 1000, 3)) + 'ms'
 
 
