@@ -251,7 +251,7 @@ class Crawl():
 
 import pymongo
 
-client = pymongo.MongoClient("localhost", 27017)
+client = pymongo.MongoClient("172.16.16.16", 27017)
 db = client.test
 
 print db.name
