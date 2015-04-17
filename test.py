@@ -225,6 +225,8 @@ class Crawl():
 
         try:
             req = urllib2.Request(self.url, headers=headers)
+
+
             response = self.session_opener.open(req, timeout=10)
             # print req.header_items()
             content = response.read()
