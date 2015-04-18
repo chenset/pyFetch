@@ -1,6 +1,8 @@
+# coding=utf-8
 import requests
 import random
 import time
+import json
 
 
 class Crawl():
@@ -65,6 +67,126 @@ class Crawl():
             return req.text, req.status_code, round((time.time() - start_time) * 1000, 2)
 
 
+class DataKit():
+    sock = None
+
+    def __init__(self):
+        # self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+        # self.sock.connect(('172.16.16.99', 9999))
+        pass
+
+    def get_patterns(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+        sock.connect(('121.40.78.16', 9999))
+        data = {
+            'username': 'dsfsdfsdf',
+            'password': 'fgdgd_fdsf_fdsf.gfd',
+            'function': {
+                'method': 'get_patterns',
+            }
+        }
+
+        try:
+            sock.send(json.dumps(data) + 'end[\ddd*&^@#$')
+            json_string = sock.recv(1024)
+            response = json.loads(json_string)
+        except:
+            print traceback.format_exc()
+            sock.close()
+            return None
+
+        if not bool(response['success']):
+            print response['msg']  # 失败处理
+            sock.close()
+            return None
+
+        if not response.has_key('scan_url'):
+            print '------------------------ get_patterns ----------- start -------------'
+            print response
+            print '------------------------ get_patterns ----------- end ---------------'
+            sock.close()
+            return None
+        sock.close()
+        return response
+
+    def get_data(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+        sock.connect(('121.40.78.16', 9999))
+
+        data = {
+            'username': 'dsfsdfsdf',
+            'password': 'fgdgd_fdsf_fdsf.gfd',
+            'function': {
+                'method': 'get',
+            }
+        }
+
+        try:
+            sock.send(json.dumps(data) + 'end[\ddd*&^@#$')
+            json_string = sock.recv(1024)
+            response = json.loads(json_string)
+        except:
+            print traceback.format_exc()
+            sock.close()
+            return None
+
+        if not bool(response['success']):
+            print response['msg']  # 失败处理
+            return None
+
+        if not response.has_key('url'):
+            print '------------------------ get_data ----------- start -------------'
+            print response
+            print '------------------------ get_data ----------- end ---------------'
+            sock.close()
+            return None
+
+        sock.close()
+        return response['url']
+
+    def put_data(self, parsed, urls_queue, matched=()):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+        sock.connect(('121.40.78.16', 9999))
+
+        data = {
+            'username': 'dsfsdfsdf',
+            'password': 'fgdgd_fdsf_fdsf.gfd',
+            'function': {
+                'method': 'put',
+                'urls_parsed': [],
+                'urls_queue': [],
+                'urls_matched': [],
+            }
+        }
+
+        for url in parsed:
+            data['function']['urls_parsed'].append(url)
+
+        for url in urls_queue:
+            data['function']['urls_queue'].append(url)
+
+        for url in matched:
+            data['function']['urls_matched'].append(url)
+
+        # print data
+        try:
+            sock.send(json.dumps(data) + 'end[\ddd*&^@#$')
+            json_string = sock.recv(1024)
+            response = json.loads(json_string)
+        except:
+            print traceback.format_exc()
+            sock.close()
+            return None
+
+        if not bool(response['success']):
+            print response['msg']  # 失败处理
+            sock.close()
+            return None
+
+        sock.close()
+        return response
+
+
 class Spider:
     handle_method = {}
 
@@ -80,6 +202,12 @@ class Spider:
     def crawl(self, url):
         crawl = Crawl()
         print crawl.get(url)
+
+    def get_url(self):
+        pass
+
+    def put_url(self):
+        pass
 
     def start(self, func):
         self.handle_method['start'] = func

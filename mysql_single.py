@@ -2,8 +2,10 @@ import MySQLdb
 
 
 class Mysql:
-    instance = None
     conn = None
+    cursor = None
+    cursor = None
+    cursor = None
     cursor = None
 
     def __init__(self):
@@ -14,7 +16,7 @@ class Mysql:
         mysql = Mysql.get_instance()
         return mysql.conn
 
-    @staticmethod
+    @staticmethod	
     def get_instance():
         if Mysql.instance is None:
             Mysql.instance = Mysql()

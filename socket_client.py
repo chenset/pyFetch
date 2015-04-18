@@ -5,7 +5,7 @@ import time
 from gevent import socket
 
 
-def client(content):
+def socket_client(content):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # sock.connect(('10.0.0.10', 7777))
     sock.connect(('127.0.0.1', 7777))
@@ -34,7 +34,7 @@ def client(content):
 start_time = time.time()
 pool = []
 for i in xrange(100):
-    pool.append(gevent.spawn(client, str(i) + '你好'))
+    pool.append(gevent.spawn(socket_client, str(i) + '你好'))
 
 gevent.joinall(pool)
 print round((time.time() - start_time) * 1000, 2), 'ms'

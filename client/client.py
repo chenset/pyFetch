@@ -252,21 +252,6 @@ class Spider(Thread):
             return None
         self.failures = 0
         return content
-        #
-        # try:
-        #
-        #     req = urllib2.Request(self.url, headers=headers)
-        #
-        #     content = urllib2.urlopen(req, timeout=10).read()  # todo 超时的异常处理 !
-        #
-        #     content = zlib.decompress(content, 16 + zlib.MAX_WBITS)
-        # except urllib2.HTTPError, e:
-        #     print 'HTTP Code: ' + str(e.code)
-        #     return None
-        # except:
-        #     print traceback.format_exc()
-        #     return None
-        # return content
 
     def filter_urls(self, url_list):
         """
