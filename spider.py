@@ -3,6 +3,7 @@ import requests
 import random
 import time
 import json
+from socket_client import socket_client
 
 
 class Crawl():
@@ -41,12 +42,12 @@ class Crawl():
         }
 
     def post(self, url, params=()):
-        return self.request('post', url, params)
+        return self.__request('post', url, params)
 
     def get(self, url, params=()):
-        return self.request('get', url, params)
+        return self.__request('get', url, params)
 
-    def request(self, method, url, params=()):
+    def __request(self, method, url, params=()):
 
         self.url = url
 
@@ -68,129 +69,52 @@ class Crawl():
 
 
 class DataKit():
-    sock = None
-
     def __init__(self):
-        # self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-        # self.sock.connect(('172.16.16.99', 9999))
         pass
 
-    def get_patterns(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-        sock.connect(('121.40.78.16', 9999))
-        data = {
-            'username': 'dsfsdfsdf',
-            'password': 'fgdgd_fdsf_fdsf.gfd',
-            'function': {
-                'method': 'get_patterns',
-            }
-        }
-
-        try:
-            sock.send(json.dumps(data) + 'end[\ddd*&^@#$')
-            json_string = sock.recv(1024)
-            response = json.loads(json_string)
-        except:
-            print traceback.format_exc()
-            sock.close()
-            return None
-
-        if not bool(response['success']):
-            print response['msg']  # 失败处理
-            sock.close()
-            return None
-
-        if not response.has_key('scan_url'):
-            print '------------------------ get_patterns ----------- start -------------'
-            print response
-            print '------------------------ get_patterns ----------- end ---------------'
-            sock.close()
-            return None
-        sock.close()
-        return response
-
     def get_data(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-        sock.connect(('121.40.78.16', 9999))
-
         data = {
-            'username': 'dsfsdfsdf',
-            'password': 'fgdgd_fdsf_fdsf.gfd',
-            'function': {
-                'method': 'get',
-            }
+            'method': 'get',
         }
+        return self.__request(data)
 
-        try:
-            sock.send(json.dumps(data) + 'end[\ddd*&^@#$')
-            json_string = sock.recv(1024)
-            response = json.loads(json_string)
-        except:
-            print traceback.format_exc()
-            sock.close()
-            return None
-
-        if not bool(response['success']):
-            print response['msg']  # 失败处理
-            return None
-
-        if not response.has_key('url'):
-            print '------------------------ get_data ----------- start -------------'
-            print response
-            print '------------------------ get_data ----------- end ---------------'
-            sock.close()
-            return None
-
-        sock.close()
-        return response['url']
-
-    def put_data(self, parsed, urls_queue, matched=()):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-        sock.connect(('121.40.78.16', 9999))
+    def put_data(self, parsed=(), urls_queue=(), matched=()):
 
         data = {
-            'username': 'dsfsdfsdf',
-            'password': 'fgdgd_fdsf_fdsf.gfd',
-            'function': {
-                'method': 'put',
-                'urls_parsed': [],
-                'urls_queue': [],
-                'urls_matched': [],
-            }
+            'method': 'put',
+            'urls_parsed': [],
+            'urls_queue': [],
+            'urls_matched': [],
         }
 
         for url in parsed:
-            data['function']['urls_parsed'].append(url)
+            data['urls_parsed'].append(url)
 
         for url in urls_queue:
-            data['function']['urls_queue'].append(url)
+            data['urls_queue'].append(url)
 
         for url in matched:
-            data['function']['urls_matched'].append(url)
+            data['urls_matched'].append(url)
 
-        # print data
+        return self.__request(data)
+
+    @staticmethod
+    def __request(data):
         try:
-            sock.send(json.dumps(data) + 'end[\ddd*&^@#$')
-            json_string = sock.recv(1024)
+            json_string = socket_client(json.dumps(data))
             response = json.loads(json_string)
         except:
-            print traceback.format_exc()
-            sock.close()
             return None
-
-        if not bool(response['success']):
-            print response['msg']  # 失败处理
-            sock.close()
-            return None
-
-        sock.close()
-        return response
+        else:
+            return response
 
 
 class Spider:
     handle_method = {}
+    DataKit = None
 
     def __init__(self):
+        self.DataKit = DataKit()
         pass
 
     def run(self):
@@ -200,8 +124,9 @@ class Spider:
         self.handle_method['start']()
 
     def crawl(self, url):
-        crawl = Crawl()
-        print crawl.get(url)
+        print self.DataKit.put_data(urls_queue=(url,))
+        # crawl = Crawl()
+        # print crawl.get(url)
 
     def get_url(self):
         pass

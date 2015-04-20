@@ -2,7 +2,6 @@ from spider import Spider
 
 app = Spider()
 
-
 @app.start
 def start():
     app.crawl('http://www.douban.com')

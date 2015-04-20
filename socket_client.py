@@ -1,10 +1,11 @@
 # coding=utf-8
-import gevent
-import sys
-import time
+# import gevent
+# import sys
+# import time
 import zlib
 import base64
-from gevent import socket
+import socket
+# from gevent import socket
 
 
 def socket_client(content):
@@ -24,21 +25,20 @@ def socket_client(content):
     data_len = int(data[0:10])
     while len(data) < data_len:
         s = sock.recv(buff_size)
-        print s
         data += s
 
     data = zlib.decompress(base64.b64decode(data[10:]))  # 解码解压
 
-    print data
-
     sock.close()
 
+    return data
 
-start_time = time.time()
-pool = []
-for i in xrange(2):
-    pool.append(gevent.spawn(socket_client, str(i) + '你好'))
-
-gevent.joinall(pool)
-
-print round((time.time() - start_time) * 1000, 2), 'ms'
+#
+# start_time = time.time()
+# pool = []
+# for i in xrange(2):
+#     pool.append(gevent.spawn(socket_client, str(i) + '你好'))
+#
+# gevent.joinall(pool)
+#
+# print round((time.time() - start_time) * 1000, 2), 'ms'
