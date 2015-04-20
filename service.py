@@ -1,6 +1,8 @@
 # coding=utf-8
 import gevent
 import time
+import zlib
+import base64
 from gevent import socket
 
 
@@ -26,8 +28,9 @@ def socket_accept(sock, address):
         while len(data) < data_len:
             data += sock.recv(buff_size)
 
-        send_date = str(handle_request(data, address))
-
+        data = zlib.decompress(base64.b64decode(data[10:]))  # 解码解压
+        send_date = str(handle_request(data, address))  # 内容处理函数
+        send_date = base64.b64encode(zlib.compress(send_date))  # 压缩编码
         # send content前10个字符串用于标识内容长度.
         response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
         sock.sendall(response_len + send_date)
