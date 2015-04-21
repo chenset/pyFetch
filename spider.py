@@ -3,7 +3,15 @@ import requests
 import random
 import time
 import json
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 from socket_client import socket_client
+
+
+def echo_err(msg):
+    sys.stderr.write(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ' ' + msg + '\r\n')
 
 
 class Crawl():
@@ -78,13 +86,13 @@ class DataKit():
         }
         return self.__request(data)
 
-    def put_data(self, parsed=(), urls_queue=(), matched=()):
+    def put_data(self, parsed=(), urls_queue=(), save=()):
 
         data = {
             'method': 'put',
             'urls_parsed': [],
             'urls_queue': [],
-            'urls_matched': [],
+            'save': [],
         }
 
         for url in parsed:
@@ -93,8 +101,8 @@ class DataKit():
         for url in urls_queue:
             data['urls_queue'].append(url)
 
-        for url in matched:
-            data['urls_matched'].append(url)
+        if save:
+            data['save'].append(save)
 
         return self.__request(data)
 
@@ -110,35 +118,64 @@ class DataKit():
 
 
 class Spider:
-    handle_method = {}
+    handle_method = None
     DataKit = None
+    pre_url_queue = []
+    Crawl = None
 
     def __init__(self):
         self.DataKit = DataKit()
-        pass
+        self.Crawl = Crawl()
 
-    def run(self):
-        if "start" not in self.handle_method:
-            raise Exception('Define "start()" method first')
+    def run(self, func):
+        self.handle_method = func
+        while True:
+            # todo 需要些速度控制方法.
 
-        self.handle_method['start']()
+            url = self.__get_queue_url()
+            if not url:
+                break
+                # continue
+            crawl_result = self.Crawl.get(url)
+            if crawl_result[1] not in (200, 201):
+                echo_err(
+                    'URL: ' + url + ' 获取失败 HTTP code: ' + str(crawl_result[1]) + ' Runtime: ' + str(
+                        crawl_result[2]) + 'ms')
+                break
+                # continue
+
+            # 如果抓取自定义函数存在dict返回值则将dict推送至服务器
+            parse_result = self.handle_method(crawl_result[0])
+            if not isinstance(parse_result, dict):
+                break
+                # continue
+
+            if 'url' not in parse_result:
+                parse_result['url'] = url
+            if 'runtime' not in parse_result:
+                parse_result['runtime'] = crawl_result[2]
+            self.DataKit.put_data(save=parse_result)
+
 
     def crawl(self, url):
         print self.DataKit.put_data(urls_queue=(url,))
         # crawl = Crawl()
         # print crawl.get(url)
 
-    def get_url(self):
-        pass
+    def __get_queue_url(self):
+        """
+        每次从本地队列返回一条将要爬去的url
+        :return:url|None
+        """
+        while not self.pre_url_queue:
+            response = self.DataKit.get_data()
+            if not response:  # 服务器响应异常
+                echo_err('远程响应异常, 60秒后重试')
+                time.sleep(60)
 
-    def put_url(self):
-        pass
-
-    def start(self, func):
-        self.handle_method['start'] = func
-
-    def page(self, func):
-        self.handle_method['page'] = func
-
-    def save(self, func):
-        self.handle_method['save'] = func
+            if 'urls' not in response:
+                echo_err('无法从远程获取url队列, 10秒后重试 ' + response['msg'] or '')
+                time.sleep(10)  # 取不到数据等待10秒重试
+            else:
+                self.pre_url_queue += response['urls']
+                return self.pre_url_queue.pop(0)  # 出栈首位

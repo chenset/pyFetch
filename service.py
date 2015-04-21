@@ -3,12 +3,30 @@ import gevent
 import time
 import zlib
 import base64
+import json
 from gevent import socket
 
 
 def handle_request(data, address):
-    print address
-    return data
+    request = json.loads(data)
+    if not request or 'method' not in request:
+        return json.dumps({'msg': '无法识别的请求'})
+
+    if request['method'] == 'get':
+        return json.dumps({'msg': '获取成功', 'urls': [
+            'http://www.douban.com/',
+            'http://movie.douban.com/subject/23761370/',
+            'http://movie.douban.com/subject/23761360/',
+            'http://movie.douban.com/subject/23761350/',
+            'http://movie.douban.com/subject/23761340/',
+            'http://movie.douban.com/subject/23761330/',
+            'http://movie.douban.com/subject/23761320/',
+            'http://movie.douban.com/subject/23761310/',
+            'http://movie.douban.com/subject/23761380/',
+            'http://movie.douban.com/subject/23761390/',
+        ]})
+
+    return json.dumps({'msg': '无法识别的请求'})
 
 
 def socket_server(host, port):
