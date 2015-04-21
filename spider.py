@@ -164,7 +164,7 @@ class Spider:
 
     def __get_queue_url(self):
         """
-        每次从本地队列返回一条将要爬去的url
+        每次从本地队列返回一条将要抓取的url
         :return:url|None
         """
         while not self.pre_url_queue:
@@ -178,4 +178,5 @@ class Spider:
                 time.sleep(10)  # 取不到数据等待10秒重试
             else:
                 self.pre_url_queue += response['urls']
-                return self.pre_url_queue.pop(0)  # 出栈首位
+
+        return self.pre_url_queue.pop(0)  # 出栈首位
