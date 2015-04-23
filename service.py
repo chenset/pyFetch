@@ -23,9 +23,11 @@ class DB():
 
 
 class UrlQueue():
-    queue = [
+    queue_urls = [
         'http://www.douban.com/',
     ]
+
+    queue_parsed = []
 
     def __init__(self):
         pass
@@ -34,16 +36,23 @@ class UrlQueue():
         urls = []
         for i in xrange(2):
             try:
-                urls += [self.queue.pop(0)]
+                urls += [self.queue_urls.pop(0)]
             except:
                 pass
 
-        print 'urls count: ', len(self.queue)
+        print 'urls count: ', len(self.queue_urls)
+        print 'urls parsed count: ', len(self.queue_parsed)
         return urls
+
+    def add_parsed(self, urls=()):
+        try:
+            self.queue_parsed += urls
+        except:
+            pass
 
     def add(self, urls=()):
         try:
-            self.queue += urls
+            self.queue_urls += urls
         except:
             pass
 
@@ -61,6 +70,9 @@ def handle_request(data, address):
         return json.dumps({'msg': '获取成功', 'urls': queue.get()})
 
     if request['method'] == 'put':
+        if 'urls_parsed' in request and request['urls_parsed']:
+            queue.add_parsed(request['urls_parsed'])
+
         if 'urls_add' in request and request['urls_add']:
             queue.add(request['urls_add'])
 

@@ -264,7 +264,6 @@ class Spider(Thread):
             # 1.先转换url格式
             if url.startswith('.'):  # 以点开头的url
                 u = self.url.rstrip('/') + "/" + url.lstrip('./')
-                pass
             elif url.startswith('/'):  # 以根开头的url
                 u = self.host_url.rstrip('/') + "/" + url.lstrip('/')
             else:  # 正常更是的url http开头

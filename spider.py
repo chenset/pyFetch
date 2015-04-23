@@ -4,6 +4,7 @@ import random
 import time
 import json
 import sys
+import urllib2
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -86,7 +87,7 @@ class DataKit():
         }
         return self.__request(data)
 
-    def put_data(self, parsed=(), urls_add=(), save=()):
+    def put_data(self, urls_parsed=(), urls_add=(), save=()):  # todo 实时推送, 效率不佳. 应该一定量后再推送
 
         data = {
             'method': 'put',
@@ -95,7 +96,7 @@ class DataKit():
             'save': [],
         }
 
-        for url in parsed:
+        for url in urls_parsed:
             data['urls_parsed'].append(url)
 
         for url in urls_add:
@@ -122,25 +123,34 @@ class Spider:
     DataKit = None
     pre_url_queue = []
     Crawl = None
+    current_url = ''  # 当前url
 
     def __init__(self):
         self.DataKit = DataKit()
         self.Crawl = Crawl()
+
+    @staticmethod
+    def __get_url_host(url):
+        protocol, rest = urllib2.splittype(url)
+        host, rest = urllib2.splithost(rest)
+
+        return protocol + "://" + host
 
     def run(self, func):
         self.handle_method = func
         while True:
             # todo 需要些速度控制方法.
 
-            url = self.__get_queue_url()
-            print url
-            if not url:
+            self.current_url = self.__get_queue_url()
+            print self.current_url
+            if not self.current_url:
                 # break
                 continue
-            crawl_result = self.Crawl.get(url)
+            crawl_result = self.Crawl.get(self.current_url)
+            self.DataKit.put_data(urls_parsed=[self.current_url, ])
             if crawl_result[1] not in (200, 201):
                 echo_err(
-                    'URL: ' + url + ' 获取失败 HTTP code: ' + str(crawl_result[1]) + ' Runtime: ' + str(
+                    'URL: ' + self.current_url + ' 获取失败 HTTP code: ' + str(crawl_result[1]) + ' Runtime: ' + str(
                         crawl_result[2]) + 'ms')
                 # break
                 continue
@@ -152,7 +162,7 @@ class Spider:
                 continue
 
             if 'url' not in parse_result:
-                parse_result['url'] = url
+                parse_result['url'] = self.current_url
             if 'runtime' not in parse_result:
                 parse_result['runtime'] = crawl_result[2]
 
@@ -165,6 +175,11 @@ class Spider:
         :param string url:
         :return:
         """
+        # 转换非完整的url格式
+        if url.startswith('.'):  # 以点开头的相对url地址
+            url = self.current_url.rstrip('/') + "/" + url.lstrip('./')
+        elif url.startswith('/'):  # 以根开头的绝对url地址
+            url = self.__get_url_host(self.current_url).rstrip('/') + "/" + url.lstrip('/')
 
         self.DataKit.put_data(urls_add=(url,))
 
