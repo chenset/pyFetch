@@ -5,83 +5,61 @@ import zlib
 import base64
 import json
 from gevent import socket
-
-
-class DB():
-    data = []
-
-    def __init__(self):
-        pass
-
-    def add(self, data=()):
-        try:
-            self.data += data
-        except:
-            pass
-
-        print 'DB data: ', self.data
-
-
-class UrlQueue():
-    queue_urls = [
-        'http://www.douban.com/',
-    ]
-
-    queue_parsed = []
-
-    def __init__(self):
-        pass
-
-    def get(self):
-        urls = []
-        for i in xrange(2):
-            try:
-                urls += [self.queue_urls.pop(0)]
-            except:
-                pass
-
-        print 'urls count: ', len(self.queue_urls)
-        print 'urls parsed count: ', len(self.queue_parsed)
-        return urls
-
-    def add_parsed(self, urls=()):
-        try:
-            self.queue_parsed += urls
-        except:
-            pass
-
-    def add(self, urls=()):
-        try:
-            self.queue_urls += urls
-        except:
-            pass
-
-
-queue = UrlQueue()
-db = DB()
+from mongo_single import Mongo
 
 
 def handle_request(data, address):
     request = json.loads(data)
-    if not request or 'method' not in request:
-        return json.dumps({'msg': '无法识别的请求'})
 
-    if request['method'] == 'get':
-        return json.dumps({'msg': '获取成功', 'urls': queue.get()})
+    response_url_list = []
+    if 'get_urls' in request:
+        ids = []
+        for doc in Mongo.get().queue.find({'flag_time': {'$lt': int(time.time() - 300)}}).limit(
+                10):  # 取标识时间早于当前时间300秒之前的url
+            ids.append(doc['_id'])
+            response_url_list.append(doc['url'])
 
-    if request['method'] == 'put':
-        if 'urls_parsed' in request and request['urls_parsed']:
-            queue.add_parsed(request['urls_parsed'])
+        # todo 多线程情况下, 这里线程非安全
+        ids and Mongo.get().queue.update({'_id': {'$in': ids}}, {'$set': {'flag_time': int(time.time())}},
+                                         multi=True)
 
-        if 'urls_add' in request and request['urls_add']:
-            queue.add(request['urls_add'])
+        # todo 没有地址的情况下给一个  test !!
+        if not response_url_list:
+            response_url_list.append('http://www.douban.com/')
 
-        if 'save' in request and request['save']:
-            db.add(request['save'])
+    if 'urls_parsed' in request and request['urls_parsed']:
+        urls_data = []
+        url_list = []
+        for url in request['urls_parsed']:
+            url_list.append(url)
+            urls_data.append({'url': url, 'add_time': int(time.time()), 'slave_ip': address[0]})
 
-        return json.dumps({'msg': '推送成功'})
+        Mongo.get().queue.remove({'url': {'$in': url_list}}, multi=True)  # 删除抓取完毕的队列
 
-    return json.dumps({'msg': '无法识别的请求'})
+        urls_data and Mongo.get().parsed.insert(urls_data)
+
+    if 'urls_add' in request and request['urls_add']:
+        url_list = []
+        for url in request['urls_add']:
+            url_list.append(url)
+
+        url_list = list(set(url_list))
+
+        exist_url_list = []
+        for doc in Mongo.get().queue.find({'url': {'$in': url_list}}):
+            exist_url_list.append(doc['url'])
+
+        urls_data = []
+        for url in url_list:
+            if url not in exist_url_list:
+                urls_data.append({'url': url, 'flag_time': 0, 'add_time': int(time.time()), 'slave_ip': address[0]})
+
+        urls_data and Mongo.get().queue.insert(urls_data)
+
+    if 'save' in request and request['save'] and isinstance(request['save'], dict):
+        Mongo.get().result.insert(request['save'])
+
+    return json.dumps({'msg': '获取成功', 'urls': response_url_list})
 
 
 def socket_server(host, port):

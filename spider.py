@@ -78,34 +78,35 @@ class Crawl():
 
 
 class DataKit():
-    def __init__(self):
-        pass
+    data = {}
 
-    def get_data(self):
-        data = {
-            'method': 'get',
-        }
-        return self.__request(data)
-
-    def put_data(self, urls_parsed=(), urls_add=(), save=()):  # todo 实时推送, 效率不佳. 应该一定量后再推送
-
-        data = {
-            'method': 'put',
+    def __init_data(self):
+        self.data = {
+            'get_urls': 1,
             'urls_parsed': [],
             'urls_add': [],
             'save': [],
         }
 
+    def __init__(self):
+        self.__init_data()
+
+    def get_data(self):
+        response = self.__request(self.data)
+        if response:
+            self.__init_data()
+
+        return response
+
+    def put_data(self, urls_parsed=(), urls_add=(), save=()):
         for url in urls_parsed:
-            data['urls_parsed'].append(url)
+            self.data['urls_parsed'].append(url)
 
         for url in urls_add:
-            data['urls_add'].append(url)
+            self.data['urls_add'].append(url)
 
         if save:
-            data['save'].append(save)
-
-        return self.__request(data)
+            self.data['save'].append(save)
 
     @staticmethod
     def __request(data):

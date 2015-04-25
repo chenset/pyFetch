@@ -1,10 +1,13 @@
 from spider import Spider
 import re
+import time
 
 app = Spider()
 
 
 def page(html):
+    # time.sleep(4)
+
     patt = r'<a[^>]+href="([(\.|h|/)][^"]+)"[^>]*>[^<]+</a>'
 
     r = re.compile(patt)
@@ -15,7 +18,6 @@ def page(html):
     return {
         'ddd': 111,
     }
-
 
 app.run(page)
 

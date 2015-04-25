@@ -1,19 +1,18 @@
 import pymongo
 
 
-class DB:
+class Mongo:
     instance = None
     conn = None
     cursor = None
 
     def __init__(self):
-        self.conn = pymongo.MongoClient("172.16.16.16", 27017).test
+        self.conn = pymongo.MongoClient("127.0.0.1", 27017).test
 
     @staticmethod
     def get():
-        if DB.instance is None:
-            DB.instance = DB()
+        if Mongo.instance is None:
+            Mongo.instance = Mongo()
 
-        return DB.instance.conn
+        return Mongo.instance.conn
 
-print pymongo.MongoClient("172.16.16.16", 27017).test.mycoll.find_one()
