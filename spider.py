@@ -73,6 +73,8 @@ class Crawl():
             return None, str(e.message), round((time.time() - start_time) * 1000, 2)
         except requests.Timeout, e:
             return None, str(e.message), round((time.time() - start_time) * 1000, 2)
+        except Exception, e:
+            return None, str(e.message), round((time.time() - start_time) * 1000, 2)
         else:
             return req.text, req.status_code, round((time.time() - start_time) * 1000, 2)
 
@@ -92,7 +94,11 @@ class DataKit():
         self.__init_data()
 
     def get_data(self):
+        self.data['urls_add'] = list(set(self.data['urls_add']))  # queue 去重
+
+        start_time = time.time()
         response = self.__request(self.data)
+        print round((time.time() - start_time) * 1000, 2), 'ms'
         if response:
             self.__init_data()
 
@@ -141,7 +147,7 @@ class Spider:
         self.handle_method = func
         while True:
             # todo 需要些速度控制方法.
-
+            # todo 需要判断header, 避免下载文件
             self.current_url = self.__get_queue_url()
             print self.current_url
             if not self.current_url:
