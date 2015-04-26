@@ -38,8 +38,10 @@ class Crawl():
             'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
             'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 ' +
             '(KHTML, like Gecko) Chrome/30.0.1599.69 Safari/537.36',
-            'User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) ' +
+            'Mozilla/5.0 (Windows NT 6.3; Win64; x64) ' +
             'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 ' +
+            '(KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36',
         ]
         return {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',

@@ -1,82 +1,32 @@
 # coding=utf-8
 import gevent
-import time
 import zlib
 import base64
 import json
-import binascii
-import hashlib
+from ser_handle import SerHandle
 from gevent import socket
-from mongo_single import Mongo
-
-
-def md5(s):
-    __md5 = hashlib.md5()
-    __md5.update(str(s))
-    return __md5.hexdigest()
+import traceback
 
 
 def handle_request(data, address):
     request = json.loads(data)
 
-    response_url_list = []
-    if 'get_urls' in request:
-        ids = []
-        for doc in Mongo.get().queue.find({'flag_time': {'$lt': int(time.time() - 300)}}).limit(
-                10):  # 取标识时间早于当前时间300秒之前的url
-            ids.append(doc['_id'])
-            response_url_list.append(doc['url'])
-
-        # todo 多线程情况下, 这里线程非安全
-        ids and Mongo.get().queue.update({'_id': {'$in': ids}}, {'$set': {'flag_time': int(time.time())}},
-                                         multi=True)
-
-        # todo
-
-        # todo 没有地址的情况下给一个  test !!
-        if not response_url_list:
-            response_url_list.append('http://www.douban.com/')
+    handle = SerHandle(request, address)
 
     if 'urls_parsed' in request and request['urls_parsed']:
-        urls_data = []
-        url_list = []
-        for url in request['urls_parsed']:
-            url_list.append(url)
-            urls_data.append(
-                {'url': url, 'url_md5': md5(url), 'add_time': int(time.time()), 'slave_ip': address[0]})
-
-        Mongo.get().queue.remove({'url_md5': {'$in': [md5(l) for l in url_list]}}, multi=True)  # 删除抓取完毕的队列
-
-        urls_data and Mongo.get().parsed.insert(urls_data)
+        handle.urls_parsed()
 
     if 'urls_add' in request and request['urls_add'] and isinstance(request['urls_add'], list):
-        urls_add_start_time = time.time()
-        url_list = list(set(request['urls_add']))  # 去重
+        handle.urls_add()
 
-        # 已存在queue中的
-        exist_queue_url_list = []
-        for doc in Mongo.get().queue.find({'url_md5': {'$in': [md5(l) for l in url_list]}}):
-            exist_queue_url_list.append(doc['url'])
+    if 'save' in request and request['save'] and isinstance(request['save'], list):
+        handle.result_save()
 
-        # 已存在parsed中的
-        exist_parsed_url_list = []
-        for doc in Mongo.get().parsed.find({'url': {'$in': [md5(l) for l in url_list]}}):
-            exist_parsed_url_list.append(doc['url'])
+        response_url_list = []
+    if 'get_urls' in request:
+        response_url_list = handle.get_urls()
 
-        # 加入队列
-        urls_data = []
-        for url in url_list:
-            if url not in exist_queue_url_list and url not in exist_parsed_url_list:  # 不存在queue不存在parsed中才加入队列
-                urls_data.append({'url': url, 'url_md5': md5(url), 'flag_time': 0, 'add_time': int(time.time()),
-                                  'slave_ip': address[0]})
-
-        urls_data and Mongo.get().queue.insert(urls_data)
-        print round((time.time() - urls_add_start_time) * 1000, 2), ' ms'
-
-    if 'save' in request and request['save'] and isinstance(request['save'], dict):
-        Mongo.get().result.insert(request['save'])
-
-    return json.dumps({'msg': '获取成功', 'urls': response_url_list})
+    return json.dumps({'msg': '', 'urls': response_url_list})
 
 
 def socket_server(host, port):
@@ -104,6 +54,7 @@ def socket_accept(sock, address):
         sock.sendall(response_len + send_date)
         sock.shutdown(socket.SHUT_WR)
     except Exception, error:
+        print traceback.format_exc()
         print error
     finally:
 
