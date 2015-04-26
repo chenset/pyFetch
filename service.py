@@ -8,7 +8,7 @@ from gevent import socket
 import traceback
 
 
-def handle_request(data, address):
+def request_handle(data, address):
     request = json.loads(data)
 
     handle = SerHandle(request, address)
@@ -22,7 +22,7 @@ def handle_request(data, address):
     if 'save' in request and request['save'] and isinstance(request['save'], list):
         handle.result_save()
 
-        response_url_list = []
+    response_url_list = []
     if 'get_urls' in request:
         response_url_list = handle.get_urls()
 
@@ -47,7 +47,7 @@ def socket_accept(sock, address):
             data += sock.recv(buff_size)
 
         data = zlib.decompress(base64.b64decode(data[10:]))  # 解码解压
-        send_date = str(handle_request(data, address))  # 内容处理函数
+        send_date = str(request_handle(data, address))  # 内容处理函数
         send_date = base64.b64encode(zlib.compress(send_date))  # 压缩编码
         # send content前10个字符串用于标识内容长度.
         response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]

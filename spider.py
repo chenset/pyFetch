@@ -180,7 +180,7 @@ class Spider:
     def crawl(self, url=''):
         """
         仅加入远程待抓取队列
-        self.run()会死循环的从本地队列中获取url进行实际抓取
+        self.run()会循环的从本地队列中获取url进行实际抓取
         :param string url:
         :return:
         """
