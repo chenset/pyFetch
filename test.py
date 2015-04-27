@@ -1,4 +1,10 @@
 # coding=utf-8
+from gevent import monkey
+monkey.patch_all()
+import gevent
+import urllib2
+
+
 import time
 import binascii
 
@@ -47,8 +53,8 @@ start_time = time.time()
 # print m.parsed.ensure_index('url', unique=True)
 # print m.queue.ensure_index('url', unique=True)
 
-for w in xrange(10000):
-    md5('fdsfds个地方回复给回复fdsfsdf士大夫的风格的歌dfs发生的发生的发生fsfsdf' + str(w))
+# for w in xrange(10000):
+# md5('fdsfds个地方回复给回复fdsfsdf士大夫的风格的歌dfs发生的发生的发生fsfsdf' + str(w))
 
 # for i in xrange(11, 20):
 # m.test.insert({'i': i})
@@ -94,5 +100,19 @@ for w in xrange(10000):
 # urls_data.append({'url': url, 'flag_time': 0, 'add_time': time.time(), 'slave_ip': address[0]})
 #
 # urls_data and Mongo.get().queue.insert(urls_data)
+
+
+def f(url):
+    print('GET: %s' % url)
+    resp = urllib2.urlopen(url)
+    data = resp.read()
+    print('%d bytes received from %s.' % (len(data), url))
+
+
+gevent.joinall([
+    gevent.spawn(f, 'http://www.baidu.com/'),
+    gevent.spawn(f, 'http://www.qq.com/'),
+    gevent.spawn(f, 'http://www.sina.com/'),
+])
 
 print round((time.time() - start_time) * 1000, 2)

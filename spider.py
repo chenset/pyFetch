@@ -153,7 +153,6 @@ class Spider:
             self.current_url = self.__get_queue_url()
             print self.current_url
             if not self.current_url:
-                # break
                 continue
             crawl_result = self.Crawl.get(self.current_url)
             self.DataKit.put_data(urls_parsed=[self.current_url, ])
@@ -161,13 +160,11 @@ class Spider:
                 echo_err(
                     'URL: ' + self.current_url + ' 获取失败 HTTP code: ' + str(crawl_result[1]) + ' Runtime: ' + str(
                         crawl_result[2]) + 'ms')
-                # break
                 continue
 
             # 如果抓取自定义函数存在dict返回值则将dict推送至服务器
             parse_result = self.handle_method(crawl_result[0])
             if not isinstance(parse_result, dict):
-                # break
                 continue
 
             if 'url' not in parse_result:
@@ -185,10 +182,11 @@ class Spider:
         :return:
         """
         # 转换非完整的url格式
-        if url.startswith('.'):  # 以点开头的相对url地址
-            url = self.current_url.rstrip('/') + "/" + url.lstrip('./')
-        elif url.startswith('/'):  # 以根开头的绝对url地址
+        if url.startswith('/'):  # 以根开头的绝对url地址
             url = self.__get_url_host(self.current_url).rstrip('/') + "/" + url.lstrip('/')
+
+        if url.startswith('.') or not url.startswith('http'):  # 相对url地址
+            url = self.current_url.rstrip('/') + "/" + url.lstrip('./')
 
         self.DataKit.put_data(urls_add=(url,))
 
