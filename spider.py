@@ -1,4 +1,8 @@
 # coding=utf-8
+from gevent import monkey
+
+monkey.patch_all()
+import gevent
 import requests
 import random
 import time
@@ -99,6 +103,7 @@ class DataKit():
         self.data['urls_add'] = list(set(self.data['urls_add']))  # queue 去重
 
         start_time = time.time()
+
         response = self.__request(self.data)
         print round((time.time() - start_time) * 1000, 2), 'ms'
         if response:
@@ -125,6 +130,18 @@ class DataKit():
             return None
         else:
             return response
+
+
+class S:
+    __spider = None
+    html = ''
+
+    def __init__(self, spider, html):
+        self.__spider = spider
+        self.html = html
+
+    def crawl(self, url):
+        self.__spider.crawl(url)
 
 
 class Spider:
@@ -154,8 +171,8 @@ class Spider:
             print self.current_url
             if not self.current_url:
                 continue
-            crawl_result = self.Crawl.get(self.current_url)
             self.DataKit.put_data(urls_parsed=[self.current_url, ])
+            crawl_result = self.Crawl.get(self.current_url)
             if crawl_result[1] not in (200, 201):
                 echo_err(
                     'URL: ' + self.current_url + ' 获取失败 HTTP code: ' + str(crawl_result[1]) + ' Runtime: ' + str(
@@ -163,7 +180,7 @@ class Spider:
                 continue
 
             # 如果抓取自定义函数存在dict返回值则将dict推送至服务器
-            parse_result = self.handle_method(crawl_result[0])
+            parse_result = self.handle_method(S(self, crawl_result[0]))
             if not isinstance(parse_result, dict):
                 continue
 
@@ -212,3 +229,7 @@ class Spider:
             self.pre_url_queue += response['urls']
 
         return self.pre_url_queue.pop(0)  # 出栈首位
+
+
+def start(func):
+    gevent.joinall([gevent.spawn(Spider().run, func) for i in xrange(4)])

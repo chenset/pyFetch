@@ -45,10 +45,10 @@ start_time = time.time()
 #
 # m.parsed.remove({'_id': {'$in': ids}}, multi=True)
 #
-# m.parsed.drop()
-# m.queue.drop()
-# m.result.drop()
-# print m.parsed.count()
+m.parsed.drop()
+m.queue.drop()
+m.result.drop()
+print m.parsed.count()
 
 # print m.parsed.ensure_index('url', unique=True)
 # print m.queue.ensure_index('url', unique=True)
@@ -102,17 +102,18 @@ start_time = time.time()
 # urls_data and Mongo.get().queue.insert(urls_data)
 
 
-def f(url):
-    print('GET: %s' % url)
-    resp = urllib2.urlopen(url)
-    data = resp.read()
-    print('%d bytes received from %s.' % (len(data), url))
-
-
-gevent.joinall([
-    gevent.spawn(f, 'http://www.baidu.com/'),
-    gevent.spawn(f, 'http://www.qq.com/'),
-    gevent.spawn(f, 'http://www.sina.com/'),
-])
+# def f(url):
+#     print('GET: %s' % url)
+#     resp = urllib2.urlopen(url)
+#     data = resp.read()
+#     print('%d bytes received from %s.' % (len(data), url))
+#
+#
+# # gevent.joinall([
+#     gevent.spawn(f, 'http://www.baidu.com/'),
+#     gevent.spawn(f, 'http://www.qq.com/'),
+#     gevent.spawn(f, 'http://www.sina.com/'),
+# # ])
+# print 1
 
 print round((time.time() - start_time) * 1000, 2)
