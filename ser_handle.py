@@ -33,7 +33,7 @@ class SerHandle():
         # todo 没有地址的情况下给一个  test !!
         if not response_url_list:
             try:
-                tmp_url = 'http://www.ifanr.com/'
+                tmp_url = 'http://jandan.net/'
                 response_url_list.append(tmp_url)
                 ids.append(Mongo.get().queue.insert(
                     {'url': tmp_url, 'url_md5': md5(tmp_url), 'flag_time': 0, 'add_time': int(time.time()),

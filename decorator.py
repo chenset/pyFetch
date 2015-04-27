@@ -4,7 +4,7 @@ import time
 
 
 def page(spider):
-    patt = r'<a[^>]+href="([(\.|h|/)][^"]+)"[^>]*>[^<]+</a>'
+    patt = r'<a[^>]+href="([(\.|h|/)][^"]+jandan[^"]+)"[^>]*>[^<]+</a>'
     r = re.compile(patt)
     match = r.findall(spider.html)
     for url in match:
