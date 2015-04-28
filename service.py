@@ -5,6 +5,9 @@ import base64
 import json
 from ser_handle import SerHandle
 from gevent import socket
+from mongo_single import Mongo
+from functions import md5
+import time
 import traceback
 
 
@@ -61,5 +64,18 @@ def socket_accept(sock, address):
         sock.close()
 
 
+def queue_status():
+    queue_len = Mongo.get().test.queue.count()
+    print 'queue len: ', queue_len
+    print 'parsed len: ', Mongo.get().test.parsed.count()
+    print 'result len: ', Mongo.get().test.result.count()
+    if not queue_len:
+        tmp_url = 'http://jandan.net/'
+        Mongo.get().queue.insert(
+            {'url': tmp_url, 'url_md5': md5(tmp_url), 'flag_time': 0, 'add_time': int(time.time()),
+             'slave_ip': '0.0.0.0'})
+
+
 if __name__ == '__main__':
+    queue_status()
     socket_server('0.0.0.0', 7777)

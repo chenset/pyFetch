@@ -232,4 +232,4 @@ class Spider:
 
 
 def start(func):
-    gevent.joinall([gevent.spawn(Spider().run, func) for i in xrange(128)])
+    gevent.joinall([gevent.spawn(Spider().run, func) for i in xrange(8)])

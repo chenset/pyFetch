@@ -31,15 +31,15 @@ class SerHandle():
             response_url_list.append(doc['url'])
 
         # todo 没有地址的情况下给一个  test !!
-        if not response_url_list:
-            try:
-                tmp_url = 'http://jandan.net/'
-                response_url_list.append(tmp_url)
-                ids.append(Mongo.get().queue.insert(
-                    {'url': tmp_url, 'url_md5': md5(tmp_url), 'flag_time': 0, 'add_time': int(time.time()),
-                     'slave_ip': self.__request_address[0]}))
-            except:
-                pass
+        # if not response_url_list:
+        #     try:
+        #         tmp_url = 'http://jandan.net/'
+        #         response_url_list.append(tmp_url)
+        #         ids.append(Mongo.get().queue.insert(
+        #             {'url': tmp_url, 'url_md5': md5(tmp_url), 'flag_time': 0, 'add_time': int(time.time()),
+        #              'slave_ip': self.__request_address[0]}))
+        #     except:
+        #         pass
 
         # todo 多线程情况下, 这里线程非安全
         ids and Mongo.get().queue.update({'_id': {'$in': ids}}, {'$set': {'flag_time': int(time.time())}},
