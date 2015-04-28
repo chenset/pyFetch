@@ -65,10 +65,10 @@ def socket_accept(sock, address):
 
 
 def queue_status():
-    queue_len = Mongo.get().test.queue.count()
+    queue_len = Mongo.get().queue.count()
     print 'queue len: ', queue_len
-    print 'parsed len: ', Mongo.get().test.parsed.count()
-    print 'result len: ', Mongo.get().test.result.count()
+    print 'parsed len: ', Mongo.get().parsed.count()
+    print 'result len: ', Mongo.get().result.count()
     if not queue_len:
         tmp_url = 'http://jandan.net/'
         Mongo.get().queue.insert(
