@@ -1,14 +1,17 @@
 # coding=utf-8
-import gevent
 import zlib
 import base64
 import json
-from ser_handle import SerHandle
-from gevent import socket
-from mongo_single import Mongo
-from functions import md5
 import time
 import traceback
+
+import gevent
+from gevent import socket
+
+from ser_handle import SerHandle
+from mongo_single import Mongo
+from functions import md5
+from web.web_ui import web_start
 
 
 def request_handle(data, address):
@@ -76,6 +79,9 @@ def queue_status():
              'slave_ip': '0.0.0.0'})
 
 
+from multiprocessing import Process
+
 if __name__ == '__main__':
     queue_status()
+    Process(target=web_start, ).start()
     socket_server('0.0.0.0', 7777)
