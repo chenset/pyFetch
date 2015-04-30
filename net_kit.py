@@ -142,13 +142,13 @@ class SocketHelper():
 
     @staticmethod
     def __request(data):
+        response = None
         try:
             json_string = SocketHelper.socket_client(json.dumps(data))
             response = json.loads(json_string)
-        except:
-            return None
-        else:
+        finally:
             return response
+
 
     @staticmethod
     def socket_client(content):
