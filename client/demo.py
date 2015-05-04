@@ -13,5 +13,5 @@ def page(spider):
     }
 
 
-start(page)
+start('jandan.net', page)
 

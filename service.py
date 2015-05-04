@@ -16,8 +16,10 @@ from web.web_ui import web_start
 
 def request_handle(data, address):
     request = json.loads(data)
+    if 'project_name' not in request:
+        return json.dumps({'msg': '未设置该项目名称'})
 
-    handle = SerHandle(request, address)
+    handle = SerHandle(request['project_name'], request, address)
 
     if 'urls_parsed' in request and request['urls_parsed']:
         handle.urls_parsed()
@@ -68,15 +70,19 @@ def socket_accept(sock, address):
 
 
 def queue_status():
-    queue_len = Mongo.get().queue.count()
+    queue_len = Mongo.get()['queue'].count()
     print 'queue len: ', queue_len
-    print 'parsed len: ', Mongo.get().parsed.count()
-    print 'result len: ', Mongo.get().result.count()
+    print 'parsed len: ', Mongo.get()['parsed'].count()
+    print 'result len: ', Mongo.get()['result'].count()
     if not queue_len:
         tmp_url = 'http://jandan.net/'
-        Mongo.get().queue.insert(
+        Mongo.get()['queue'].insert(
             {'url': tmp_url, 'url_md5': md5(tmp_url), 'flag_time': 0, 'add_time': int(time.time()),
              'slave_ip': '0.0.0.0'})
+
+    # 在没创建集合前设置索引mongodb会自动创建该集合并赋索引
+    Mongo.get()['parsed'].ensure_index('url_md5', unique=True)
+    Mongo.get()['queue'].ensure_index('url_md5', unique=True)
 
 
 from multiprocessing import Process

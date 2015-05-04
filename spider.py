@@ -28,14 +28,16 @@ class Spider:
     """
     slave抓取逻辑
     """
+    project_name = ''
     handle_method = None
     socket_helper = None
     pre_url_queue = []
     http_helper = None
     current_url = ''  # 当前url
 
-    def __init__(self):
-        self.socket_helper = net_kit.SocketHelper()
+    def __init__(self, project_name):
+        self.project_name = project_name
+        self.socket_helper = net_kit.SocketHelper(self.project_name)
         self.http_helper = net_kit.HttpHelper()
 
     @staticmethod
@@ -118,5 +120,5 @@ class Spider:
         return self.pre_url_queue.pop(0)  # 出栈首位
 
 
-def start(func):
-    gevent.joinall([gevent.spawn(Spider().run, func) for i in xrange(8)])
+def start(project_name, callback):
+    gevent.joinall([gevent.spawn(Spider(project_name).run, callback) for i in xrange(8)])

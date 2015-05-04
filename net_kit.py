@@ -95,16 +95,19 @@ class SocketHelper():
     传输时会压缩数据
     """
     data = {}
+    project_name = ''
 
     def __init_data(self):
         self.data = {
+            'project_name': self.project_name,
             'get_urls': 1,
             'urls_parsed': [],
             'urls_add': [],
             'save': [],
         }
 
-    def __init__(self):
+    def __init__(self, project_name):
+        self.project_name = project_name
         self.__init_data()
 
     def get_data(self):
@@ -148,7 +151,6 @@ class SocketHelper():
             response = json.loads(json_string)
         finally:
             return response
-
 
     @staticmethod
     def socket_client(content):
