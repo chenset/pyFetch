@@ -88,7 +88,7 @@ class HttpHelper():
             return req.text, req.status_code, round((time.time() - start_time) * 1000, 2)
 
 
-class SocketHelper():
+class Slave():
     """
     slave与master数据传输对象
     使用特定格式传输
@@ -143,11 +143,11 @@ class SocketHelper():
         if save:
             self.data['save'].append(save)
 
-    @staticmethod
-    def __request(data):
+    @classmethod
+    def __request(cls, data):
         response = None
         try:
-            json_string = SocketHelper.socket_client(json.dumps(data))
+            json_string = cls.socket_client(json.dumps(data))
             response = json.loads(json_string)
         finally:
             return response

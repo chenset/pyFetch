@@ -5,6 +5,7 @@ monkey.patch_all()
 import gevent
 import urllib2
 import net_kit
+from net_kit import Slave
 import time
 from functions import echo_err
 
@@ -24,20 +25,17 @@ class S:
         self.__spider.crawl(url)
 
 
-class Spider:
+class Spider(Slave):
     """
     slave抓取逻辑
     """
-    project_name = ''
     handle_method = None
-    socket_helper = None
     pre_url_queue = []
     http_helper = None
     current_url = ''  # 当前url
 
     def __init__(self, project_name):
-        self.project_name = project_name
-        self.socket_helper = net_kit.SocketHelper(self.project_name)
+        Slave.__init__(self, project_name)
         self.http_helper = net_kit.HttpHelper()
 
     @staticmethod
@@ -60,7 +58,7 @@ class Spider:
             print self.current_url
             if not self.current_url:
                 continue
-            self.socket_helper.put_data(urls_parsed=[self.current_url, ])
+            self.put_data(urls_parsed=[self.current_url, ])
             crawl_result = self.http_helper.get(self.current_url)
             if crawl_result[1] not in (200, 201):
                 echo_err(
@@ -78,7 +76,7 @@ class Spider:
             if 'runtime' not in parse_result:
                 parse_result['runtime'] = crawl_result[2]
 
-            self.socket_helper.put_data(save=parse_result)
+            self.put_data(save=parse_result)
 
     def crawl(self, url=''):
         """
@@ -94,7 +92,7 @@ class Spider:
         if url.startswith('.') or not url.startswith('http'):  # 相对url地址
             url = self.current_url.rstrip('/') + "/" + url.lstrip('./')
 
-        self.socket_helper.put_data(urls_add=(url,))
+        self.put_data(urls_add=(url,))
 
     def __get_queue_url(self):
         """
@@ -104,7 +102,7 @@ class Spider:
         :return:string url|None
         """
         while not self.pre_url_queue:
-            response = self.socket_helper.get_data()
+            response = self.get_data()
             if not response:
                 echo_err('远程响应异常, 60秒后重试')
                 time.sleep(60)

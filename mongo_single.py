@@ -9,10 +9,10 @@ class Mongo:
     def __init__(self):
         self.conn = pymongo.MongoClient("127.0.0.1", 27017).test
 
-    @staticmethod
-    def get():
-        if Mongo.instance is None:
-            Mongo.instance = Mongo()
+    @classmethod
+    def get(cls):
+        if cls.instance is None:
+            cls.instance = Mongo()
 
-        return Mongo.instance.conn
+        return cls.instance.conn
 

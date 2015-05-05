@@ -4,9 +4,6 @@ import MySQLdb
 class Mysql:
     conn = None
     cursor = None
-    cursor = None
-    cursor = None
-    cursor = None
 
     def __init__(self):
         self.conn = MySQLdb.connect(host="localhost", user="root", passwd="", db="spider", charset="utf8")
