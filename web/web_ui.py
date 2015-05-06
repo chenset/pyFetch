@@ -1,6 +1,8 @@
+#! coding=utf8
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 from mongo_single import Mongo
+import time
 
 app = Flask(__name__)
 
@@ -25,13 +27,28 @@ def index():
 
 
 @app.route('/<path>')
+@app.route('/project/<path>')
+@app.route('/project/task/<path>')
+@app.route('/slave/task/<path>')
+@app.route('/slave/result/<path>')
+@app.route('/project/result/<path>')
 def one(path):
-    return get_template(path + '.html')
-
-
-@app.route('/<path>/<param>')
-def two(path, param):
+    """
+    首次全新请求(即不经过angular的请求)url地址的route规则
+    """
     return get_template('main.html')
+
+
+@app.route('/component/<page>')
+@app.route('/component/task/<page>')
+def two(page):
+    return get_template('component/' + page + '.html')
+
+
+@app.route('/api/test')
+def api_test():
+    time.sleep(0.1)
+    return '{}'
 
 
 def web_start():

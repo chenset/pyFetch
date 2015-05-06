@@ -1,0 +1,19 @@
+table.table thead tr {
+    background: #E74C3C;
+}
+
+table.table thead tr th {
+    color: #FFF;
+    font-size: 12px;
+}
+
+table.table td, table.table th {
+    height: 28px;
+    line-height: 28px !important;
+    border: none !important;
+}
+
+.btn {
+    border-radius: 2px;
+    font-size: 12px;
+}
