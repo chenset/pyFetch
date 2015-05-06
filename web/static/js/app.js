@@ -1,12 +1,11 @@
 var app = angular.module('PyFetch', ['ngRoute']);
 
-app.config(['$routeProvider','$locationProvider',
+app.config(['$routeProvider', '$locationProvider',
     function ($routeProvider, $locationProvider) {
         $locationProvider.html5Mode(true);
-
         $routeProvider.
-            when('/index', {
-                templateUrl: 'index.html',
+            when('/', {
+                templateUrl: 'index',
                 controller: 'indexCtrl'
             }).
             when('/project/:projectName', {
@@ -18,22 +17,9 @@ app.config(['$routeProvider','$locationProvider',
             });
     }]);
 
-app.controller('projectCtrl', function ($scope) {
-    $scope.phones = [
-        {
-            'name': 'Nexus S',
-            'snippet': 'Fast just got faster with Nexus S.'
-        },
-        {
-            'name': 'Motorola XOOM™ with Wi-Fi',
-            'snippet': 'The Next, Next Generation tablet.'
-        },
-        {
-            'name': 'MOTOROLA XOOM™',
-            'snippet': 'The Next, Next Generation tablet.'
-        }
-    ];
-});
+app.controller('projectCtrl', ['$scope', '$routeParams', function ($scope, $routeParams) {
+    $scope.projectName = $routeParams.projectName
+}]);
 
 app.controller('indexCtrl', function ($scope) {
     $scope.phones = [

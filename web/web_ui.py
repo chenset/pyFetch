@@ -9,17 +9,29 @@ app.config.update(dict(
 ))
 
 
+def get_template(template_path):
+    with open('templates/' + template_path) as f:
+        return f.read()
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return redirect('/')
+
+
 @app.route('/')
 def index():
-    # response = 'queue len: ' + str(Mongo.get()['queue'].count()) + '<br/>'
-    # response += 'parsed len: ' + str(Mongo.get()['parsed'].count()) + '<br/>'
-    # response += 'result len: ' + str(Mongo.get()['result'].count()) + '<br/>'
-    return render_template('index.html', )
+    return get_template('main.html')
 
 
-@app.route('/<dir>/<action>')
-def project(dir, action):
-    return render_template(dir + '.html')
+@app.route('/<path>')
+def one(path):
+    return get_template(path + '.html')
+
+
+@app.route('/<path>/<param>')
+def two(path, param):
+    return get_template('main.html')
 
 
 def web_start():
