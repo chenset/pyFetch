@@ -1,8 +1,9 @@
 #! coding=utf8
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-    render_template, flash
+    render_template, flash, jsonify, json
 from mongo_single import Mongo
 import time
+from functions import get_project_name_list
 
 app = Flask(__name__)
 
@@ -48,7 +49,34 @@ def two(page):
 @app.route('/api/test')
 def api_test():
     time.sleep(0.1)
-    return '{}'
+    return jsonify({'fd': 1})
+
+
+@app.route('/api/project')
+def get_projects():
+    project_dict = {}
+    for project_name in get_project_name_list():
+        project_dict[project_name] = {'name': project_name}
+
+    return jsonify(project_dict)
+
+
+@app.route('/api/task/<project_name>')
+def get_tasks(project_name):
+    res = []
+    for doc in Mongo.get()['parsed_' + project_name].find().sort('_id', -1).limit(100):
+        del doc['_id']
+        res.append(doc)
+    return json.dumps(res)
+
+
+@app.route('/api/result/<project_name>')
+def get_results(project_name):
+    res = []
+    for doc in Mongo.get()['result_' + project_name].find().sort('_id', -1).limit(100):
+        del doc['_id']
+        res.append(doc)
+    return json.dumps(res)
 
 
 def web_start():

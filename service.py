@@ -2,15 +2,12 @@
 import zlib
 import base64
 import json
-import time
 import traceback
 
 import gevent
 from gevent import socket
 
 from ser_handle import SerHandle
-from mongo_single import Mongo
-from functions import md5
 from web.web_ui import web_start
 
 

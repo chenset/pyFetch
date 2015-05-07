@@ -44,7 +44,7 @@ app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider',
 
 app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {
     $scope.projectName = $routeParams.projectName;
-    $http.get('/api/test');
+    $http.get('/api/project');
 }]);
 
 app.controller('slaveResultCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
@@ -52,8 +52,16 @@ app.controller('slaveResultCtrl', ['$scope', '$http', '$routeParams', function (
     console.log($routeParams);
 }]);
 app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
-    $http.get('/api/test');
-    console.log($routeParams);
+    $http.get('/api/result/' + $routeParams.projectName).success(function (data) {
+
+        $scope.th_title = []
+        for (var key in data[0]) {
+            $scope.th_title.push(key)
+        }
+
+        console.log($scope.th_title);
+        $scope.results = data;
+    });
 }]);
 
 app.controller('slaveTaskCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
@@ -62,12 +70,15 @@ app.controller('slaveTaskCtrl', ['$scope', '$http', '$routeParams', function ($s
 }]);
 
 app.controller('projectTaskCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
-    $http.get('/api/test');
-    console.log($routeParams);
+    $http.get('/api/task/' + $routeParams.projectName).success(function (data) {
+        $scope.tasks = data;
+    });
 }]);
 
 app.controller('indexCtrl', function ($scope, $http) {
-    $http.get('/api/test');
+    $http.get('/api/project').success(function (data) {
+        $scope.projects = data
+    });
 });
 
 app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {

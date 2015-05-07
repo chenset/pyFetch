@@ -1,15 +1,10 @@
-<div class="table-responsive ">
+<div class="table-responsive">
     <table class="table table-hover table-striped">
-        <tbody>
-        <tr class="" ng-repeat="item in [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]">
-            <td>{{item}}</td>
-            <td>2</td>
-            <td>3</td>
-            <td>4</td>
-            <td>5</td>
-            <td>
-            </td>
+        <tr class="" ng-repeat="item in tasks">
+            <td style="width:100px;">{{item.add_time+'000'|date:'MM-dd HH:mm':'UTC+8'}}</td>
+            <td style="width:100px;">{{item.slave_ip}}</td>
+            <td style="width:56px;">200</td>
+            <td><a target="_blank" href="{{item.url}}">这里要显示title</a></td>
         </tr>
-        </tbody>
     </table>
 </div>

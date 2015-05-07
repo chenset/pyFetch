@@ -1,9 +1,10 @@
 table.table thead tr {
-    background: #E74C3C;
+    /*background: #E74C3C;*/
+    /*background: #d8d8d8;*/
 }
 
 table.table thead tr th {
-    color: #FFF;
+    color: #6c6c6c;
     font-size: 12px;
 }
 
@@ -16,4 +17,19 @@ table.table td, table.table th {
 .btn {
     border-radius: 2px;
     font-size: 12px;
+}
+
+.btn-danger {
+    background-color: #e77160;
+    border-color: #e76b54;
+}
+
+.btn-success {
+    background-color: #77ef77;
+    border-color: #6cef72;
+}
+
+.btn-info {
+    background-color: #5BC0DE;
+    border-color: #4bbcde;
 }
