@@ -48,7 +48,6 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', function (
 }]);
 
 app.controller('slaveResultCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
-    $http.get('/api/test');
     console.log($routeParams);
 }]);
 app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
@@ -65,7 +64,6 @@ app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function
 }]);
 
 app.controller('slaveTaskCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
-    $http.get('/api/test');
     console.log($routeParams);
 }]);
 
@@ -82,7 +80,6 @@ app.controller('indexCtrl', function ($scope, $http) {
 });
 
 app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {
-    $http.get('/api/test');
 }]);
 
 app.controller('NavBarCtrl', function ($scope, $location) {

@@ -3,7 +3,13 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash, jsonify, json
 from mongo_single import Mongo
 import time
+import os
 from functions import get_project_name_list
+
+from gevent import monkey
+
+monkey.patch_all()
+from gevent.wsgi import WSGIServer
 
 app = Flask(__name__)
 
@@ -13,7 +19,7 @@ app.config.update(dict(
 
 
 def get_template(template_path):
-    with open('templates/' + template_path) as f:
+    with open(os.path.dirname(os.path.abspath(__file__)) + '/templates/' + template_path) as f:
         return f.read()
 
 
@@ -48,7 +54,7 @@ def two(page):
 
 @app.route('/api/test')
 def api_test():
-    time.sleep(0.1)
+    time.sleep(1)
     return jsonify({'fd': 1})
 
 
@@ -80,8 +86,16 @@ def get_results(project_name):
 
 
 def web_start():
-    app.run('0.0.0.0', 80, debug=True)
+    """
+    当service.py为入口时会调用这里
+    :return:
+    """
+    http_server = WSGIServer(('0.0.0.0', 80), app)
+    http_server.serve_forever()
 
 
 if __name__ == '__main__':
-    web_start()
+    """
+    当前文件为入口时会调用这里
+    """
+    app.run('0.0.0.0', 80, debug=True, threaded=True)
