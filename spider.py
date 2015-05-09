@@ -4,8 +4,8 @@ from gevent import monkey
 monkey.patch_all()
 import gevent
 import urllib2
-import net_kit
-from net_kit import Slave
+import helper
+from helper import Slave
 import time
 from functions import echo_err
 
@@ -36,7 +36,7 @@ class Spider(Slave):
 
     def __init__(self, project_name):
         Slave.__init__(self, project_name)
-        self.http_helper = net_kit.HttpHelper()
+        self.http_helper = helper.HttpHelper()
 
     @staticmethod
     def __get_url_host(url):
@@ -52,7 +52,8 @@ class Spider(Slave):
         """
         self.handle_method = func
         while True:
-            # todo 需要些速度控制方法.
+            # gevent.sleep(15)
+            # todo 需要些速度控制方法. gevent.sleep
             # todo 需要判断header, 避免下载文件
             self.current_url = self.__get_queue_url()
             print self.current_url
@@ -119,4 +120,4 @@ class Spider(Slave):
 
 
 def start(project_name, callback):
-    gevent.joinall([gevent.spawn(Spider(project_name).run, callback) for i in xrange(8)])
+    gevent.joinall([gevent.spawn(Spider(project_name).run, callback) for i in xrange(1)])

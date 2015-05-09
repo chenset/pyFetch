@@ -5,10 +5,11 @@ from mongo_single import Mongo
 import time
 import os
 from functions import get_project_name_list
+from helper import GlobalHelper
 
-from gevent import monkey
+# from gevent import monkey
+# monkey.patch_socket()  # fixme patch_all 会影响跨进程通讯或者异步抓取 1/2
 
-monkey.patch_all()
 from gevent.wsgi import WSGIServer
 
 app = Flask(__name__)
@@ -54,7 +55,8 @@ def two(page):
 
 @app.route('/api/test')
 def api_test():
-    time.sleep(1)
+    print GlobalHelper.get('salve_record')
+    # time.sleep(10)
     return jsonify({'fd': 1})
 
 
@@ -85,11 +87,11 @@ def get_results(project_name):
     return json.dumps(res)
 
 
-def web_start():
+def web_start(dd):
     """
     当service.py为入口时会调用这里
-    :return:
     """
+    GlobalHelper.init(dd)
     http_server = WSGIServer(('0.0.0.0', 80), app)
     http_server.serve_forever()
 

@@ -12,7 +12,7 @@ class Mongo:
     @classmethod
     def get(cls):
         if cls.instance is None:
-            cls.instance = Mongo()
+            cls.instance = cls()
 
         return cls.instance.conn
 

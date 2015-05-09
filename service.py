@@ -8,10 +8,16 @@ import gevent
 from gevent import socket
 
 from ser_handle import SerHandle
+from multiprocessing import Process, Manager
 from web.web_ui import web_start
+from helper import GlobalHelper, SlaveRecord
 
 
 def request_handle(data, address):
+    slave_record = SlaveRecord.get_instance()
+    slave_record.add_request_record(address[0])
+    GlobalHelper.set('salve_record', slave_record.slave_record)
+
     request = json.loads(data)
     if 'project_name' not in request:
         return json.dumps({'msg': '未设置该项目名称'})
@@ -66,9 +72,15 @@ def socket_accept(sock, address):
         sock.close()
 
 
-from multiprocessing import Process
-
 if __name__ == '__main__':
-    # queue_status()
-    Process(target=web_start, ).start()
+    global_process_var = Manager().dict()
+    web_ui = Process(target=web_start, args=(global_process_var,))
+    web_ui.start()
+    GlobalHelper.init(global_process_var)
     socket_server('0.0.0.0', 7777)
+    web_ui.join()
+
+
+
+
+

@@ -12,6 +12,92 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
+class SlaveRecord():
+    """
+    记录每个slave的
+    1.解析量
+    2.通讯次数
+    3.上次通讯时间
+    4.在线时长
+
+    该对象为单例, 请勿实例化. 请使用get方法获取实例
+    """
+    __instance = None
+    slave_record = {}
+    __init_format = {'parsed_count': 0, 'connected_count': 0, 'last_connected_time': 0, 'connected_time_count': 0,
+                     'static': '抓取中'}
+
+    def __init__(self):
+        # self.slave_record = {}
+        pass
+
+    @classmethod
+    def get_instance(cls):
+        """
+        单例获取方法
+        """
+        if cls.__instance is None:
+            cls.__instance = cls()
+
+        return cls.__instance
+
+    def __init_key(self, ip):
+        """
+        避免key未初始化而报错的问题
+        应该有更优雅的方式
+        """
+        if ip not in self.slave_record:
+            self.slave_record[ip] = self.__init_format
+
+    def add_parsed_record(self, ip):
+        self.__init_key(ip)
+        self.slave_record[ip]['parsed_count'] += 1
+
+    def add_request_record(self, ip):
+        self.__init_key(ip)
+        self.slave_record[ip]['connected_count'] += 1
+        self.__set_connect_info(ip)
+
+    def __set_connect_info(self, ip):
+        last_connected_time = self.slave_record[ip]['last_connected_time']
+        self.slave_record[ip]['last_connected_time'] = int(time.time())
+        if last_connected_time == 0:
+            self.slave_record[ip]['static'] = '抓取中'
+            return
+
+            # todo 需要遍历 slave_record 设置通讯info
+            # if int(time.time()) - last_connected_time > 43200:  # 失联半天以上
+            # self.slave_record[ip]['last_connected_time'] = '已丢失'
+            # else:
+            # self.slave_record[ip]['last_connected_time'] = '断开中'
+
+
+class GlobalHelper:
+    """
+    跨进程间的变量共享工具
+    依赖 multiprocessing.Manger
+    """
+    __source_data = {}
+
+    @classmethod
+    def init(cls, d):
+        """
+        需要特殊的初始化过程, 详见调用处
+        """
+        cls.__source_data = d
+
+    @classmethod
+    def get(cls, key):
+        if key not in cls.__source_data:
+            return
+
+        return cls.__source_data[key]
+
+    @classmethod
+    def set(cls, key, value):
+        cls.__source_data[key] = value
+
+
 class HttpHelper():
     """
     基于requests再次封装的http请求对象
