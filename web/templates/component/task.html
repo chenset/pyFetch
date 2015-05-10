@@ -4,7 +4,7 @@
             <td style="width:100px;">{{item.add_time+'000'|date:'MM-dd HH:mm':'UTC+8'}}</td>
             <td style="width:100px;">{{item.slave_ip}}</td>
             <td style="width:56px;">200</td>
-            <td><a target="_blank" href="{{item.url}}">这里要显示title</a></td>
+            <td><a target="_blank" href="{{item.url}}" title="{{item.url}}">{{item.url|limitTo:100}}</a></td>
         </tr>
     </table>
 </div>

@@ -1,8 +1,3 @@
-table.table thead tr {
-    /*background: #E74C3C;*/
-    /*background: #d8d8d8;*/
-}
-
 table.table thead tr th {
     color: #6c6c6c;
     font-size: 12px;
@@ -19,17 +14,15 @@ table.table td, table.table th {
     font-size: 12px;
 }
 
-.btn-danger {
-    background-color: #e77160;
-    border-color: #e76b54;
+label input {
+    margin-top: 5px;
 }
 
-.btn-success {
-    background-color: #77ef77;
-    border-color: #6cef72;
+.CodeMirror-linenumber {
+    left: -30px !important; /*conflict fix of bootstrap & CodeMirror*/
 }
 
-.btn-info {
-    background-color: #5BC0DE;
-    border-color: #4bbcde;
+.CodeMirror {
+    height: 650px;
+    background-color: #f7f7f7;
 }

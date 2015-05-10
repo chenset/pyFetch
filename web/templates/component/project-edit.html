@@ -1,0 +1,35 @@
+<form>
+    <div class="form-group">
+        <label>该计划名称
+            <input type="email" class="form-control" placeholder="请输入名称">
+        </label>
+    </div>
+    <div class="form-group">
+        <label>初始URL
+            <small style="color:#999;font-weight: 400;">抓取入口, 在新建的项目中会默认将其加入抓取队列, 成为第一个抓取的链接.</small>
+            <input type="email" class="form-control" placeholder="请输入URL">
+        </label>
+    </div>
+    <div class="form-group">
+        <label for="project_code_editor">代码</label>
+<textarea id="project_code_editor">
+from spider import start
+import time
+import re
+
+
+def page(spider):
+    """
+    在此方法体编写逻辑代码
+    """
+    pass
+
+
+start('test.net', page)
+</textarea>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-success">执行测试</button>
+        <button type="submit" class="btn btn-primary pull-right">保存计划</button>
+    </div>
+</form>

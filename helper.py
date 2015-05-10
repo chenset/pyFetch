@@ -24,7 +24,7 @@ class SlaveRecord():
     """
     __instance = None
     slave_record = {}
-    __init_format = {'parsed_count': 0, 'connected_count': 0, 'last_connected_time': 0, 'connected_time_count': 0,
+    __init_format = {'parsed_count': 0, 'connected_count': 0, 'last_connected_time': 0, 'work_time_count': 1,
                      'static': '抓取中'}
 
     def __init__(self):
@@ -47,7 +47,7 @@ class SlaveRecord():
         应该有更优雅的方式
         """
         if ip not in self.slave_record:
-            self.slave_record[ip] = self.__init_format
+            self.slave_record[ip] = dict(self.__init_format)
 
     def add_parsed_record(self, ip):
         self.__init_key(ip)
@@ -59,17 +59,21 @@ class SlaveRecord():
         self.__set_connect_info(ip)
 
     def __set_connect_info(self, ip):
+        now = int(time.time())
         last_connected_time = self.slave_record[ip]['last_connected_time']
-        self.slave_record[ip]['last_connected_time'] = int(time.time())
-        if last_connected_time == 0:
-            self.slave_record[ip]['static'] = '抓取中'
-            return
+        self.slave_record[ip]['last_connected_time'] = now
 
-            # todo 需要遍历 slave_record 设置通讯info
-            # if int(time.time()) - last_connected_time > 43200:  # 失联半天以上
-            # self.slave_record[ip]['last_connected_time'] = '已丢失'
-            # else:
-            # self.slave_record[ip]['last_connected_time'] = '断开中'
+        if now - last_connected_time < 60 * 10:  # fixme 0时会不计算
+            self.slave_record[ip]['work_time_count'] += now - last_connected_time
+
+        for k, item in self.slave_record.items():
+            leave_second = now - item['last_connected_time']
+            if leave_second > 60 * 60:  # 失联1小时以上
+                self.slave_record[k]['static'] = '已丢失'
+            elif leave_second > 60 * 10:  # 失联10分钟以上
+                self.slave_record[k]['static'] = '断开中'
+            else:
+                self.slave_record[k]['static'] = '抓取中'
 
 
 class GlobalHelper:

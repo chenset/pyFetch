@@ -4,23 +4,23 @@ import pymongo
 from mongo_single import Mongo
 from functions import md5
 import sys
-# from gevent.lock import BoundedSemaphore
+from helper import SlaveRecord
 
 reload(sys)
 sys.setdefaultencoding('utf8')
-
-# sem = BoundedSemaphore()
 
 
 class SerHandle():
     project_name = ''
     __request_json = {}
     __request_address = []
+    __slave_record = None
 
     def __init__(self, project_name, request_json, request_address):
         self.project_name = project_name
         self.__request_json = request_json
         self.__request_address = request_address
+        self.__slave_record = SlaveRecord.get_instance()
 
     __projects = []
 
@@ -49,8 +49,6 @@ class SerHandle():
 
     def get_urls(self):
         SerHandle.__init_project(self.project_name)
-        # sem.acquire()
-        # urls_add_start_time = time.time()
         response_url_list = []
         ids = []
         for doc in Mongo.get()['queue_' + self.project_name].find({'flag_time': {'$lt': int(time.time() - 300)}}).limit(
@@ -62,12 +60,9 @@ class SerHandle():
         ids and Mongo.get()['queue_' + self.project_name].update({'_id': {'$in': ids}},
                                                                  {'$set': {'flag_time': int(time.time())}},
                                                                  multi=True)
-        # print 'get time', round((time.time() - urls_add_start_time) * 1000, 2), ' ms'
-        # sem.release()
         return response_url_list
 
     def urls_add(self):
-        # urls_add_start_time = time.time()
         add_url_list = list(set(self.__request_json['urls_add']))  # 去重
 
         # 已存在queue中的
@@ -94,13 +89,12 @@ class SerHandle():
                                       'slave_ip': self.__request_address[0]})
 
         add_urls_data and Mongo.get()['queue_' + self.project_name].insert(add_urls_data)
-        # print 'add time', round((time.time() - urls_add_start_time) * 1000, 2), ' ms'
 
     def urls_parsed(self):
-        # urls_add_start_time = time.time()
         urls_data = []
         url_list = []
         for url in self.__request_json['urls_parsed']:
+            self.__slave_record.add_parsed_record(self.__request_address[0])
             url_list.append(url)
             urls_data.append(
                 {'url': url, 'url_md5': md5(url), 'add_time': int(time.time()), 'slave_ip': self.__request_address[0]})
@@ -108,9 +102,6 @@ class SerHandle():
         Mongo.get()['queue_' + self.project_name].remove({'url_md5': {'$in': [md5(l) for l in url_list]}},
                                                          multi=True)  # 删除抓取完毕的队列
         urls_data and Mongo.get()['parsed_' + self.project_name].insert(urls_data)
-        # print 'parsed time', round((time.time() - urls_add_start_time) * 1000, 2), ' ms'
 
     def result_save(self):
-        # urls_add_start_time = time.time()
         Mongo.get()['result_' + self.project_name].insert(self.__request_json['save'])
-        # print 'save time', round((time.time() - urls_add_start_time) * 1000, 2), ' ms'

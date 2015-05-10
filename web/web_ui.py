@@ -11,8 +11,10 @@ from helper import GlobalHelper
 # monkey.patch_socket()  # fixme patch_all 会影响跨进程通讯或者异步抓取 1/2
 
 from gevent.wsgi import WSGIServer
+from flask.ext.compress import Compress
 
 app = Flask(__name__)
+Compress(app)
 
 app.config.update(dict(
     SECRET_KEY='development key',
@@ -26,21 +28,23 @@ def get_template(template_path):
 
 @app.errorhandler(404)
 def page_not_found(error):
-    return redirect('/')
+    return redirect('/project')
 
 
 @app.route('/')
 def index():
-    return get_template('main.html')
+    return redirect('/main.html')
 
 
 @app.route('/<path>')
 @app.route('/project/<path>')
 @app.route('/project/task/<path>')
+@app.route('/project/edit/<path>')
+@app.route('/project/add/<path>')
 @app.route('/slave/task/<path>')
 @app.route('/slave/result/<path>')
 @app.route('/project/result/<path>')
-def one(path):
+def default(path):
     """
     首次全新请求(即不经过angular的请求)url地址的route规则
     """
@@ -49,7 +53,7 @@ def one(path):
 
 @app.route('/component/<page>')
 @app.route('/component/task/<page>')
-def two(page):
+def page(page):
     return get_template('component/' + page + '.html')
 
 
@@ -58,6 +62,11 @@ def api_test():
     print GlobalHelper.get('salve_record')
     # time.sleep(10)
     return jsonify({'fd': 1})
+
+
+@app.route('/api/slave')
+def api_slave():
+    return jsonify(GlobalHelper.get('salve_record') or {})
 
 
 @app.route('/api/project')
@@ -69,8 +78,18 @@ def get_projects():
     return jsonify(project_dict)
 
 
+@app.route('/api/slave/<ip>')
+def get_slave_tasks(ip):
+    res = []
+    for project_name in get_project_name_list():
+        for doc in Mongo.get()['parsed_' + project_name].find({'slave_ip': ip}).sort('_id', -1).limit(100):
+            del doc['_id']
+            res.append(doc)
+    return json.dumps(res)
+
+
 @app.route('/api/task/<project_name>')
-def get_tasks(project_name):
+def get_project_tasks(project_name):
     res = []
     for doc in Mongo.get()['parsed_' + project_name].find().sort('_id', -1).limit(100):
         del doc['_id']

@@ -8,8 +8,17 @@ def page(spider):
     match = r.findall(spider.html)
     for url in match:
         spider.crawl(url)
+
+    title_patt = r'<title[^>]*>([^<]*)</title>'
+    title_r = re.compile(title_patt)
+    title_match = title_r.findall(spider.html)
+    title = ''
+    if title_match:
+        title = title_match[0]
+
     return {
-        'ddd': 111,
+        'title': title,
+        'ddd': 65464611,
     }
 
 

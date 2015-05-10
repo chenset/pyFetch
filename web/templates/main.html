@@ -7,37 +7,36 @@
     <script src="/static/js/angular.min.js"></script>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/loading-bar.min.css">
+    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://cdnjscn.b0.upaiyun.com/libs/codemirror/3.22.0/codemirror.min.css">
     <link rel="stylesheet" href="/static/css/base.css">
 </head>
 <body>
-<nav class="navbar navbar-default" ng-controller="NavBarCtrl">
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
+<nav class="navbar navbar-default container-fluid" ng-controller="NavBarCtrl">
+    <div class="container">
         <div class="navbar-header">
             <a class="navbar-brand" href="/">PyFetch</a>
         </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li ng-class="{active:isActive('/')}">
-                    <a href="/">计划</a>
+                <li ng-class="{active:isActive('/project')}">
+                    <a href="/project">计划</a>
                 </li>
-                <li ng-class="{active:isActive('/slave')}"><a href="/slave">虫子</a></li>
+                <li ng-class="{active:isActive('/slave')}"><a href="/slave"><i class="fa fa-bug"></i> 虫子</a></li>
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
-                <li><a target="_blank" href="https://github.com/chenset/pyFetch">Github</a></li>
+                <li><a target="_blank"
+                        href="https://github.com/chenset/pyFetch"><i class="fa fa-github fa-lg"></i> GitHub</a></li>
             </ul>
         </div>
-        <!-- /.navbar-collapse -->
     </div>
-    <!-- /.container-fluid -->
 </nav>
 
-<div ng-view></div>
+<div ng-view class="container"></div>
 <script src="/static/js/angular-route.min.js"></script>
 <script src="/static/js/loading-bar.min.js"></script>
+<script src="/static/js/script.min.js"></script>
 <script src="/static/js/app.js"></script>
 <script src="/static/js/base.js"></script>
 </body>
