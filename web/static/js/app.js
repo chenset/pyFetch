@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('PyFetch', ['ngRoute', 'angular-loading-bar']);
+var app = angular.module('PyFetch', ['ngRoute', 'angular-loading-bar', 'ui.bootstrap']);
 
 app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$httpProvider',
     function ($routeProvider, $locationProvider, cfpLoadingBarProvider, $httpProvider) {
@@ -47,7 +47,6 @@ app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$ht
                 templateUrl: 'component/task',
                 controller: 'projectTaskCtrl'
             }).
-
             otherwise({
                 redirectTo: '/project'
             });
@@ -55,14 +54,33 @@ app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$ht
 ;
 
 
-app.controller('projectAddCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {
+app.controller('projectAddCtrl', ['$scope', '$rootScope', '$routeParams', '$http', function ($scope, $rootScope, $routeParams, $http) {
     $scope.projectName = $routeParams.projectName;
-    //$http.get('/api/project');
+
+    $scope.status = {
+        isFirstOpen: true,
+        isFirstDisabled: false,
+        open: true
+    };
+
+    $scope.exec_test = function () {
+        $rootScope.alerts = [
+            {type: 'danger', msg: 'Oh snap! Change a few things up and try submitting again.'},
+            {type: 'success', msg: 'Well done! You successfully read this important alert message.'}
+        ];
+
+        $rootScope.addAlert = function () {
+            $rootScope.alerts.push({});
+        };
+
+        $rootScope.closeAlert = function (index) {
+            $rootScope.alerts.splice(index, 1);
+        };
+    }
 }]);
 
 app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {
     $scope.projectName = $routeParams.projectName;
-    //$http.get('/api/project');
 }]);
 
 app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
@@ -88,28 +106,38 @@ app.controller('projectTaskCtrl', ['$scope', '$http', '$routeParams', function (
 }]);
 
 app.controller('projectCtrl', function ($scope, $http) {
-    var load = function () {
+    var load = function (manual) {
+        manual && ($scope.show_load_icon = true);
+
         $http.get('/api/project').success(function (data) {
+            setTimeout(function () {
+                $scope.show_load_icon = false;
+            }, 1);
             $scope.projects = data;
         });
     };
-    load();
+    load(false);
 
     $scope.refresh = function () {
-        load();
+        load(true);
     };
 });
 
 app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {
-    var load = function () {
+    var load = function (manual) {
+        manual && ($scope.show_load_icon = true);
+
         $http.get('/api/slave').success(function (data) {
+            setTimeout(function () {
+                $scope.show_load_icon = false;
+            }, 1);
             $scope.slave = data;
         });
     };
-    load();
+    load(false);
 
     $scope.refresh = function () {
-        load();
+        load(true);
     };
 }]);
 

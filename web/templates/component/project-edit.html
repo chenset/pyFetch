@@ -1,17 +1,32 @@
-<form>
+<form name="project_edit">
+    <accordion close-others="oneAtATime">
+        <accordion-group is-open="status.open">
+            <accordion-heading>
+                基本设置 <i class="pull-right fa"
+                    ng-class="{'fa-angle-up': status.open, 'fa-angle-right': !status.open}"></i>
+            </accordion-heading>
+
+            <div class="form-group">
+                <label>计划名称:</label>
+                <br/>
+                <small>执行或保存后不可修改!</small>
+                <input type="text" class="form-control" placeholder="输入名称" ng-model="project.name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label>起始URL:</label>
+                <br/>
+                <small>执行或保存后不可修改!</small>
+                <br/>
+                <small>抓取入口, 在新建的项目中会默认将其加入抓取队列, 成为第一个抓取的链接.</small>
+                <br/>
+                <small>格式: http://www.example.com/</small>
+                <input type="url" class="form-control" placeholder="输入URL" ng-model="project.url" name="url" required>
+            </div>
+        </accordion-group>
+    </accordion>
+
     <div class="form-group">
-        <label>该计划名称
-            <input type="email" class="form-control" placeholder="请输入名称">
-        </label>
-    </div>
-    <div class="form-group">
-        <label>初始URL
-            <small style="color:#999;font-weight: 400;">抓取入口, 在新建的项目中会默认将其加入抓取队列, 成为第一个抓取的链接.</small>
-            <input type="email" class="form-control" placeholder="请输入URL">
-        </label>
-    </div>
-    <div class="form-group">
-        <label for="project_code_editor">代码</label>
+        <label for="project_code_editor">代码:</label>
 <textarea id="project_code_editor">
 from spider import start
 import time
@@ -28,8 +43,21 @@ def page(spider):
 start('test.net', page)
 </textarea>
     </div>
-    <div class="form-group">
-        <button type="submit" class="btn btn-success">执行测试</button>
-        <button type="submit" class="btn btn-primary pull-right">保存计划</button>
-    </div>
 </form>
+
+
+<div class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <button ng-click="exec_test()"
+                type="submit"
+                class="btn btn-success navbar-btn"
+                ng-disabled="!project_edit.$valid">执行测试
+        </button>
+        <button type="submit"
+                class="btn btn-primary pull-right navbar-btn"
+                ng-disabled="!project_edit.$valid">保存计划
+        </button>
+    </div>
+    <!-- /.container-fluid -->
+</div>

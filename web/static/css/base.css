@@ -1,3 +1,11 @@
+body {
+    padding-top: 65px;
+}
+
+* {
+    outline: none !important;
+}
+
 table.table thead tr th {
     color: #6c6c6c;
     font-size: 12px;
@@ -23,6 +31,6 @@ label input {
 }
 
 .CodeMirror {
-    height: 650px;
+    height: 780px;
     background-color: #f7f7f7;
 }
