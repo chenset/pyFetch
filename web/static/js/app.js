@@ -15,17 +15,11 @@ app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$ht
         $routeProvider.
             when('/project/edit/:projectName', {
                 templateUrl: 'component/project-edit',
-                controller: 'projectEditCtrl',
-                resolve: {
-                    depend: load_and_exec_CodeMirror
-                }
+                controller: 'projectEditCtrl'
             }).
             when('/project/add/new', {
                 templateUrl: 'component/project-edit',
-                controller: 'projectAddCtrl',
-                resolve: {
-                    depend: load_and_exec_CodeMirror
-                }
+                controller: 'projectAddCtrl'
             }).
             when('/project', {
                 templateUrl: 'component/project',
@@ -55,6 +49,8 @@ app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$ht
 
 
 app.controller('projectAddCtrl', ['$scope', '$rootScope', '$routeParams', '$http', function ($scope, $rootScope, $routeParams, $http) {
+    load_and_exec_CodeMirror();
+
     $scope.projectName = $routeParams.projectName;
 
     $scope.status = {
@@ -76,10 +72,11 @@ app.controller('projectAddCtrl', ['$scope', '$rootScope', '$routeParams', '$http
         $rootScope.closeAlert = function (index) {
             $rootScope.alerts.splice(index, 1);
         };
-    }
+    };
 }]);
 
 app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {
+    load_and_exec_CodeMirror();
     $scope.projectName = $routeParams.projectName;
 }]);
 
@@ -147,17 +144,12 @@ app.controller('NavBarCtrl', function ($scope, $location) {
     }
 });
 
-function load_and_exec_CodeMirror($q) {
-    var delay = $q.defer();
-
-    $script(["/static/js/codemirror.js"], function () {// fixme 加载顺序缓存等等原因会导致在首页进入时有问题, 具体看console
-        $script(['/static/js/codemirror-component.min.js'], function () {
-            CodeMirror.fromTextArea(document.getElementById("project_code_editor"), {
-                lineNumbers: true,
-                styleActiveLine: true,
-                autofocus: true
-            });
-            return delay.promise;
+function load_and_exec_CodeMirror() {
+    $script(["/static/js/codemirror.js", "/static/js/codemirror-component.min.js"], function () {// fixme 加载顺序缓存等等原因会导致在首页进入时有问题, 具体看console
+        CodeMirror.fromTextArea(document.getElementById("project_code_editor"), {
+            lineNumbers: true,
+            styleActiveLine: true,
+            autofocus: true
         });
     });
 }
