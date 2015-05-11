@@ -32,9 +32,12 @@
 </nav>
 <div class="container">
     <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+    <!-- fixme 网络加载慢时由于ui组件未加载完毕{{alert.msg}}会显示在页面上 -->
 </div>
 <div ng-view class="container"></div>
-<div style="width: 40px;height:40px;line-height:40px;text-align: center;background: #e7e7e7;border-radius: 3px;position: fixed;bottom: 10px;right: 20px;">
+<div ng-controller="scrollToTop"
+        ng-click="toTop()"
+        style="width: 40px;height:40px;line-height:40px;text-align: center;background: #e7e7e7;border-radius: 3px;position: fixed;bottom: 10px;right: 20px;">
     <i class="fa fa-angle-up"></i>
 </div>
 <script src="/static/js/angular-route.min.js"></script>

@@ -47,34 +47,49 @@ app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$ht
     }]);
 
 
-app.controller('projectAddCtrl', ['$scope', '$rootScope', '$routeParams', '$http', function ($scope, $rootScope, $routeParams, $http) {
+app.controller('projectAddCtrl', ['$scope', '$rootScope', '$routeParams', '$http', '$location', function ($scope, $rootScope, $routeParams, $http, $location) {
     load_and_exec_CodeMirror();
 
     $scope.projectName = $routeParams.projectName;
 
+    //设置区域的折叠
     $scope.status = {
         isFirstOpen: true,
         isFirstDisabled: false,
         open: true
     };
 
+    $rootScope.alerts = [
+        //{type: 'danger', msg: 'Oh snap! Change a few things up and try submitting again.'},
+        //{type: 'success', msg: 'Well done! You successfully read this important alert message.'}
+    ];
+
+    //表单与提交
+    $scope.project = {};
     $scope.exec_test = function () {
-        $rootScope.alerts = [
-            {type: 'danger', msg: 'Oh snap! Change a few things up and try submitting again.'},
-            {type: 'success', msg: 'Well done! You successfully read this important alert message.'}
-        ];
+        var formData = $scope.project;
+        formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
+        $http.post('/api/project/add', formData).success(function (data) {
+            if (data.success) {
+                $location.url('/project/edit/' + $scope.project.name);
+                $rootScope.alerts.push({'type': 'success', 'msg': data.msg});
+            } else {
+                $rootScope.alerts.push({'type': 'danger', 'msg': data.msg});
+            }
+        });
+    };
 
-        $rootScope.addAlert = function () {
-            $rootScope.alerts.push({});
-        };
+    $rootScope.addAlert = function () {
+        $rootScope.alerts.push({});
+    };
 
-        $rootScope.closeAlert = function (index) {
-            $rootScope.alerts.splice(index, 1);
-        };
+    $rootScope.closeAlert = function (index) {
+        $rootScope.alerts.splice(index, 1);
     };
 }]);
 
 app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {
+    $scope.showTest = true;
     load_and_exec_CodeMirror();
     $scope.projectName = $routeParams.projectName;
 }]);
@@ -143,10 +158,17 @@ app.controller('NavBarCtrl', function ($scope, $location) {
     }
 });
 
+app.controller('scrollToTop', function ($scope) {
+    $scope.toTop = function () {
+        document.body.scrollTop && (document.body.scrollTop = 0);
+        document.documentElement.scrollTop && (document.documentElement.scrollTop = 0);
+    }
+});
+
 function load_and_exec_CodeMirror() {
-    $script(["/static/js/codemirror.js"], function () {// fixme 加载顺序缓存等等原因会导致在首页进入时有问题, 具体看console
+    $script(["/static/js/codemirror.js"], function () {
         $script(["/static/js/codemirror-component.min.js"], function () {
-            CodeMirror.fromTextArea(document.getElementById("project_code_editor"), {
+            window._editor = CodeMirror.fromTextArea(document.getElementById("project_code_editor"), {
                 lineNumbers: true,
                 styleActiveLine: true,
                 autofocus: true,

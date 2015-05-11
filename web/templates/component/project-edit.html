@@ -1,4 +1,4 @@
-<form name="project_edit">
+<form name="project_form" novalidate>
     <accordion close-others="oneAtATime">
         <accordion-group is-open="status.open">
             <accordion-heading>
@@ -20,13 +20,19 @@
                 <small>抓取入口, 在新建的项目中会默认将其加入抓取队列, 成为第一个抓取的链接.</small>
                 <br/>
                 <small>格式: http://www.example.com/</small>
-                <input type="url" class="form-control" placeholder="输入URL" ng-model="project.url" name="url" required>
+                <input type="url"
+                        class="form-control"
+                        placeholder="输入URL"
+                        ng-model="project.init_url"
+                        name="init_url"
+                        required>
             </div>
         </accordion-group>
     </accordion>
 
     <div class="form-group">
-<textarea id="project_code_editor" style="display: none;">
+        <textarea id="project_code_editor" style="display: none;">
+#! coding=utf8
 from spider import start
 import time
 import re
@@ -40,23 +46,21 @@ def page(spider):
 
 
 start('test.net', page)
-</textarea>
+        </textarea>
     </div>
 </form>
 
-
 <div class="navbar navbar-default navbar-fixed-bottom">
     <div class="container">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <button ng-click="exec_test()"
-                type="submit"
-                class="btn btn-success navbar-btn"
-                ng-disabled="!project_edit.$valid">执行测试
+        <button type="submit" ng-click="exec_test()"
+                class="btn btn-primary navbar-btn"
+                ng-show="project_form.$valid">保存计划
         </button>
-        <button type="submit"
-                class="btn btn-primary pull-right navbar-btn"
-                ng-disabled="!project_edit.$valid">保存计划
+        <button
+                type="submit"
+                class="btn btn-success navbar-btn pull-right" ng-show="showTest">执行测试
         </button>
     </div>
-    <!-- /.container-fluid -->
 </div>
+
+

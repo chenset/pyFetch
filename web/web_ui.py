@@ -83,6 +83,24 @@ def get_projects():
     return jsonify(project_dict)
 
 
+@app.route('/api/project/add', methods=['POST'])
+def add_project():
+    form_data = json.loads(request.data)  # todo 需要验证表单数据
+
+    if list(Mongo.get()['projects'].find({'name': form_data['name']}, {'_id': 1}).limit(1)):
+        return jsonify({'success': False, 'msg': '计划名称已经存在!'})
+
+    insert_data = {
+        'name': form_data['name'],
+        'init_url': form_data['init_url'],
+        'code': form_data['code'],
+        'static': '测试中',
+        'add_time': int(time.time()),
+    }
+    Mongo.get()['projects'].insert(insert_data)
+    return jsonify({'success': True, 'msg': '新建成功!'})
+
+
 @app.route('/api/slave/<ip>')
 def get_slave_tasks(ip):
     res = []
