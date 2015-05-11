@@ -73,7 +73,12 @@ def api_slave():
 def get_projects():
     project_dict = {}
     for project_name in get_project_name_list():
-        project_dict[project_name] = {'name': project_name}
+        project_dict[project_name] = {
+            'name': project_name,
+            'queue_len': Mongo.get()['queue_' + project_name].count(),
+            'parsed_len': Mongo.get()['parsed_' + project_name].count(),
+            'result_len': Mongo.get()['result_' + project_name].count(),
+        }
 
     return jsonify(project_dict)
 

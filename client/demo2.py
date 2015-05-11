@@ -20,7 +20,6 @@ def page(spider):
 
     return {
         'title': title,
-        'ddd': 2222323,
     }
 
 

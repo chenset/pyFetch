@@ -151,16 +151,11 @@ function load_and_exec_CodeMirror($q) {
     var delay = $q.defer();
 
     $script(["/static/js/codemirror.js"], function () {// fixme 加载顺序缓存等等原因会导致在首页进入时有问题, 具体看console
-        $script(['/static/js/codemirror-python.min.js'], function () {
+        $script(['/static/js/codemirror-component.min.js'], function () {
             CodeMirror.fromTextArea(document.getElementById("project_code_editor"), {
                 lineNumbers: true,
-                //showCursorWhenSelecting: true,
-                //value: 'gdgdfg',
-                //lineWrapping: true,
-                //styleActiveLine: true,
-                //autofocus: true,
-                //matchBrackets: true,
-                mode: "python"
+                styleActiveLine: true,
+                autofocus: true
             });
             return delay.promise;
         });

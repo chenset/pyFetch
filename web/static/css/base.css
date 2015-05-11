@@ -26,11 +26,11 @@ label input {
     margin-top: 5px;
 }
 
-.CodeMirror-linenumber {
-    left: -30px !important; /*conflict fix of bootstrap & CodeMirror*/
-}
-
 .CodeMirror {
-    height: 780px;
-    background-color: #f7f7f7;
+    height: 790px;
+    background-color: #fdfdfd;
+    border: 1px dotted #c8c8c7;
+    -moz-topleft: 3px;
+    -webkit-radius: 3px;
+    border-radius: 3px;
 }

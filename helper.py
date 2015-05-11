@@ -7,6 +7,7 @@ import random
 import time
 import json
 import sys
+from mongo_single import Mongo
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -28,8 +29,9 @@ class SlaveRecord():
                      'static': '抓取中'}
 
     def __init__(self):
-        # self.slave_record = {}
-        pass
+        if not self.slave_record:
+            for item in Mongo.get().slave_record.find():
+                self.slave_record[item['ip']] = item['data']
 
     @classmethod
     def get_instance(cls):
@@ -74,6 +76,12 @@ class SlaveRecord():
                 self.slave_record[k]['static'] = '断开中'
             else:
                 self.slave_record[k]['static'] = '抓取中'
+
+        self.__storage_record()  # todo 不能每次实时插入 或者 web端获取时不通过 process.Manager 的方式获取,改用mongoDB获取
+
+    def __storage_record(self):
+        for ip, data in self.slave_record.items():
+            Mongo.get().slave_record.update({'ip': ip}, {'ip': ip, 'data': data}, True)  # 有着更新, 无则插入
 
 
 class GlobalHelper:

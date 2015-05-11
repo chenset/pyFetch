@@ -8,8 +8,9 @@
             <th>序</th>
             <th>项目</th>
             <th>状态</th>
-            <th>进度</th>
-            <th>耗时</th>
+            <th>抓取数</th>
+            <th>队列数</th>
+            <th>结果数</th>
             <th></th>
         </tr>
         </thead>
@@ -18,9 +19,10 @@
         <tr class="" ng-repeat="item in projects">
             <td>{{$index+1}}</td>
             <td><a href="/project/edit/{{item.name}}"><i class="fa fa-edit"></i> {{item.name}}</a></td>
-            <td>3</td>
-            <td>4</td>
-            <td>5</td>
+            <td>抓取中</td>
+            <td>{{item.parsed_len}}</td>
+            <td>{{item.queue_len}}</td>
+            <td>{{item.result_len}}</td>
             <td style="width: 200px;text-align: right;">
                 <button type="button" class="btn btn-danger btn-sm">停止</button>
                 <a class="btn btn-default btn-sm" href="/project/task/{{item.name}}">历史</a>
