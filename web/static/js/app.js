@@ -149,7 +149,8 @@ function load_and_exec_CodeMirror() {
         CodeMirror.fromTextArea(document.getElementById("project_code_editor"), {
             lineNumbers: true,
             styleActiveLine: true,
-            autofocus: true
+            autofocus: true,
+            tabSize: 4
         });
     });
 }
