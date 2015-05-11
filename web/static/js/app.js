@@ -44,8 +44,7 @@ app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$ht
             otherwise({
                 redirectTo: '/project'
             });
-    }])
-;
+    }]);
 
 
 app.controller('projectAddCtrl', ['$scope', '$rootScope', '$routeParams', '$http', function ($scope, $rootScope, $routeParams, $http) {
@@ -145,12 +144,14 @@ app.controller('NavBarCtrl', function ($scope, $location) {
 });
 
 function load_and_exec_CodeMirror() {
-    $script(["/static/js/codemirror.js", "/static/js/codemirror-component.min.js"], function () {// fixme 加载顺序缓存等等原因会导致在首页进入时有问题, 具体看console
-        CodeMirror.fromTextArea(document.getElementById("project_code_editor"), {
-            lineNumbers: true,
-            styleActiveLine: true,
-            autofocus: true,
-            tabSize: 4
+    $script(["/static/js/codemirror.js"], function () {// fixme 加载顺序缓存等等原因会导致在首页进入时有问题, 具体看console
+        $script(["/static/js/codemirror-component.min.js"], function () {
+            CodeMirror.fromTextArea(document.getElementById("project_code_editor"), {
+                lineNumbers: true,
+                styleActiveLine: true,
+                autofocus: true,
+                tabSize: 4
+            });
         });
     });
 }
