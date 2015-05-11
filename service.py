@@ -14,9 +14,7 @@ from helper import GlobalHelper, SlaveRecord
 
 
 def request_handle(data, address):
-    slave_record = SlaveRecord.get_instance()
-    slave_record.add_request_record(address[0])
-    GlobalHelper.set('salve_record', slave_record.slave_record)
+    SlaveRecord.get_instance().add_request_record(address[0])
 
     request = json.loads(data)
     if 'project_name' not in request:
@@ -76,7 +74,11 @@ if __name__ == '__main__':
     global_process_var = Manager().dict()
     web_ui = Process(target=web_start, args=(global_process_var,))
     web_ui.start()
+
     GlobalHelper.init(global_process_var)
+    slave_record = SlaveRecord.get_instance()
+    GlobalHelper.set('salve_record', slave_record.slave_record)
+
     socket_server('0.0.0.0', 7777)
     web_ui.join()
 
