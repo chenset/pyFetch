@@ -12,9 +12,11 @@ from multiprocessing import Process, Manager
 from web.web_ui import web_start
 from helper import GlobalHelper, SlaveRecord
 
+slave_record = SlaveRecord.get_instance()
+
 
 def request_handle(data, address):
-    SlaveRecord.get_instance().add_request_record(address[0])
+    slave_record.add_request_record(address[0])
 
     request = json.loads(data)
     if 'project_name' not in request:
@@ -76,7 +78,6 @@ if __name__ == '__main__':
     web_ui.start()
 
     GlobalHelper.init(global_process_var)
-    slave_record = SlaveRecord.get_instance()
     GlobalHelper.set('salve_record', slave_record.slave_record)
 
     socket_server('0.0.0.0', 7777)
