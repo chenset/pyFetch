@@ -33,6 +33,8 @@ class SlaveRecord():
             for item in Mongo.get().slave_record.find():
                 self.slave_record[item['ip']] = item['data']
 
+        self.refresh_connect_status()
+
     @classmethod
     def get_instance(cls):
         """
@@ -58,16 +60,14 @@ class SlaveRecord():
     def add_request_record(self, ip):
         self.__init_key(ip)
         self.slave_record[ip]['connected_count'] += 1
-        self.__set_connect_info(ip)
+        self.__set_connect_record(ip)
+        self.refresh_connect_status()
 
-    def __set_connect_info(self, ip):
+        # todo 不能每次实时插入 或者 web端获取时不通过 process.Manager 的方式获取,改用mongoDB获取
+        self.__storage_record()
+
+    def refresh_connect_status(self):
         now = int(time.time())
-        last_connected_time = self.slave_record[ip]['last_connected_time']
-        self.slave_record[ip]['last_connected_time'] = now
-
-        if now - last_connected_time < 60 * 10:  # fixme 0时会不计算
-            self.slave_record[ip]['work_time_count'] += now - last_connected_time
-
         for k, item in self.slave_record.items():
             leave_second = now - item['last_connected_time']
             if leave_second > 60 * 60:  # 失联1小时以上
@@ -77,11 +77,22 @@ class SlaveRecord():
             else:
                 self.slave_record[k]['static'] = '抓取中'
 
-        self.__storage_record()  # todo 不能每次实时插入 或者 web端获取时不通过 process.Manager 的方式获取,改用mongoDB获取
+    def __set_connect_record(self, ip):
+        now = int(time.time())
+        last_connected_time = self.slave_record[ip]['last_connected_time']
+        self.slave_record[ip]['last_connected_time'] = now
+
+        if now - last_connected_time < 60 * 10:  # fixme 0时会不计算
+            self.slave_record[ip]['work_time_count'] += now - last_connected_time
 
     def __storage_record(self):
         for ip, data in self.slave_record.items():
-            Mongo.get().slave_record.update({'ip': ip}, {'ip': ip, 'data': data}, True)  # 有着更新, 无则插入
+            Mongo.get().slave_record.update(
+                {'ip': ip},
+                {'ip': ip, 'data': data}, True)  # 有着更新, 无则插入
+
+    def __del__(self):
+        self.__storage_record()
 
 
 class GlobalHelper:
@@ -95,6 +106,7 @@ class GlobalHelper:
     def init(cls, d):
         """
         需要特殊的初始化过程, 详见调用处
+        设置跨进程的引用变量
         """
         cls.__source_data = d
 
@@ -107,6 +119,9 @@ class GlobalHelper:
 
     @classmethod
     def set(cls, key, value):
+        """
+        每次跨进程都要重新set, init只需要一次,set是每次
+        """
         cls.__source_data[key] = value
 
 
