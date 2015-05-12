@@ -47,10 +47,8 @@ app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$ht
     }]);
 
 
-app.controller('projectAddCtrl', ['$scope', '$rootScope', '$routeParams', '$http', '$location', function ($scope, $rootScope, $routeParams, $http, $location) {
+app.controller('projectAddCtrl', ['$scope', '$rootScope', '$http', '$location', 'appAlert', function ($scope, $rootScope, $http, $location, appAlert) {
     load_and_exec_CodeMirror();
-
-    $scope.projectName = $routeParams.projectName;
 
     //设置区域的折叠
     $scope.status = {
@@ -58,11 +56,6 @@ app.controller('projectAddCtrl', ['$scope', '$rootScope', '$routeParams', '$http
         isFirstDisabled: false,
         open: true
     };
-
-    $rootScope.alerts = [
-        //{type: 'danger', msg: 'Oh snap! Change a few things up and try submitting again.'},
-        //{type: 'success', msg: 'Well done! You successfully read this important alert message.'}
-    ];
 
     //表单与提交
     $scope.project = {};
@@ -72,26 +65,23 @@ app.controller('projectAddCtrl', ['$scope', '$rootScope', '$routeParams', '$http
         $http.post('/api/project/add', formData).success(function (data) {
             if (data.success) {
                 $location.url('/project/edit/' + $scope.project.name);
-                $rootScope.alerts.push({'type': 'success', 'msg': data.msg});
+                appAlert.add('success', data.msg, 3000);
             } else {
-                $rootScope.alerts.push({'type': 'danger', 'msg': data.msg});
+                appAlert.add('danger', data.msg, 5000);
             }
         });
-    };
-
-    $rootScope.addAlert = function () {
-        $rootScope.alerts.push({});
-    };
-
-    $rootScope.closeAlert = function (index) {
-        $rootScope.alerts.splice(index, 1);
     };
 }]);
 
 app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {
-    $scope.showTest = true;
     load_and_exec_CodeMirror();
+    $scope.showTest = true;
     $scope.projectName = $routeParams.projectName;
+
+    $http.get('/api/project/' + $scope.projectName).success(function (data) {
+        $scope.project = data;
+        document.getElementById('project_code_editor').value = data.code;
+    });
 }]);
 
 app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
@@ -165,7 +155,39 @@ app.controller('scrollToTop', function ($scope) {
     }
 });
 
-function load_and_exec_CodeMirror() {
+app.factory('appAlert', [
+    '$rootScope', '$timeout', '$sce', function ($rootScope, $timeout, $sce) {
+        var alertService;
+        $rootScope.alerts = [];
+        return alertService = {
+            add: function (type, msg, timeout) {
+                $rootScope.alerts.push({
+                    type: type,
+                    msg: $sce.trustAsHtml(msg),
+                    close: function () {
+                        return alertService.closeAlert(this);
+                    }
+                });
+
+                if (timeout) {
+                    $timeout(function () {
+                        alertService.closeAlert(this);
+                    }, timeout);
+                }
+            },
+            closeAlert: function (alert) {
+                return this.closeAlertIdx($rootScope.alerts.indexOf(alert));
+            },
+            closeAlertIdx: function (index) {
+                return $rootScope.alerts.splice(index, 1);
+            },
+            clear: function () {
+                $rootScope.alerts = [];
+            }
+        };
+    }
+]);
+function load_and_exec_CodeMirror(defaultValue) {
     $script(["/static/js/codemirror.js"], function () {
         $script(["/static/js/codemirror-component.min.js"], function () {
             window._editor = CodeMirror.fromTextArea(document.getElementById("project_code_editor"), {
@@ -174,6 +196,8 @@ function load_and_exec_CodeMirror() {
                 autofocus: true,
                 tabSize: 4
             });
+
+            defaultValue && window._editor.setValue(defaultValue)
         });
     });
 }

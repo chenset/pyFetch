@@ -4,7 +4,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from mongo_single import Mongo
 import time
 import os
-from functions import get_project_name_list
+from functions import get_project_list
 from helper import GlobalHelper
 
 # from gevent import monkey
@@ -22,7 +22,7 @@ app.config.update(dict(
 
 
 def get_template(template_path):
-    with open(os.path.dirname(os.path.abspath(__file__)) + '/templates/' + template_path) as f:
+    with open(os.path.dirname(os.path.abspath(__file__)) + '/templates/' + template_path) as f:  # todo 后期上缓存
         return f.read()
 
 
@@ -72,15 +72,24 @@ def api_slave():
 @app.route('/api/project')
 def get_projects():
     project_dict = {}
-    for project_name in get_project_name_list():
-        project_dict[project_name] = {
-            'name': project_name,
-            'queue_len': Mongo.get()['queue_' + project_name].count(),
-            'parsed_len': Mongo.get()['parsed_' + project_name].count(),
-            'result_len': Mongo.get()['result_' + project_name].count(),
+    for project in get_project_list():
+        project_dict[project['name']] = {
+            'name': project['name'],
+            'static': project['static'],
+            'queue_len': Mongo.get()['queue_' + project['name']].count(),
+            'parsed_len': Mongo.get()['parsed_' + project['name']].count(),
+            'result_len': Mongo.get()['result_' + project['name']].count(),
         }
 
     return jsonify(project_dict)
+
+
+@app.route('/api/project/<name>')
+def get_project_by_name(name):
+    res = list(Mongo.get().projects.find({'name': name}, {'_id': 0}))
+    if not res:
+        return jsonify({})
+    return jsonify(res[0])
 
 
 @app.route('/api/project/add', methods=['POST'])
@@ -93,6 +102,7 @@ def add_project():
     insert_data = {
         'name': form_data['name'],
         'init_url': form_data['init_url'],
+        'desc': form_data['desc'] if 'desc' in form_data else '',
         'code': form_data['code'],
         'static': '测试中',
         'add_time': int(time.time()),
@@ -104,8 +114,8 @@ def add_project():
 @app.route('/api/slave/<ip>')
 def get_slave_tasks(ip):
     res = []
-    for project_name in get_project_name_list():
-        for doc in Mongo.get()['parsed_' + project_name].find({'slave_ip': ip}).sort('_id', -1).limit(100):
+    for project in get_project_list():
+        for doc in Mongo.get()['parsed_' + project['name']].find({'slave_ip': ip}).sort('_id', -1).limit(100):
             del doc['_id']
             res.append(doc)
     return json.dumps(res)

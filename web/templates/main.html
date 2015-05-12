@@ -3,7 +3,7 @@
 <head lang="zh-CN">
     <title>PyFetch</title>
     <base href="/">
-    <meta charset="UTF-8" name="viewport" content="width=768px,user-scalable=no,target-densitydpi=device-dpi">
+    <meta charset="UTF-8" name="viewport" content="width=768,user-scalable=no">
     <script src="/static/js/angular.min.js"></script>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/loading-bar.min.css">
@@ -31,9 +31,9 @@
     </div>
 </nav>
 <div class="container">
-    <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
-    <!-- fixme 网络加载慢时由于ui组件未加载完毕{{alert.msg}}会显示在页面上 -->
+    <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="alert.close()"><span ng-bind-html="alert.msg"></span></alert>
 </div>
+<!-- fixme 网络加载慢时由于ui组件未加载完毕{{alert.msg}}会显示在页面上 -->
 <div ng-view class="container"></div>
 <div ng-controller="scrollToTop"
         ng-click="toTop()"

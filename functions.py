@@ -5,28 +5,14 @@ import time
 from mongo_single import Mongo
 
 
-def get_project_name_list():
+def get_project_list():
     """
-
     todo 测试是否支持中文
     :return:
     """
-    project_name_list = []
-    for collection in Mongo.get().collection_names():
-        if collection == 'system.indexes':
-            continue
+    get_project_list.cache = [v for v in Mongo.get().projects.find({}, {'_id': 0})]
 
-        project_name = ''
-        if collection.startswith('parsed_'):
-            project_name = collection.replace('parsed_', '')
-        elif collection.startswith('queue_'):
-            project_name = collection.replace('queue_', '')
-        elif collection.startswith('result_'):
-            project_name = collection.replace('result_', '')
-        if project_name and project_name not in project_name_list:
-            project_name_list.append(project_name)
-
-    return project_name_list
+    return get_project_list.cache
 
 
 def md5(s):

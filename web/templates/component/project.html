@@ -19,12 +19,13 @@
         <tr class="" ng-repeat="item in projects">
             <td>{{$index+1}}</td>
             <td><a href="/project/edit/{{item.name}}"><i class="fa fa-edit"></i> {{item.name}}</a></td>
-            <td>抓取中</td>
+            <td>{{item.static}}</td>
             <td>{{item.parsed_len}}</td>
             <td>{{item.queue_len}}</td>
             <td>{{item.result_len}}</td>
             <td style="width: 200px;text-align: right;">
-                <button type="button" class="btn btn-danger btn-sm">停止</button>
+                <button type="button" class="btn btn-danger btn-sm" ng-show="item.static=='抓取中'">停止</button>
+                <button type="button" class="btn btn-success btn-sm" ng-show="item.static!='抓取中'">运行</button>
                 <a class="btn btn-default btn-sm" href="/project/task/{{item.name}}">历史</a>
                 <a class="btn btn-primary btn-sm" href="/project/result/{{item.name}}">结果</a>
             </td>
