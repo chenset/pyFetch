@@ -31,9 +31,9 @@
     </div>
 </nav>
 <div class="container">
-    <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="alert.close()"><span ng-bind-html="alert.msg"></span></alert>
+    <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="alert.close()">
+        <span ng-bind-html="alert.msg"></span></alert>
 </div>
-<!-- fixme 网络加载慢时由于ui组件未加载完毕{{alert.msg}}会显示在页面上 -->
 <div ng-view class="container"></div>
 <div ng-controller="scrollToTop"
         ng-click="toTop()"
@@ -42,30 +42,18 @@
 </div>
 
 
-<div>
-    <script type="text/ng-template" id="myModalContent.html">
-        <div class="modal-header">
-            <h3 class="modal-title">I'm a modal!</h3>
-        </div>
-        <div class="modal-body">
-            <ul>
-                <li ng-repeat="item in items">
-                    <a ng-click="selected.item = item">{{ item }}</a>
-                </li>
-            </ul>
-            Selected: <b>{{ selected.item }}</b>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" ng-click="ok()">OK</button>
-            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-        </div>
-    </script>
-
-    <!--<button class="btn btn-default" ng-click="appModal.open()">Open me!</button>-->
-    <!--<button class="btn btn-default" ng-click="appModal.open('lg')">Large modal</button>-->
-    <!--<button class="btn btn-default" ng-click="appModal.open('sm')">Small modal</button>-->
-    <!--<div ng-show="selected">Selection from a modal: {{ selected }}</div>-->
-</div>
+<script type="text/ng-template" id="myModalContent.html">
+    <div class="modal-header" id="modal-header">
+        <span class="modal-title">{{modalTitle}}</span>
+    </div>
+    <div class="modal-body">
+        {{modalMsg}}
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+        <button class="btn btn-default" ng-click="cancel()">取消</button>
+    </div>
+</script>
 
 
 <script src="/static/js/angular-route.min.js"></script>

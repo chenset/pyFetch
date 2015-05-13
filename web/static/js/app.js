@@ -88,7 +88,7 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', 'appAlert'
     //表单与提交
     $scope.save_project = function () {
 
-        appModal.open();
+        appModal.open('测试', '结果', 'sm');
 
         var formData = $scope.project;
         formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
@@ -238,26 +238,50 @@ function load_and_exec_CodeMirror(defaultValue) {
 
 app.factory('appModal', function ($rootScope, $modal) {
     return {
-        open: function (size,sure,cancel) {
+        open: function (title, msg, size) {
+            $rootScope.modalMsg = msg;
+            $rootScope.modalTitle = (title || '');
             var modalInstance = $modal.open({
+                backdrop: false,
                 animation: true,
                 templateUrl: 'myModalContent.html',
                 controller: 'ModalInstanceCtrl',
                 size: size,
                 resolve: {
                     items: function () {
-                        return ['item1', 'item2', 'item3'];
+                        return [];
                     }
                 }
             });
 
             modalInstance.result.then(function (selectedItem) {
-                alert(selectedItem);
                 $rootScope.selected = selectedItem;
             }, function (data) {
-                alert(data);
                 console.log('Modal dismissed at: ' + new Date());
             });
+            modalInstance.rendered.then(function () {
+                //拖拽
+                var modal_head = document.getElementById('modal-header'),
+                    modal = modal_head.parentNode.parentNode, left_fix = 0, top_fix = 0;
+
+                modal_head.addEventListener('mousedown', mouseDown);
+                function mouseDown(d_e) {
+                    top_fix = parseInt(d_e.clientY - modal.offsetTop, 10);
+                    left_fix = parseInt(d_e.clientX - modal.offsetLeft, 10);
+                    document.addEventListener('mousemove', mouseMove);
+                    document.addEventListener('mouseup', mouseUp);
+                }
+
+                function mouseMove(m_e) {
+                    modal.style.marginLeft = m_e.clientX - left_fix + 'px';
+                    modal.style.marginTop = m_e.clientY - top_fix + 'px';
+                }
+
+                function mouseUp() {
+                    document.removeEventListener('mousemove', mouseMove);
+                    document.removeEventListener('mouseup', mouseUp);
+                }
+            })
         }
     }
 });
@@ -272,8 +296,8 @@ app.controller('ModalInstanceCtrl', function ($scope, $modalInstance, items) {
     $scope.ok = function () {
         $modalInstance.close($scope.selected.item);
     };
-
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
 });
+
