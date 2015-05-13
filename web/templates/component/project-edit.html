@@ -12,7 +12,9 @@
                 <small>执行或保存后不可修改!</small>
                 <br/>
                 <small>格式: [0-9a-zA-Z_-]+</small>
-                <input type="text" class="form-control" placeholder="输入名称" ng-model="project.name" name="name" required>
+                <input type="text" class="form-control"
+                        ng-disabled="!input_write"
+                        placeholder="输入名称" ng-model="project.name" name="name" required>
             </div>
             <div class="form-group">
                 <label><span style="color:red;">*</span> 起始URL:</label>
@@ -23,6 +25,7 @@
                 <br/>
                 <small>格式: http://www.example.com/example.html</small>
                 <input type="url"
+                        ng-disabled="!input_write"
                         class="form-control"
                         placeholder="输入URL"
                         ng-model="project.init_url"
@@ -43,31 +46,32 @@
     </accordion>
     <textarea id="project_code_editor"
             style="display: none;">
-#! coding=utf8
-from spider import start
-import time
-import re
+        #! coding=utf8
+        from spider import start
+        import time
+        import re
 
 
-def page(spider):
-    """
-    在此方法体编写逻辑代码
-    """
-    pass
+        def page(spider):
+        """
+        在此方法体编写逻辑代码
+        """
+        pass
 
 
-start('test.net', page)
+        start('test.net', page)
     </textarea>
 </form>
 
 <div class="navbar navbar-default navbar-fixed-bottom">
     <div class="container">
-        <button type="submit" ng-click="exec_test()"
+        <button type="submit" ng-click="save_project()"
                 class="btn btn-primary navbar-btn"
                 ng-show="project_form.$valid">保存计划
         </button>
         <button
                 type="submit"
+                ng-click="exec_test()"
                 class="btn btn-success navbar-btn pull-right" ng-show="showTest">执行测试
         </button>
     </div>

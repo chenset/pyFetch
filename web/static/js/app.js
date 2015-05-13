@@ -49,7 +49,7 @@ app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$ht
 
 app.controller('projectAddCtrl', ['$scope', '$rootScope', '$http', '$location', 'appAlert', function ($scope, $rootScope, $http, $location, appAlert) {
     load_and_exec_CodeMirror();
-
+    $scope.input_write = true;
     //设置区域的折叠
     $scope.status = {
         isFirstOpen: true,
@@ -59,10 +59,10 @@ app.controller('projectAddCtrl', ['$scope', '$rootScope', '$http', '$location', 
 
     //表单与提交
     $scope.project = {};
-    $scope.exec_test = function () {
+    $scope.save_project = function () {
         var formData = $scope.project;
         formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
-        $http.post('/api/project/add', formData).success(function (data) {
+        $http.post('/api/project/save', formData).success(function (data) {
             if (data.success) {
                 $location.url('/project/edit/' + $scope.project.name);
                 appAlert.add('success', data.msg, 3000);
@@ -73,15 +73,47 @@ app.controller('projectAddCtrl', ['$scope', '$rootScope', '$http', '$location', 
     };
 }]);
 
-app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {
+app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', 'appAlert', 'appModal', function ($scope, $routeParams, $http, appAlert, appModal) {
     load_and_exec_CodeMirror();
     $scope.showTest = true;
     $scope.projectName = $routeParams.projectName;
+
+    $scope.project = {};
 
     $http.get('/api/project/' + $scope.projectName).success(function (data) {
         $scope.project = data;
         document.getElementById('project_code_editor').value = data.code;
     });
+
+    //表单与提交
+    $scope.save_project = function () {
+
+        appModal.open();
+
+        var formData = $scope.project;
+        formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
+        formData['edit'] = true; //标识为编辑计划
+        $http.post('/api/project/save', formData).success(function (data) {
+            if (data.success) {
+                appAlert.add('success', data.msg, 3000);
+            } else {
+                appAlert.add('danger', data.msg, 5000);
+            }
+        });
+    };
+
+    $scope.exec_test = function () {
+        var formData = $scope.project;
+        formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
+        formData['edit'] = true; //标识为编辑计划
+        $http.post('/api/project/exec_test', formData).success(function (data) {
+            if (data.success) {
+                appAlert.add('success', data.msg, 3000);
+            } else {
+                appAlert.add('danger', data.msg, 5000);
+            }
+        });
+    };
 }]);
 
 app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
@@ -155,6 +187,7 @@ app.controller('scrollToTop', function ($scope) {
     }
 });
 
+//todo 已经使用模态框替换, 请删除该服务以及相应的js依赖
 app.factory('appAlert', [
     '$rootScope', '$timeout', '$sce', function ($rootScope, $timeout, $sce) {
         var alertService;
@@ -201,3 +234,81 @@ function load_and_exec_CodeMirror(defaultValue) {
         });
     });
 }
+
+
+app.factory('appModal', function ($rootScope, $modal) {
+    return {
+        open: function (size,sure,cancel) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: 'myModalContent.html',
+                controller: 'ModalInstanceCtrl',
+                size: size,
+                resolve: {
+                    items: function () {
+                        return ['item1', 'item2', 'item3'];
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (selectedItem) {
+                alert(selectedItem);
+                $rootScope.selected = selectedItem;
+            }, function (data) {
+                alert(data);
+                console.log('Modal dismissed at: ' + new Date());
+            });
+        }
+    }
+});
+
+
+//app.controller('ModalCtrl', function ($scope, $modal, $log) {
+//    $scope.items = ['item1', 'item2', 'item3'];
+//
+//    $scope.animationsEnabled = true;
+//
+//    $scope.open = function (size) {
+//
+//        var modalInstance = $modal.open({
+//            animation: $scope.animationsEnabled,
+//            templateUrl: 'myModalContent.html',
+//            controller: 'ModalInstanceCtrl',
+//            size: size,
+//            resolve: {
+//                items: function () {
+//                    return $scope.items;
+//                }
+//            }
+//        });
+//
+//        modalInstance.result.then(function (selectedItem) {
+//            $scope.selected = selectedItem;
+//        }, function () {
+//            $log.info('Modal dismissed at: ' + new Date());
+//        });
+//    };
+//
+//    $scope.toggleAnimation = function () {
+//        $scope.animationsEnabled = !$scope.animationsEnabled;
+//    };
+//});
+
+// Please note that $modalInstance represents a modal window (instance) dependency.
+// It is not the same as the $modal service used above.
+
+app.controller('ModalInstanceCtrl', function ($scope, $modalInstance, items) {
+
+    $scope.items = items;
+    $scope.selected = {
+        item: $scope.items[0]
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close($scope.selected.item);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+});

@@ -40,6 +40,34 @@
         style="width: 40px;height:40px;line-height:40px;text-align: center;background: #e7e7e7;border-radius: 3px;position: fixed;bottom: 10px;right: 20px;">
     <i class="fa fa-angle-up"></i>
 </div>
+
+
+<div>
+    <script type="text/ng-template" id="myModalContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title">I'm a modal!</h3>
+        </div>
+        <div class="modal-body">
+            <ul>
+                <li ng-repeat="item in items">
+                    <a ng-click="selected.item = item">{{ item }}</a>
+                </li>
+            </ul>
+            Selected: <b>{{ selected.item }}</b>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+
+    <!--<button class="btn btn-default" ng-click="appModal.open()">Open me!</button>-->
+    <!--<button class="btn btn-default" ng-click="appModal.open('lg')">Large modal</button>-->
+    <!--<button class="btn btn-default" ng-click="appModal.open('sm')">Small modal</button>-->
+    <!--<div ng-show="selected">Selection from a modal: {{ selected }}</div>-->
+</div>
+
+
 <script src="/static/js/angular-route.min.js"></script>
 <script src="/static/js/loading-bar.min.js"></script>
 <script src="/static/js/script.min.js"></script>

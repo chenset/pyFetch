@@ -92,14 +92,14 @@ def get_project_by_name(name):
     return jsonify(res[0])
 
 
-@app.route('/api/project/add', methods=['POST'])
-def add_project():
+@app.route('/api/project/save', methods=['POST'])
+def save_project():
     form_data = json.loads(request.data)  # todo 需要验证表单数据
 
-    if list(Mongo.get()['projects'].find({'name': form_data['name']}, {'_id': 1}).limit(1)):
+    if 'edit' not in form_data and list(Mongo.get()['projects'].find({'name': form_data['name']}, {'_id': 1}).limit(1)):
         return jsonify({'success': False, 'msg': '计划名称已经存在!'})
 
-    insert_data = {
+    data = {
         'name': form_data['name'],
         'init_url': form_data['init_url'],
         'desc': form_data['desc'] if 'desc' in form_data else '',
@@ -107,8 +107,8 @@ def add_project():
         'static': '测试中',
         'add_time': int(time.time()),
     }
-    Mongo.get()['projects'].insert(insert_data)
-    return jsonify({'success': True, 'msg': '新建成功!'})
+    Mongo.get()['projects'].update({'name': form_data['name']}, data, True)
+    return jsonify({'success': True, 'msg': '保存成功!'})
 
 
 @app.route('/api/slave/<ip>')
