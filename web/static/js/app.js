@@ -101,17 +101,17 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', 'appAlert'
     };
 
     $scope.exec_test = function () {
-        appModal.open('测试', '结果', 'lg');
-
         var formData = $scope.project;
         formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
         formData['edit'] = true; //标识为编辑计划
         $http.post('/api/project/exec_test', formData).success(function (data) {
-            if (data.success) {
-                appAlert.add('success', data.msg, 3000);
-            } else {
-                appAlert.add('danger', data.msg, 5000);
-            }
+
+            //if (data.success) {
+            appModal.open('测试', data.msg, 'component/exec-test', 'lg');
+            //} else {
+            //    appAlert.add('danger', data.msg, 5000);
+            //}
+
         });
     };
 }]);
@@ -187,7 +187,6 @@ app.controller('scrollToTop', function ($scope) {
     }
 });
 
-//todo 已经使用模态框替换, 请删除该服务以及相应的js依赖
 app.factory('appAlert', [
     '$rootScope', '$timeout', '$sce', function ($rootScope, $timeout, $sce) {
         var alertService;
@@ -238,21 +237,16 @@ function load_and_exec_CodeMirror(defaultValue) {
 
 app.factory('appModal', function ($rootScope, $modal) {
     return {
-        open: function (title, msg, size, sure_fn) {
-            $rootScope.modal = {
-                modalMsg: msg,
-                modalTitle: (title || ''),
-                show_ok: !!sure_fn
-            };
+        open: function (title, params, template, sure_fn, size) {
             var modalInstance = $modal.open({
                 backdrop: false,
                 animation: true,
-                templateUrl: 'myModalContent.html',
+                templateUrl: template ? template : 'myModalContent.html',
                 controller: 'ModalInstanceCtrl',
                 size: size,
                 resolve: {
-                    items: function () {
-                        return [];
+                    data: function () {
+                        return {title: title, params: params, sure_fn: sure_fn};
                     }
                 }
             });
@@ -289,15 +283,17 @@ app.factory('appModal', function ($rootScope, $modal) {
     }
 });
 
-app.controller('ModalInstanceCtrl', function ($scope, $modalInstance, items) {
+app.controller('ModalInstanceCtrl', function ($scope, $modalInstance, data) {
 
-    $scope.items = items;
-    $scope.selected = {
-        item: $scope.items[0]
-    };
+    $scope.title = data.title;
+    $scope.params = data.params;
+
+    //$scope.selected = {
+    //    item: $scope.items[0]
+    //};
 
     $scope.ok = function () {
-        $modalInstance.close($scope.selected.item);
+        $modalInstance.close();
     };
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');

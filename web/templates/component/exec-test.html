@@ -1,0 +1,10 @@
+<div class="modal-header" id="modal-header">
+    <i class="fa fa-tag"></i> <span class="modal-title">{{title}}</span>
+</div>
+<div class="modal-body">
+    {{params}}
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-show="modal.show_ok" ng-click="ok()">确定</button>
+    <button class="btn btn-default" ng-click="cancel()">取消</button>
+</div>

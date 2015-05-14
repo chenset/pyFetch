@@ -139,6 +139,14 @@ def get_results(project_name):
     return json.dumps(res)
 
 
+@app.route('/api/project/exec_test', methods=['POST'])
+def exec_test():
+    form_data = json.loads(request.data)  # todo 需要验证表单数据
+    # code = compile(form_data['code'], 'test', 'exec')
+    # exec code
+    return json.dumps({'success': True, 'msg': 11235435435123})
+
+
 def web_start(dd):
     """
     当service.py为入口时会调用这里
