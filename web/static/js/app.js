@@ -88,8 +88,6 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', 'appAlert'
     //表单与提交
     $scope.save_project = function () {
 
-        appModal.open('测试', '结果', 'sm');
-
         var formData = $scope.project;
         formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
         formData['edit'] = true; //标识为编辑计划
@@ -103,6 +101,8 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', 'appAlert'
     };
 
     $scope.exec_test = function () {
+        appModal.open('测试', '结果', 'lg');
+
         var formData = $scope.project;
         formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
         formData['edit'] = true; //标识为编辑计划
@@ -238,9 +238,12 @@ function load_and_exec_CodeMirror(defaultValue) {
 
 app.factory('appModal', function ($rootScope, $modal) {
     return {
-        open: function (title, msg, size) {
-            $rootScope.modalMsg = msg;
-            $rootScope.modalTitle = (title || '');
+        open: function (title, msg, size, sure_fn) {
+            $rootScope.modal = {
+                modalMsg: msg,
+                modalTitle: (title || ''),
+                show_ok: !!sure_fn
+            };
             var modalInstance = $modal.open({
                 backdrop: false,
                 animation: true,
@@ -254,8 +257,8 @@ app.factory('appModal', function ($rootScope, $modal) {
                 }
             });
 
-            modalInstance.result.then(function (selectedItem) {
-                $rootScope.selected = selectedItem;
+            modalInstance.result.then(function (data) {
+                sure_fn(data)
             }, function (data) {
                 console.log('Modal dismissed at: ' + new Date());
             });

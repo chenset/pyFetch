@@ -30,11 +30,37 @@ label input {
     height: 790px;
     background-color: #fdfdfd;
     border: 1px dotted #c8c8c7;
-    -moz-topleft: 3px;
-    -webkit-radius: 3px;
-    border-radius: 3px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+}
+
+.panel-heading, .panel {
+    border-radius: 2px !important;
 }
 
 .panel-group {
     margin-bottom: 13px;
+}
+
+.modal-header {
+    padding: 10px 15px;
+    cursor: move;
+    background: #f7f7f7;
+}
+
+.modal-content {
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+    border: 1px solid #ddd;
+}
+
+.modal-footer {
+    padding: 10px;
+    border: none
+}
+
+.modal {
+    background: rgba(255, 255, 255, 0.3);
 }
