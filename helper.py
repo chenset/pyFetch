@@ -201,6 +201,17 @@ class HttpHelper():
             return req.text, req.status_code, round((time.time() - start_time) * 1000, 2)
 
 
+class SlaveForDev():
+    def __init__(self):
+        pass
+
+    def get_data(self):
+        pass
+
+    def put_data(self, urls_parsed=(), urls_add=(), save=()):
+        pass
+
+
 class Slave():
     """
     slave与master数据传输对象
