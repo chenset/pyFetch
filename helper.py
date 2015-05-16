@@ -201,15 +201,36 @@ class HttpHelper():
             return req.text, req.status_code, round((time.time() - start_time) * 1000, 2)
 
 
-class SlaveForDev():
-    def __init__(self):
-        pass
+class S:
+    """
+    返回结果时的对象
+    """
+    __spider = None
+    html = ''
+    urls = []
+
+    def __init__(self, spider, html, urls):
+        self.__spider = spider
+        self.html = html
+        self.urls = urls
+
+    def crawl(self, url):
+        self.__spider.crawl(url)
+
+
+class SlaveForTest():
+    queue = ['http://jandan.net/']
+    project_name = ''
+
+    def __init__(self, project_name):
+        self.project_name = project_name
 
     def get_data(self):
-        pass
+        return {'urls': self.queue, 'msg': ''}
 
     def put_data(self, urls_parsed=(), urls_add=(), save=()):
-        pass
+        for url in urls_add:
+            url not in self.queue and self.queue.append(url)
 
 
 class Slave():

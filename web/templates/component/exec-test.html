@@ -2,7 +2,11 @@
     <i class="fa fa-tag"></i> <span class="modal-title">{{title}}</span>
 </div>
 <div class="modal-body">
-    {{params}}
+    <ul>
+        <li ng-repeat="url in params.urls">
+            <a href="{{url}}">{{url|limitTo: 150}}</a>
+        </li>
+    </ul>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-show="modal.show_ok" ng-click="ok()">确定</button>

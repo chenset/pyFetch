@@ -5,24 +5,10 @@ monkey.patch_all()
 import gevent
 import urllib2
 import helper
-from helper import Slave
 import time
-from functions import echo_err
-
-
-class S:
-    """
-    返回结果时的对象
-    """
-    __spider = None
-    html = ''
-
-    def __init__(self, spider, html):
-        self.__spider = spider
-        self.html = html
-
-    def crawl(self, url):
-        self.__spider.crawl(url)
+from functions import echo_err, get_urls_form_html, format_and_filter_urls
+from helper import S
+from helper import Slave
 
 
 class Spider(Slave):
@@ -38,19 +24,13 @@ class Spider(Slave):
         Slave.__init__(self, project_name)
         self.http_helper = helper.HttpHelper()
 
-    @staticmethod
-    def __get_url_host(url):
-        protocol, rest = urllib2.splittype(url)
-        host, rest = urllib2.splithost(rest)
-
-        return protocol + "://" + host
-
     def run(self, func):
         """
         :param func:
         :return:
         """
         self.handle_method = func
+
         while True:
             # gevent.sleep(15)
             # todo 需要些速度控制方法. gevent.sleep
@@ -68,7 +48,8 @@ class Spider(Slave):
                 continue
 
             # 如果抓取自定义函数存在dict返回值则将dict推送至服务器
-            parse_result = self.handle_method(S(self, crawl_result[0]))
+            parse_result = self.handle_method(
+                S(self, crawl_result[0], get_urls_form_html(self.current_url, crawl_result[0])))
             if not isinstance(parse_result, dict):
                 continue
 
@@ -86,14 +67,7 @@ class Spider(Slave):
         :param string url:
         :return:
         """
-        # 转换非完整的url格式
-        if url.startswith('/'):  # 以根开头的绝对url地址
-            url = self.__get_url_host(self.current_url).rstrip('/') + "/" + url.lstrip('/')
-
-        if url.startswith('.') or not url.startswith('http'):  # 相对url地址
-            url = self.current_url.rstrip('/') + "/" + url.lstrip('./')
-
-        self.put_data(urls_add=(url,))
+        self.put_data(urls_add=(format_and_filter_urls(self.current_url, url),))
 
     def __get_queue_url(self):
         """

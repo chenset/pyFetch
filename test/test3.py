@@ -1,20 +1,7 @@
-def n():
-    for i in range(5):
-        yield i
+import os
+import sys
 
 
-t = n()
+url = 'http://jandan.net/2015/05/16/peter-de-cupere-scent.html'
 
-print t.next()
-print t.next()
-print t.next()
-print t.next()
-print t.next()
-print t.next()
-print t.next()
-print t.next()
-print t.next()
-print t.next()
-print t.next()
-print t.next()
-print t.next()
+print url.split('#')[0]

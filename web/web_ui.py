@@ -6,6 +6,7 @@ import time
 import os
 from functions import get_project_list
 from helper import GlobalHelper
+from spider_for_test import test_run
 
 # from gevent import monkey
 # monkey.patch_socket()  # fixme patch_all 会影响跨进程通讯或者异步抓取 1/2
@@ -142,9 +143,12 @@ def get_results(project_name):
 @app.route('/api/project/exec_test', methods=['POST'])
 def exec_test():
     form_data = json.loads(request.data)  # todo 需要验证表单数据
-    # code = compile(form_data['code'], 'test', 'exec')
-    # exec code
-    return json.dumps({'success': True, 'msg': 11235435435123})
+
+    result = test_run(form_data)
+    if 'error' in result:
+        return json.dumps({'success': False, 'msg': result['error']})
+
+    return json.dumps({'success': True, 'msg': '成功', 'result': result})
 
 
 def web_start(dd):

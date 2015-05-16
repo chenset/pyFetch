@@ -105,13 +105,12 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', 'appAlert'
         formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
         formData['edit'] = true; //标识为编辑计划
         $http.post('/api/project/exec_test', formData).success(function (data) {
-
-            //if (data.success) {
-            appModal.open('测试', data.msg, 'component/exec-test', 'lg');
-            //} else {
-            //    appAlert.add('danger', data.msg, 5000);
-            //}
-
+            if (data.success) {
+                console.log(data.result.urls);
+                appModal.open('测试', data.result, 'component/exec-test', false, 'lg');
+            } else {
+                appAlert.add('danger', data.msg, 5000);
+            }
         });
     };
 }]);
@@ -252,7 +251,7 @@ app.factory('appModal', function ($rootScope, $modal) {
             });
 
             modalInstance.result.then(function (data) {
-                sure_fn(data)
+                sure_fn && sure_fn(data)
             }, function (data) {
                 console.log('Modal dismissed at: ' + new Date());
             });
