@@ -1,10 +1,23 @@
 #! coding=utf-8
 import hashlib
-import sys
 import time
 import urllib2
 import re
+import sys
+import StringIO
+import contextlib
+
 from mongo_single import Mongo
+
+
+@contextlib.contextmanager
+def stdoutIO(stdout=None):
+    old = sys.stdout
+    if stdout is None:
+        stdout = StringIO.StringIO()
+    sys.stdout = stdout
+    yield stdout
+    sys.stdout = old
 
 
 def get_project_list():

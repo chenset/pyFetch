@@ -6,6 +6,12 @@ body {
     outline: none !important;
 }
 
+pre {
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    border: 1px solid #e3e3e3;
+}
+
 table.table thead tr th {
     color: #6c6c6c;
     font-size: 12px;
@@ -29,7 +35,7 @@ label input {
 .CodeMirror {
     height: 790px;
     background-color: #fdfdfd;
-    border: 1px dotted #c8c8c7;
+    border: 1px solid #e3e3e3;
     -webkit-border-radius: 2px;
     border-radius: 2px;
 }
@@ -49,18 +55,27 @@ label input {
 }
 
 .modal-content {
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
     -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
     box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
     border: 1px solid #ddd;
 }
 
 .modal-footer {
-    padding: 10px;
+    padding: 0 10px 10px;
     border: none
 }
 
 .modal {
     background: rgba(255, 255, 255, 0.3);
+}
+
+.modal-remove, .modal-exec-link {
+    color: #6a6a6a;
+}
+
+.modal-remove:hover, .modal-exec-link:hover {
+    cursor: pointer;
+    color: #000;
 }

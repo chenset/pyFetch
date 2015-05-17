@@ -73,7 +73,7 @@ app.controller('projectAddCtrl', ['$scope', '$rootScope', '$http', '$location', 
     };
 }]);
 
-app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', 'appAlert', 'appModal', function ($scope, $routeParams, $http, appAlert, appModal) {
+app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', '$rootScope', 'appAlert', 'appModal', function ($scope, $routeParams, $http, $rootScope, appAlert, appModal) {
     load_and_exec_CodeMirror();
     $scope.showTest = true;
     $scope.projectName = $routeParams.projectName;
@@ -87,7 +87,6 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', 'appAlert'
 
     //表单与提交
     $scope.save_project = function () {
-
         var formData = $scope.project;
         formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
         formData['edit'] = true; //标识为编辑计划
@@ -100,16 +99,43 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', 'appAlert'
         });
     };
 
-    $scope.exec_test = function () {
-        var formData = $scope.project;
+    var exec_test_first = true, url_record = [];
+    $scope.exec_test = function (init_url, back) {
+        var formData = {};
+
+        //避免引用赋值
+        formData['init_url'] = init_url ? init_url : $scope.project.init_url;
         formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
         formData['edit'] = true; //标识为编辑计划
+
+        //返回功能
+        if (back) {
+            formData['init_url'] = url_record.pop();
+            if (formData['init_url'] == init_url) {
+                formData['init_url'] = url_record.pop();
+            }
+            if (typeof formData['init_url'] === 'undefined') {
+                formData['init_url'] = $scope.project.init_url;
+            }
+        }
+        url_record.push(formData['init_url']);
+
         $http.post('/api/project/exec_test', formData).success(function (data) {
             if (data.success) {
-                console.log(data.result.urls);
-                appModal.open('测试', data.result, 'component/exec-test', false, 'lg');
+                data.result['exec_test'] = $scope.exec_test;
+                data.result['show_result_div'] = JSON.stringify(data.result.result) != '{}';
+                $rootScope.execTestData = data.result;
+
+
+                exec_test_first && appModal.open('测试', {}, 'component/exec-test', 'lg', false, function () {
+                    exec_test_first = true;
+                    url_record = [];
+                });
+
+                exec_test_first = false;
+
             } else {
-                appAlert.add('danger', data.msg, 5000);
+                appAlert.add('danger', data.msg, 10000);
             }
         });
     };
@@ -236,7 +262,7 @@ function load_and_exec_CodeMirror(defaultValue) {
 
 app.factory('appModal', function ($rootScope, $modal) {
     return {
-        open: function (title, params, template, sure_fn, size) {
+        open: function (title, params, template, size, sureFn, cancelFn) {
             var modalInstance = $modal.open({
                 backdrop: false,
                 animation: true,
@@ -245,15 +271,15 @@ app.factory('appModal', function ($rootScope, $modal) {
                 size: size,
                 resolve: {
                     data: function () {
-                        return {title: title, params: params, sure_fn: sure_fn};
+                        return {title: title, params: params, sureFn: sureFn, cancelFn: cancelFn};
                     }
                 }
             });
 
             modalInstance.result.then(function (data) {
-                sure_fn && sure_fn(data)
+                sureFn && sureFn(data)
             }, function (data) {
-                console.log('Modal dismissed at: ' + new Date());
+                cancelFn && cancelFn(data)
             });
             modalInstance.rendered.then(function () {
                 //拖拽
@@ -286,10 +312,6 @@ app.controller('ModalInstanceCtrl', function ($scope, $modalInstance, data) {
 
     $scope.title = data.title;
     $scope.params = data.params;
-
-    //$scope.selected = {
-    //    item: $scope.items[0]
-    //};
 
     $scope.ok = function () {
         $modalInstance.close();

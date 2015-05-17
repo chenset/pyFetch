@@ -146,7 +146,9 @@ def exec_test():
 
     result = test_run(form_data)
     if 'error' in result:
-        return json.dumps({'success': False, 'msg': result['error']})
+        return json.dumps({'success': False, 'msg': result['error'], 'result': {'stdout': result['stdout']}})
+
+    result['urls'] = result['urls'][::-1]
 
     return json.dumps({'success': True, 'msg': '成功', 'result': result})
 

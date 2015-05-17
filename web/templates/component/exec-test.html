@@ -1,12 +1,36 @@
 <div class="modal-header" id="modal-header">
-    <i class="fa fa-tag"></i> <span class="modal-title">{{title}}</span>
+    <i class="fa fa-tag"></i> <span class="modal-title">{{title}} - <span class="modal-exec-link"
+        ng-click="execTestData.exec_test(execTestData.current_url,true)">{{execTestData.current_url|limitTo: 100}}</span>
+    <li ng-click="execTestData.exec_test(execTestData.current_url,true)"
+            class="fa fa-reply modal-exec-link"
+            title="返回上级"></li></span>
+    <i class="pull-right fa fa-remove modal-remove" title="取消" ng-click="cancel()"></i>
 </div>
 <div class="modal-body">
-    <ul>
-        <li ng-repeat="url in params.urls">
-            <a href="{{url}}">{{url|limitTo: 150}}</a>
-        </li>
-    </ul>
+
+    <div ng-show="execTestData.stdout">
+        <p>输出:</p>
+        <pre>{{execTestData.stdout}}</pre>
+    </div>
+    <div ng-show="execTestData.show_result_div">
+        <p>结果:</p>
+        <pre>{{execTestData.result}}</pre>
+    </div>
+    <div class="center-block"
+            style="text-align: center;">{{execTestData.urls.length===0?execTestData.current_url+' 无匹配的URL':'';}}
+    </div>
+    <table class="table table-hover table-striped" ng-show="execTestData.urls.length">
+        <tr ng-repeat="url in execTestData.urls">
+            <td>{{$index+1}}</td>
+            <td><i class="fa fa-bug"></i> <span class="modal-exec-link"
+                    ng-click="execTestData.exec_test(url)">{{url|limitTo: 100}}</span>
+                <a target="_blank" href="{{url}}"
+                        type="button"
+                        class="btn btn-default btn-sm pull-right">浏览 <i class="fa fa-globe"></i>
+                </a>
+            </td>
+        </tr>
+    </table>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-show="modal.show_ok" ng-click="ok()">确定</button>
