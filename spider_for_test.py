@@ -1,17 +1,17 @@
 # coding=utf-8
 import helper
 import traceback
-from functions import echo_err, get_urls_form_html, stdoutIO
+from functions import get_urls_form_html, stdoutIO
 
 
 class SpiderForTest():
     http_helper = None
     current_url = ''
     handle_method = None
-    rest_result = {'urls': [], 'current_url': '', 'http_code': 0, 'result': {}}
+    rest_result = {}
 
     def __init__(self):
-        self.rest_result = dict(self.rest_result)
+        self.rest_result = {'urls': [], 'current_url': '', 'http_code': 0, 'result': {}}
         self.http_helper = helper.HttpHelper()
 
     def run(self, func):
