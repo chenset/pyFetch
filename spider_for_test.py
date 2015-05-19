@@ -52,8 +52,7 @@ class SpiderForTest():
 def test_run(form_data):
     context = {}
 
-    def start(project_name, callback):
-        context['project_name'] = project_name
+    def start(callback):
         context['callback'] = callback
 
     result = {
@@ -61,7 +60,7 @@ def test_run(form_data):
     }
     with stdoutIO() as s:
         try:
-            code = compile(form_data['code'], 'test_model_file', 'exec')
+            code = compile(form_data['code'], 'test_mode_file', 'exec')
             exec code in {'start': start}
             spider = SpiderForTest()
             spider.crawl(form_data['init_url'], False)

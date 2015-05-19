@@ -6,6 +6,10 @@ import re
 import sys
 import StringIO
 import contextlib
+import zlib
+import base64
+# from gevent import socket
+import socket
 
 from mongo_single import Mongo
 
@@ -63,3 +67,28 @@ def get_urls_form_html(base_url, html):
         urls.append(format_and_filter_urls(base_url, url))
 
     return urls
+
+
+def socket_client(content):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(('127.0.0.1', 7777))
+
+    send_date = base64.b64encode(zlib.compress(content))  # 压缩编码
+
+    # content前10个字符串用于标识内容长度.
+    response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
+    sock.sendall(response_len + send_date)
+    buff_size = 1024
+    data = sock.recv(buff_size)
+
+    # content前10个字符串用于标识内容长度.
+    data_len = int(data[0:10])
+    while len(data) < data_len:
+        s = sock.recv(buff_size)
+        data += s
+
+    data = zlib.decompress(base64.b64decode(data[10:]))  # 解码解压
+
+    sock.close()
+
+    return data

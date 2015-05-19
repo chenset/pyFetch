@@ -29,6 +29,7 @@
                         class="form-control"
                         placeholder="输入URL"
                         ng-model="project.init_url"
+                        ng-init="project.init_url='http://'"
                         name="init_url"
                         required>
             </div>
@@ -54,10 +55,13 @@ def page(spider):
     """
     在此方法体编写逻辑代码
     """
-    pass
+    for url in spider.urls:
+	    spider.crawl(url)
 
+    print len(spider.urls)
 
-start('test.net', page)
+start(page)
+
     </textarea>
 </form>
 

@@ -11,6 +11,7 @@ from ser_handle import SerHandle
 from multiprocessing import Process, Manager
 from web.web_ui import web_start
 from helper import GlobalHelper, SlaveRecord
+from slave_ctrl import SlaveCtrl
 
 
 def request_handle(data, address):
@@ -18,6 +19,11 @@ def request_handle(data, address):
     GlobalHelper.set('salve_record', slave_record.slave_record)
 
     request = json.loads(data)
+
+    if 'init' in request:
+        projects = SlaveCtrl().code_ctrl()
+        return json.dumps({'msg': '', 'projects': projects})
+
     if 'project_name' not in request:
         return json.dumps({'msg': '未设置该项目名称'})
 
@@ -36,7 +42,8 @@ def request_handle(data, address):
     if 'get_urls' in request:
         response_url_list = handle.get_urls()
 
-    return json.dumps({'msg': '', 'urls': response_url_list})
+    projects = SlaveCtrl().code_ctrl()  # todo 这里目前是每次都发送
+    return json.dumps({'msg': '', 'urls': response_url_list, 'projects': projects})
 
 
 def socket_server(host, port):

@@ -4,7 +4,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from mongo_single import Mongo
 import time
 import os
-from functions import get_project_list
+from functions import get_project_list, md5
 from helper import GlobalHelper
 from spider_for_test import test_run
 
@@ -100,6 +100,7 @@ def save_project():
     if 'edit' not in form_data and list(Mongo.get()['projects'].find({'name': form_data['name']}, {'_id': 1}).limit(1)):
         return jsonify({'success': False, 'msg': '计划名称已经存在!'})
 
+    # 新增计划或更新计划
     data = {
         'name': form_data['name'],
         'init_url': form_data['init_url'],
@@ -109,6 +110,22 @@ def save_project():
         'add_time': int(time.time()),
     }
     Mongo.get()['projects'].update({'name': form_data['name']}, data, True)
+
+    # 当时新计划时的初始化
+    if 'edit' not in form_data:
+        Mongo.get()['queue_' + form_data['name']].insert(
+            {
+                'url': form_data['init_url'],
+                'url_md5': md5(form_data['init_url']),
+                'flag_time': 0,
+                'add_time': int(time.time()),
+                'slave_ip': '0.0.0.0'
+            })
+
+        # 在没创建集合前设置索引mongodb会自动创建该集合并赋索引
+        Mongo.get()['parsed_' + form_data['name']].ensure_index('url_md5', unique=True)
+        Mongo.get()['queue_' + form_data['name']].ensure_index('url_md5', unique=True)
+
     return jsonify({'success': True, 'msg': '保存成功!'})
 
 

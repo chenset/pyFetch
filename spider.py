@@ -1,9 +1,4 @@
 # coding=utf-8
-from gevent import monkey
-
-monkey.patch_all()
-import gevent
-import urllib2
 import helper
 import time
 from functions import echo_err, get_urls_form_html, format_and_filter_urls
@@ -91,7 +86,3 @@ class Spider(Slave):
             self.pre_url_queue += response['urls']
 
         return self.pre_url_queue.pop(0)  # 出栈首位
-
-
-def start(project_name, callback):
-    gevent.joinall([gevent.spawn(Spider(project_name).run, callback) for i in xrange(1)])

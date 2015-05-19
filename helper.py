@@ -1,14 +1,11 @@
 # coding=utf-8
-import zlib
-import base64
-import socket
 import requests
 import random
 import time
 import json
 import sys
 from mongo_single import Mongo
-
+from functions import socket_client
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -292,32 +289,7 @@ class Slave():
     def __request(cls, data):
         response = None
         try:
-            json_string = cls.socket_client(json.dumps(data))
+            json_string = socket_client(json.dumps(data))
             response = json.loads(json_string)
         finally:
             return response
-
-    @staticmethod
-    def socket_client(content):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(('127.0.0.1', 7777))
-
-        send_date = base64.b64encode(zlib.compress(content))  # 压缩编码
-
-        # content前10个字符串用于标识内容长度.
-        response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
-        sock.sendall(response_len + send_date)
-        buff_size = 1024
-        data = sock.recv(buff_size)
-
-        # content前10个字符串用于标识内容长度.
-        data_len = int(data[0:10])
-        while len(data) < data_len:
-            s = sock.recv(buff_size)
-            data += s
-
-        data = zlib.decompress(base64.b64decode(data[10:]))  # 解码解压
-
-        sock.close()
-
-        return data

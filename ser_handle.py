@@ -22,33 +22,32 @@ class SerHandle():
         self.__request_address = request_address
         self.__slave_record = SlaveRecord.get_instance()
 
-    __projects = []
-
-    @classmethod
-    def __init_project(cls, project_name):
-        if project_name in cls.__projects:
-            return
-
-        cls.__projects.append(project_name)
-        print len(cls.__projects)
-        print cls.__projects
-
-        queue_len = Mongo.get()['queue_' + project_name].count()
-        print 'queue_' + project_name + ' len: ', queue_len
-        print 'parsed_' + project_name + '_parsed len: ', Mongo.get()['parsed_' + project_name].count()
-        print 'result_' + project_name + '_result len: ', Mongo.get()['result_' + project_name].count()
-        if not queue_len:  # todo 未已经完成了所有抓取的处理
-            tmp_url = 'http://jandan.net/'
-            Mongo.get()['queue_' + project_name].insert(
-                {'url': tmp_url, 'url_md5': md5(tmp_url), 'flag_time': 0, 'add_time': int(time.time()),
-                 'slave_ip': '0.0.0.0'})
-
-        # 在没创建集合前设置索引mongodb会自动创建该集合并赋索引
-        Mongo.get()['parsed_' + project_name].ensure_index('url_md5', unique=True)
-        Mongo.get()['queue_' + project_name].ensure_index('url_md5', unique=True)
+    # __projects = []
+    # @classmethod
+    # def __init_project(cls, project_name):
+    #     if project_name in cls.__projects:
+    #         return
+    #
+    #     cls.__projects.append(project_name)
+    #     print len(cls.__projects)
+    #     print cls.__projects
+    #
+    #     queue_len = Mongo.get()['queue_' + project_name].count()
+    #     print 'queue_' + project_name + ' len: ', queue_len
+    #     print 'parsed_' + project_name + '_parsed len: ', Mongo.get()['parsed_' + project_name].count()
+    #     print 'result_' + project_name + '_result len: ', Mongo.get()['result_' + project_name].count()
+    #     if not queue_len:  # todo 未已经完成了所有抓取的处理
+    #         tmp_url = 'http://jandan.net/'
+    #         Mongo.get()['queue_' + project_name].insert(
+    #             {'url': tmp_url, 'url_md5': md5(tmp_url), 'flag_time': 0, 'add_time': int(time.time()),
+    #              'slave_ip': '0.0.0.0'})
+    #
+    #     # 在没创建集合前设置索引mongodb会自动创建该集合并赋索引
+    #     Mongo.get()['parsed_' + project_name].ensure_index('url_md5', unique=True)
+    #     Mongo.get()['queue_' + project_name].ensure_index('url_md5', unique=True)
 
     def get_urls(self):
-        SerHandle.__init_project(self.project_name)
+        # SerHandle.__init_project(self.project_name)
         response_url_list = []
         ids = []
         for doc in Mongo.get()['queue_' + self.project_name].find({'flag_time': {'$lt': int(time.time() - 300)}}).limit(
