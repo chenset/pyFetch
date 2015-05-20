@@ -3,19 +3,14 @@ import sys
 
 
 class A():
-    result = {}
+    cls_a = {}
 
     def __init__(self):
-        # self.result = self.result
+        self.instance_a = {}
         pass
-
-    def run(self):
-        self.result['fsdf'] = 123
 
 
 a = A()
-a.run()
+print a.__dict__
 
-b = A()
-
-print b.result
+print A.__dict__

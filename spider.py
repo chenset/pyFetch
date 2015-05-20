@@ -4,18 +4,23 @@ import time
 from functions import echo_err, get_urls_form_html, format_and_filter_urls
 from helper import S
 from helper import Slave
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 
 class Spider(Slave):
     """
     slave抓取逻辑
     """
-    handle_method = None
-    pre_url_queue = []
-    http_helper = None
-    current_url = ''  # 当前url
 
     def __init__(self, project_name):
+        self.handle_method = None
+        self.pre_url_queue = []
+        self.http_helper = None
+        self.current_url = ''  # 当前url
+        self.pre_url_queue = []
         Slave.__init__(self, project_name)
         self.http_helper = helper.HttpHelper()
 
@@ -31,12 +36,14 @@ class Spider(Slave):
             # todo 需要些速度控制方法. gevent.sleep
             # todo 需要判断header, 避免下载文件
             self.current_url = self.__get_queue_url()
-            print self.current_url
+
+            print self.project_name + ' -- ' + self.current_url
             if not self.current_url:
                 continue
             self.put_data(urls_parsed=[self.current_url, ])
             crawl_result = self.http_helper.get(self.current_url)
-            if crawl_result[1] not in (200, 201):
+            if not str(crawl_result[1]).startswith('20') \
+                    and not str(crawl_result[1]).startswith('30'):  # 如果不是200系列和300系列的状态码输出错误
                 echo_err(
                     'URL: ' + self.current_url + ' 获取失败 HTTP code: ' + str(crawl_result[1]) + ' Runtime: ' + str(
                         crawl_result[2]) + 'ms')
@@ -86,3 +93,12 @@ class Spider(Slave):
             self.pre_url_queue += response['urls']
 
         return self.pre_url_queue.pop(0)  # 出栈首位
+
+# from gevent import monkey
+#
+# monkey.patch_all()
+# import gevent
+#
+#
+# def start(project_name, callback):
+# gevent.joinall([gevent.spawn(Spider(project_name).run, callback) for i in xrange(2)])

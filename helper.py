@@ -4,10 +4,12 @@ import random
 import time
 import json
 import sys
+import chardet
 from mongo_single import Mongo
 from functions import socket_client
+
 reload(sys)
-sys.setdefaultencoding('utf8')
+sys.setdefaultencoding('utf-8')
 
 
 class SlaveRecord():
@@ -21,11 +23,12 @@ class SlaveRecord():
     该对象为单例, 请勿实例化. 请使用get方法获取实例
     """
     __instance = None
-    slave_record = {}
-    __init_format = {'parsed_count': 0, 'connected_count': 0, 'last_connected_time': 0, 'work_time_count': 1,
-                     'static': '抓取中'}
 
     def __init__(self):
+        self.__init_format = {'parsed_count': 0, 'connected_count': 0, 'last_connected_time': 0, 'work_time_count': 1,
+                              'static': '抓取中'}
+        self.slave_record = {}
+
         if not self.slave_record:
             for item in Mongo.get().slave_record.find():
                 self.slave_record[item['ip']] = item['data']
@@ -126,13 +129,12 @@ class HttpHelper():
     """
     基于requests再次封装的http请求对象
     """
-    url = ''
-    host_url = ''
-    num = 0
-    requester = None
 
     def __init__(self):
-        pass
+        self.url = ''
+        self.host_url = ''
+        self.num = 0
+        self.requester = None
 
     def get_requester(self):
         """
@@ -173,7 +175,13 @@ class HttpHelper():
         return self.__request('post', url, params)
 
     def get(self, url, params=()):
-        return self.__request('get', url, params)
+        res = self.__request('get', url, params)
+        if res[0]:
+            print chardet.detect(str(res[0]))
+            # source_code = chardet.detect()
+            # print source_code
+
+        return res
 
     def __request(self, method, url, params=()):
 
@@ -202,11 +210,11 @@ class S:
     """
     返回结果时的对象
     """
-    __spider = None
-    html = ''
-    urls = []
 
     def __init__(self, spider, html, urls):
+        self.__spider = None
+        self.html = ''
+        self.urls = []
         self.__spider = spider
         self.html = html
         self.urls = urls
@@ -215,29 +223,12 @@ class S:
         self.__spider.crawl(url)
 
 
-class SlaveForTest():
-    queue = ['http://jandan.net/']
-    project_name = ''
-
-    def __init__(self, project_name):
-        self.project_name = project_name
-
-    def get_data(self):
-        return {'urls': self.queue, 'msg': ''}
-
-    def put_data(self, urls_parsed=(), urls_add=(), save=()):
-        for url in urls_add:
-            url not in self.queue and self.queue.append(url)
-
-
 class Slave():
     """
     slave与master数据传输对象
     使用特定格式传输
     传输时会压缩数据
     """
-    data = {}
-    project_name = ''
 
     def __init_data(self):
         self.data = {
@@ -249,6 +240,8 @@ class Slave():
         }
 
     def __init__(self, project_name):
+        self.data = {}
+        self.project_name = ''
         self.project_name = project_name
         self.__init_data()
 

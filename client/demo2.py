@@ -4,11 +4,7 @@ import re
 
 
 def page(spider):
-    patt = r'<a[^>]+href="([(\.|h|/)][^"]+jandan[^"]+)"[^>]*>[^<]+</a>'
-    r = re.compile(patt)
-    match = r.findall(spider.html)
-    time.sleep(10)
-    for url in match:
+    for url in spider.urls:
         spider.crawl(url)
 
     title_patt = r'<title[^>]*>([^<]*)</title>'
@@ -23,5 +19,5 @@ def page(spider):
     }
 
 
-start('test.net', page)
+start('gamersky', page)
 
