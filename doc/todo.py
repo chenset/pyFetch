@@ -1,6 +1,8 @@
 #!coding=utf8
 
-# todo 项目队列为空的处理
-# todo clinet.py多项目执行的结果会互串
-# todo chardet website char code
+# todo 项目队列为空的处理, 如:队列已经跑完
+# clinet.py多项目执行的结果会互串
+# todo website char code
 # todo 抓取频率控制
+# todo 类似http://gamersky.com的302跳转
+# todo 避免抓取非html类型

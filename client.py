@@ -9,12 +9,6 @@ from gevent import monkey
 monkey.patch_all()
 import gevent
 
-import sys
-
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
-
 
 def init():
     try:

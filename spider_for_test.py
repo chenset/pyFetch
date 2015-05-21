@@ -18,7 +18,8 @@ class SpiderForTest():
         self.handle_method = func
 
         crawl_result = self.http_helper.get(self.current_url)
-        if crawl_result[1] not in (200, 201):
+        if not str(crawl_result[1]).startswith('20') \
+                and not str(crawl_result[1]).startswith('30'):  # 如果不是200系列和300系列的状态码输出错误
             return {
                 'error': 'URL: ' + self.current_url + ' 获取失败 HTTP code: ' + str(crawl_result[1]) + ' Runtime: ' + str(
                     crawl_result[2]) + 'ms'}

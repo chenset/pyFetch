@@ -175,13 +175,7 @@ class HttpHelper():
         return self.__request('post', url, params)
 
     def get(self, url, params=()):
-        res = self.__request('get', url, params)
-        if res[0]:
-            print chardet.detect(str(res[0]))
-            # source_code = chardet.detect()
-            # print source_code
-
-        return res
+        return self.__request('get', url, params)
 
     def __request(self, method, url, params=()):
 
@@ -194,6 +188,9 @@ class HttpHelper():
             else:
                 req = self.get_requester().get(self.url, headers=self.get_headers(), timeout=10, params=params)
 
+            if not req.encoding == 'utf-8':
+                req.encoding = 'utf-8'
+
         except requests.ConnectionError, e:
             return None, str(e.message), round((time.time() - start_time) * 1000, 2)
         except requests.HTTPError, e:
@@ -203,7 +200,7 @@ class HttpHelper():
         except Exception, e:
             return None, str(e.message), round((time.time() - start_time) * 1000, 2)
         else:
-            return req.text, req.status_code, round((time.time() - start_time) * 1000, 2)
+            return str(req.text), req.status_code, round((time.time() - start_time) * 1000, 2)
 
 
 class S:
