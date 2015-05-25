@@ -6,3 +6,4 @@
 # todo 抓取频率控制
 # todo 类似http://gamersky.com的302跳转
 # todo 避免抓取非html类型
+# todo 参数可配置化

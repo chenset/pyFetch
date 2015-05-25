@@ -4,7 +4,6 @@ import random
 import time
 import json
 import sys
-import chardet
 from mongo_single import Mongo
 from functions import socket_client
 
