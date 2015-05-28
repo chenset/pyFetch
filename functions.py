@@ -70,6 +70,11 @@ def get_urls_form_html(base_url, html):
 
 
 def socket_client(content):
+    """
+    Slave与Master的socket通讯client端
+    使用特定格式传输
+    传输时会压缩数据
+    """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(('127.0.0.1', 7777))
 

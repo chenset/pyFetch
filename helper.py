@@ -219,12 +219,22 @@ class S:
         self.__spider.crawl(url)
 
 
+class QueueCtrl():
+    """
+    采用多种方式控制整个slave的抓取顺序与速度
+    """
+    parsed_url_pool = []
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def add_parsed(cls, url):
+        cls.parsed_url_pool.append((url, int(time.time())))
+
+
 class Slave():
-    """
-    slave与master数据传输对象
-    使用特定格式传输
-    传输时会压缩数据
-    """
+    # recent_parsed = {}
 
     def __init_data(self):
         self.data = {
@@ -266,6 +276,12 @@ class Slave():
         :return:
         """
         for url in urls_parsed:
+            # if self.project_name not in self.recent_parsed:
+            # self.recent_parsed[self.project_name] = {}
+            #
+            # self.recent_parsed[self.project_name].appent((int(time.time()), url))
+
+            QueueCtrl.add_parsed(url)
             self.data['urls_parsed'].append(url)
 
         for url in urls_add:

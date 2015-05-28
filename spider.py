@@ -4,6 +4,7 @@ import time
 from functions import echo_err, get_urls_form_html, format_and_filter_urls
 from helper import S
 from helper import Slave
+import gevent
 import sys
 
 reload(sys)
@@ -21,8 +22,8 @@ class Spider(Slave):
         self.http_helper = None
         self.current_url = ''  # 当前url
         self.pre_url_queue = []
-        Slave.__init__(self, project_name)
         self.http_helper = helper.HttpHelper()
+        Slave.__init__(self, project_name)
 
     def run(self, func):
         """
@@ -32,9 +33,7 @@ class Spider(Slave):
         self.handle_method = func
 
         while True:
-            # gevent.sleep(15)
             # todo 需要些速度控制方法. gevent.sleep
-            # todo 需要判断header, 避免下载文件
             self.current_url = self.__get_queue_url()
 
             print self.project_name + ' -- ' + self.current_url
@@ -82,12 +81,12 @@ class Spider(Slave):
             response = self.get_data()
             if not response:
                 echo_err('远程响应异常, 60秒后重试')
-                time.sleep(60)
+                gevent.sleep(60)
                 continue
 
             if 'urls' not in response or not response['urls']:
                 echo_err('无法从远程获取url队列, 10秒后重试 ' + response['msg'] or '')
-                time.sleep(10)
+                gevent.sleep(10)
                 continue
 
             self.pre_url_queue += response['urls']
