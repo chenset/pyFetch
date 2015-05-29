@@ -1,9 +1,14 @@
 # coding=utf-8
 import requests
+import urllib2
 import random
+
 import time
+
 import json
+
 import sys
+
 from mongo_single import Mongo
 from functions import socket_client
 
@@ -223,14 +228,25 @@ class QueueCtrl():
     """
     采用多种方式控制整个slave的抓取顺序与速度
     """
-    parsed_url_pool = []
+    # parsed_url_pool = {}
+    host_freq_pool = {}
 
     def __init__(self):
         pass
 
     @classmethod
     def add_parsed(cls, url):
-        cls.parsed_url_pool.append((url, int(time.time())))
+        cls.update_host_freq(urllib2.splithost(urllib2.splittype(url)[1])[0].split(':')[0])
+        # cls.parsed_url_pool.append((url, int(time.time())))
+
+    @classmethod
+    def update_host_freq(cls, host):
+        cls.host_freq_pool.setdefault(host, [])
+        cls.host_freq_pool[host].append(int(time.time()))
+
+        # 过多时删除部分
+        if len(cls.host_freq_pool[host]) > 1000:
+            del cls.host_freq_pool[host][0:100]
 
 
 class Slave():
