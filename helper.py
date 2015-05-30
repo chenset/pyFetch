@@ -10,7 +10,8 @@ import json
 import sys
 
 from mongo_single import Mongo
-from functions import socket_client, get_root_host
+from functions import socket_client
+from tld import get_tld
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -237,7 +238,7 @@ class QueueCtrl():
     @classmethod
     def add_parsed(cls, url):
         # 获取主域名并更新该域名的访问频率
-        cls.update_host_freq(get_root_host(url))
+        cls.update_host_freq(get_tld(url))
         # cls.parsed_url_pool.append((url, int(time.time())))
 
     @classmethod
@@ -247,17 +248,26 @@ class QueueCtrl():
         """
         cls.host_freq_pool.setdefault(host, [])
         cls.host_freq_pool[host].append(int(time.time()))
-    #fixme  获取根域名的方法有bug!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     @classmethod
-    def delete_host_freq_when_expire(cls, expire=1):
+    def clear_host_freq_pool(cls, expire=300):
         """
+        整理host_freq_pool
+
         过滤掉根域名对应的访问时间戳列表中访问时间超出给定值的时间戳
+        or
+        删除pool长度为0的host
+        or
+        删除pool长度大于1000的部分
         """
         now = int(time.time())
         for host, pool in cls.host_freq_pool.items():
             # 过多时删除部分
-            if len(cls.host_freq_pool[host]) > 1000:
+            pool_len = len(cls.host_freq_pool[host])
+            if pool_len > 1000:
                 del cls.host_freq_pool[host][0:500]
+            elif pool_len == 0:
+                del cls.host_freq_pool[host]
 
             for timestamp in list(pool):
                 if now - timestamp > expire:
@@ -305,7 +315,7 @@ class Slave():
         response = self.__request_server(self.data)
         response['urls'] = QueueCtrl.sort_urls_by_freq(response.get('urls', []))
 
-        QueueCtrl.delete_host_freq_when_expire()
+        #QueueCtrl.clear_host_freq_pool()
         print QueueCtrl.host_freq_pool
 
         print round((time.time() - start_time) * 1000, 2), 'ms'

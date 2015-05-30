@@ -3,3 +3,4 @@ pip install pymongo
 pip install flask
 pip install flask-compress
 pip install gevent
+pip install tld

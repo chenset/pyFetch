@@ -44,15 +44,6 @@ def echo_err(msg):
     sys.stderr.write(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ' ' + msg + '\r\n')
 
 
-def get_root_host(url):
-    """
-    获取根域名
-    :param url 格式必须为 http://www.example.com/...
-    :return 返回格式 example.com
-    """
-    return '.'.join(urllib2.splithost(urllib2.splittype(url)[1])[0].split(':')[0].split('.')[-2:])
-
-
 def format_and_filter_urls(base_url, url):
     # 转换非完整的url格式
     if url.startswith('/'):  # 以根开头的绝对url地址

@@ -69,10 +69,8 @@ urls = ["http://meiwen.me/src/index.html",
         "http://see.xidian.edu.cn/cpp/html/1429.html",
         "https://docs.python.org/2/howto/regex.html",
         """https://www.google.com.hk/search?client=aff-cs-360chromium&hs=TSj&q=url%E8%A7%A3%E6%9E%90%E5%9F%9F%E5%90%8Dre&oq=url%E8%A7%A3%E6%9E%90%E5%9F%9F%E5%90%8Dre&gs_l=serp.3...74418.86867.0.87673.28.25.2.0.0.0.541.2454.2-6j0j1j1.8.0....0...1c.1j4.53.serp..26.2.547.IuHTj4uoyHg""",
-        "file:///D:/code/echarts-2.0.3/doc/example/tooltip.html",
         "http://api.mongodb.org/python/current/faq.html#is-pymongo-thread-safe",
         "https://pypi.python.org/pypi/publicsuffix/",
-        "http://127.0.0.1:8000",
         "https://www.segmentfault.com.cn:802/blog/biu/1190000000330941",
         ]
 
@@ -84,7 +82,7 @@ from urlparse import urlparse
 # '.us', '.biz', '.xxx', '.ca', '.co.jp', '.com.cn', '.net.cn',
 # '.org.cn', '.mx', '.tv', '.ws', '.ag', '.com.ag', '.net.ag',
 # '.org.ag', '.am', '.asia', '.at', '.be', '.com.br', '.net.br',
-#     '.bz', '.com.bz', '.net.bz', '.cc', '.com.co', '.net.co',
+# '.bz', '.com.bz', '.net.bz', '.cc', '.com.co', '.net.co',
 #     '.nom.co', '.de', '.es', '.com.es', '.nom.es', '.org.es',
 #     '.eu', '.fm', '.fr', '.gs', '.in', '.co.in', '.firm.in', '.gen.in',
 #     '.ind.in', '.net.in', '.org.in', '.it', '.jobs', '.jp', '.ms',
@@ -100,47 +98,3 @@ from urlparse import urlparse
 #     res = m.group() if m else host
 #     # print '' if not res else res.split(':')[0]
 #
-
-def get_tld(url):
-    """
-    从URL中提取顶级域名
-    """
-    if not hasattr(get_tld, 'pattern'):
-        domain_post_fix = (
-            '.com', '.la', '.io', '.co', '.info', '.net', '.org', '.me', '.mobi',
-            '.us', '.biz', '.xxx', '.ca', '.co.jp', '.com.cn', '.net.cn',
-            '.org.cn', '.mx', '.tv', '.ws', '.ag', '.com.ag', '.net.ag',
-            '.org.ag', '.am', '.asia', '.at', '.be', '.com.br', '.net.br',
-            '.bz', '.com.bz', '.net.bz', '.cc', '.com.co', '.net.co',
-            '.nom.co', '.de', '.es', '.com.es', '.nom.es', '.org.es',
-            '.eu', '.fm', '.fr', '.gs', '.in', '.co.in', '.firm.in', '.gen.in',
-            '.ind.in', '.net.in', '.org.in', '.it', '.jobs', '.jp', '.ms',
-            '.com.mx', '.nl', '.nu', '.co.nz', '.net.nz', '.org.nz',
-            '.se', '.tc', '.tk', '.tw', '.com.tw', '.idv.tw', '.org.tw',
-            '.hk', '.co.uk', '.me.uk', '.org.uk', '.vg', ".com.hk")
-        reg = r'([^\.]+(' + '|'.join([h.replace('.', r'\.') for h in domain_post_fix]) + '))'
-        get_tld.pattern = re.compile(reg, re.IGNORECASE)
-        print reg
-
-    parts = urlparse(url)
-    host = parts.netloc
-    """
-    meiwen.me
-1000chi.com
-see.xidian.edu.cn
-docs.python.org
-www.google.com.hk
-
-api.mongodb.org
-pypi.python.org
-127.0.0.1:8000
-www.segmentfault.com.cn:802
-"""
-    m = get_tld.pattern.findall(host)
-    print m
-    # res = m.group() if m else host
-    # return '' if not res else res.split(':')[0]
-
-
-for url in urls:
-    get_tld(url)
