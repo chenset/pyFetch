@@ -10,7 +10,7 @@ import json
 import sys
 
 from mongo_single import Mongo
-from functions import socket_client
+from functions import socket_client, get_root_host
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -209,7 +209,7 @@ class HttpHelper():
 
 class S:
     """
-    返回结果时的对象
+    用户自定义抓取回调时的参数对象
     """
 
     def __init__(self, spider, html, urls):
@@ -236,17 +236,43 @@ class QueueCtrl():
 
     @classmethod
     def add_parsed(cls, url):
-        cls.update_host_freq(urllib2.splithost(urllib2.splittype(url)[1])[0].split(':')[0])
+        # 获取主域名并更新该域名的访问频率
+        cls.update_host_freq(get_root_host(url))
         # cls.parsed_url_pool.append((url, int(time.time())))
 
     @classmethod
     def update_host_freq(cls, host):
+        """
+        更新域名的访问频率
+        """
         cls.host_freq_pool.setdefault(host, [])
         cls.host_freq_pool[host].append(int(time.time()))
+    #fixme  获取根域名的方法有bug!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    @classmethod
+    def delete_host_freq_when_expire(cls, expire=1):
+        """
+        过滤掉根域名对应的访问时间戳列表中访问时间超出给定值的时间戳
+        """
+        now = int(time.time())
+        for host, pool in cls.host_freq_pool.items():
+            # 过多时删除部分
+            if len(cls.host_freq_pool[host]) > 1000:
+                del cls.host_freq_pool[host][0:500]
 
-        # 过多时删除部分
-        if len(cls.host_freq_pool[host]) > 1000:
-            del cls.host_freq_pool[host][0:100]
+            for timestamp in list(pool):
+                if now - timestamp > expire:
+                    cls.host_freq_pool[host].remove(timestamp)
+                else:
+                    break
+
+    @classmethod
+    def sort_urls_by_freq(cls, urls):
+        for url in urls:
+            # print get_root_host(url)
+            # print len(cls.host_freq_pool.get(get_root_host(url), []))
+            pass
+
+        return urls
 
 
 class Slave():
@@ -276,7 +302,12 @@ class Slave():
 
         start_time = time.time()
 
-        response = self.__request(self.data)
+        response = self.__request_server(self.data)
+        response['urls'] = QueueCtrl.sort_urls_by_freq(response.get('urls', []))
+
+        QueueCtrl.delete_host_freq_when_expire()
+        print QueueCtrl.host_freq_pool
+
         print round((time.time() - start_time) * 1000, 2), 'ms'
         if response:
             self.__init_data()
@@ -307,7 +338,7 @@ class Slave():
             self.data['save'].append(save)
 
     @classmethod
-    def __request(cls, data):
+    def __request_server(cls, data):
         response = None
         try:
             json_string = socket_client(json.dumps(data))
