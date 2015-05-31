@@ -279,7 +279,6 @@ class UrlsSortCtrl(QueueCtrl):
 
     def __init__(self):
         QueueCtrl.__init__(self)
-        pass
 
     @classmethod
     def sort_urls_by_freq(cls, urls):
@@ -312,8 +311,6 @@ class UrlsSortCtrl(QueueCtrl):
 
 
 class Slave():
-    # recent_parsed = {}
-
     def __init_data(self):
         self.data = {
             'project_name': self.project_name,
@@ -357,11 +354,6 @@ class Slave():
         :return:
         """
         for url in urls_parsed:
-            # if self.project_name not in self.recent_parsed:
-            # self.recent_parsed[self.project_name] = {}
-            #
-            # self.recent_parsed[self.project_name].appent((int(time.time()), url))
-
             QueueCtrl.add_parsed(url)
             self.data['urls_parsed'].append(url)
 
