@@ -226,23 +226,29 @@ class S:
 
 
 class QueueCtrl():
-    """
-    采用多种方式控制整个slave的抓取顺序与速度
-    """
-    # parsed_url_pool = {}
     host_freq_pool = {}
 
     def __init__(self):
         pass
 
+
+class UrlsSortCtrl(QueueCtrl):
+    """
+    采用多种方式控制整个slave的抓取顺序与速度
+    """
+
+    def __init__(self):
+        QueueCtrl.__init__(self)
+        pass
+
     @classmethod
     def add_parsed(cls, url):
         # 获取主域名并更新该域名的访问频率
-        cls.update_host_freq(get_tld(url))
+        cls.__update_host_freq(get_tld(url))
         # cls.parsed_url_pool.append((url, int(time.time())))
 
     @classmethod
-    def update_host_freq(cls, host):
+    def __update_host_freq(cls, host):
         """
         更新域名的访问频率
         """
@@ -277,12 +283,32 @@ class QueueCtrl():
 
     @classmethod
     def sort_urls_by_freq(cls, urls):
+        """
+        根据host抓取次数排序urls
+        """
+        sorted_urls = {}
         for url in urls:
-            # print get_root_host(url)
-            # print len(cls.host_freq_pool.get(get_root_host(url), []))
-            pass
+            sorted_urls[url] = len(cls.host_freq_pool.get(get_tld(url), []))
+        return cls.__sort_dict_by_value_return_keys(sorted_urls)
 
-        return urls
+    @classmethod
+    def __sort_dict_by_value_return_keys(cls, d):
+        """
+        根据value顺序返回keys
+        用于根据host抓取次数排序urls
+        """
+        l = []
+        temp = d.items()
+        for value in sorted(d.values()):
+            index = 0
+            for k, v in temp:
+                if v == value:
+                    l.append(k)
+                    del temp[index]
+                    index += 1
+                    break
+                index += 1
+        return l
 
 
 class Slave():
@@ -312,11 +338,9 @@ class Slave():
 
         start_time = time.time()
 
+        UrlsSortCtrl.clear_host_freq_pool()
         response = self.__request_server(self.data)
-        response['urls'] = QueueCtrl.sort_urls_by_freq(response.get('urls', []))
-
-        #QueueCtrl.clear_host_freq_pool()
-        print QueueCtrl.host_freq_pool
+        response['urls'] = UrlsSortCtrl.sort_urls_by_freq(list(set(response.get('urls', []))))
 
         print round((time.time() - start_time) * 1000, 2), 'ms'
         if response:
@@ -338,7 +362,7 @@ class Slave():
             #
             # self.recent_parsed[self.project_name].appent((int(time.time()), url))
 
-            QueueCtrl.add_parsed(url)
+            UrlsSortCtrl.add_parsed(url)
             self.data['urls_parsed'].append(url)
 
         for url in urls_add:
