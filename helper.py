@@ -231,16 +231,6 @@ class QueueCtrl():
     def __init__(self):
         pass
 
-
-class UrlsSortCtrl(QueueCtrl):
-    """
-    采用多种方式控制整个slave的抓取顺序与速度
-    """
-
-    def __init__(self):
-        QueueCtrl.__init__(self)
-        pass
-
     @classmethod
     def add_parsed(cls, url):
         # 获取主域名并更新该域名的访问频率
@@ -280,6 +270,16 @@ class UrlsSortCtrl(QueueCtrl):
                     cls.host_freq_pool[host].remove(timestamp)
                 else:
                     break
+
+
+class UrlsSortCtrl(QueueCtrl):
+    """
+    采用多种方式控制整个slave的抓取顺序与速度
+    """
+
+    def __init__(self):
+        QueueCtrl.__init__(self)
+        pass
 
     @classmethod
     def sort_urls_by_freq(cls, urls):
@@ -338,7 +338,7 @@ class Slave():
 
         start_time = time.time()
 
-        UrlsSortCtrl.clear_host_freq_pool()
+        QueueCtrl.clear_host_freq_pool()
         response = self.__request_server(self.data)
         response['urls'] = UrlsSortCtrl.sort_urls_by_freq(list(set(response.get('urls', []))))
 
@@ -362,7 +362,7 @@ class Slave():
             #
             # self.recent_parsed[self.project_name].appent((int(time.time()), url))
 
-            UrlsSortCtrl.add_parsed(url)
+            QueueCtrl.add_parsed(url)
             self.data['urls_parsed'].append(url)
 
         for url in urls_add:

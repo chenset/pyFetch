@@ -44,6 +44,6 @@ if __name__ == '__main__':
     for project in res['projects']:
         print project
         joins.append(gevent.spawn(run, project['name'], project['code']))
-        joins.append(gevent.spawn(run, project['name'], project['code']))
+        # joins.append(gevent.spawn(run, project['name'], project['code']))
 
     gevent.joinall(joins)
