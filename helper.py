@@ -272,6 +272,16 @@ class QueueCtrl():
                     break
 
 
+class QueueSleepCtrl(QueueCtrl):
+    def __init__(self):
+        QueueCtrl.__init__(self)
+
+    @classmethod
+    def sleep(cls, urls):
+        # yield urls
+        return urls
+
+
 class UrlsSortCtrl(QueueCtrl):
     """
     采用多种方式控制整个slave的抓取顺序与速度
@@ -337,7 +347,9 @@ class Slave():
 
         QueueCtrl.clear_host_freq_pool()
         response = self.__request_server(self.data)
-        response['urls'] = UrlsSortCtrl.sort_urls_by_freq(list(set(response.get('urls', []))))
+        urls = list(set(response.get('urls', [])))
+        urls = UrlsSortCtrl.sort_urls_by_freq(urls)
+        response['urls'] = urls
 
         print round((time.time() - start_time) * 1000, 2), 'ms'
         if response:
