@@ -226,6 +226,10 @@ class S:
 
 
 class QueueCtrl():
+    """
+    采用多种方式控制整个slave的抓取顺序与速度
+    具体功能由之类实现
+    """
     host_freq_pool = {}
 
     def __init__(self):
@@ -273,6 +277,9 @@ class QueueCtrl():
 
 
 class QueueSleepCtrl(QueueCtrl):
+    """
+    根据url请求频率增加同host的url不定的sleep来控制请求速度
+    """
     def __init__(self):
         QueueCtrl.__init__(self)
 
@@ -284,9 +291,8 @@ class QueueSleepCtrl(QueueCtrl):
 
 class UrlsSortCtrl(QueueCtrl):
     """
-    采用多种方式控制整个slave的抓取顺序与速度
+    将请求次数少的url排序在列表最前
     """
-
     def __init__(self):
         QueueCtrl.__init__(self)
 
