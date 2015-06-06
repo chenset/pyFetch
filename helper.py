@@ -239,7 +239,6 @@ class QueueCtrl():
     def add_parsed(cls, url):
         # 获取主域名并更新该域名的访问频率
         cls.__update_host_freq(get_tld(url))
-        # cls.parsed_url_pool.append((url, int(time.time())))
 
     @classmethod
     def __update_host_freq(cls, host):
