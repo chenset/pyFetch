@@ -279,6 +279,7 @@ class QueueSleepCtrl(QueueCtrl):
     """
     根据url请求频率增加同host的url不定的sleep来控制请求速度
     """
+
     def __init__(self):
         QueueCtrl.__init__(self)
 
@@ -292,6 +293,7 @@ class UrlsSortCtrl(QueueCtrl):
     """
     将请求次数少的url排序在列表最前
     """
+
     def __init__(self):
         QueueCtrl.__init__(self)
 
@@ -354,6 +356,9 @@ class Slave():
         response = self.__request_server(self.data)
         urls = list(set(response.get('urls', [])))
         urls = UrlsSortCtrl.sort_urls_by_freq(urls)
+
+        # urls = QueueSleepCtrl.sleep(urls)
+
         response['urls'] = urls
 
         print round((time.time() - start_time) * 1000, 2), 'ms'
