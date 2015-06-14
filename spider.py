@@ -1,6 +1,5 @@
 # coding=utf-8
 import helper
-import time
 from functions import echo_err, get_urls_form_html, format_and_filter_urls
 from helper import S
 from helper import Slave

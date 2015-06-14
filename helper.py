@@ -1,6 +1,5 @@
 # coding=utf-8
 import requests
-import urllib2
 import random
 
 import time
