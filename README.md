@@ -12,3 +12,17 @@ https://www.mongodb.org/downloads
     pip install flask-compress
     pip install gevent
     pip install tld
+
+### 执行
+服务器
+
+    python service.py
+
+客服端
+
+    python client.py
+
+### 访问
+
+    http://127.0.0.1
+
