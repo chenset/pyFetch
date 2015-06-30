@@ -26,3 +26,12 @@ https://www.mongodb.org/downloads
 
     http://127.0.0.1
 
+
+## Todo list
+
+- 项目队列为空的处理, 如:队列已经跑完
+- website char code
+- 抓取频率控制
+- 避免抓取非html类型
+- 参数可配置化
+
