@@ -7,6 +7,7 @@ https://www.mongodb.org/downloads
 
 ### 安装依赖
 windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Python 2.7 http://www.microsoft.com/en-us/download/confirmation.aspx?id=44266
+
     pip install requests
     pip install pymongo
     pip install flask
