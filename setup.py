@@ -5,6 +5,11 @@ setup(
     version="0.1",
     packages=find_packages(),
     install_requires=[
-        'flask>=0.10',
+        'Flask',
+        'Flask-compress',
+        'requests',
+        'pymongo',
+        'gevent',
+        'Tld',
     ],
 )
