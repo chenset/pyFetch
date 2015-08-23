@@ -24,7 +24,7 @@ class Spider(Slave):
         self.http_helper = helper.HttpHelper()
         Slave.__init__(self, project_name)
 
-    def run(self, func, current_url, gID):
+    def run(self, func, current_url, gevent_id):
         """
         :param func:
         :return:
@@ -35,7 +35,7 @@ class Spider(Slave):
         # todo 需要些速度控制方法. gevent.sleep
         self.current_url = current_url
 
-        print 'gID: ' + str(gID) + ' -- ' + self.project_name + ' -- ' + self.current_url
+        print 'gevent_id: ' + str(gevent_id) + ' -- ' + self.project_name + ' -- ' + self.current_url
         if not self.current_url:
             # continue
             return
@@ -43,7 +43,7 @@ class Spider(Slave):
         crawl_result = self.http_helper.get(self.current_url)
         if not str(crawl_result[1]).startswith('20') \
                 and not str(crawl_result[1]).startswith('30'):  # 如果不是200系列和300系列的状态码输出错误
-            echo_err('gID: ' + str(gID) + ' -- ' + self.project_name +
+            echo_err('gevent_id: ' + str(gevent_id) + ' -- ' + self.project_name +
                      ' -- URL: ' + self.current_url + ' 获取失败 HTTP code: ' + str(crawl_result[1]) + ' Runtime: ' + str(
                 crawl_result[2]) + 'ms')
             # continue

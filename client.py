@@ -18,7 +18,7 @@ def init():
         return None
 
 
-def run(gID, project_name, source_code):
+def run(gevent_id, project_name, source_code):
     context = {}
 
     def start(callback):
@@ -38,7 +38,7 @@ def run(gID, project_name, source_code):
                     if item['name'] == project_name:
                         spider = context_rebuild(item['name'], item['code'])
 
-                        print 'gevent ID:' + str(gID) + ' -- project : ' + project_name + ' reload !!!!!!!!!!'
+                        print 'gevent ID:' + str(gevent_id) + ' -- project : ' + project_name + ' reload !!!!!!!!!!'
                         break
 
                 continue
@@ -58,12 +58,12 @@ def run(gID, project_name, source_code):
 
             while spider.pre_url_queue:
                 url = spider.pre_url_queue.pop(0)  # 出栈首位
-                spider.run(context['callback'], url, gID)
+                spider.run(context['callback'], url, gevent_id)
 
     except Exception, e:
         print traceback.format_exc()
 
-    echo_err('gevent ID:' + str(gID) + ' -- project : ' + project_name + ' stop !!!!!!!!!!!!!!!')
+    echo_err('gevent ID:' + str(gevent_id) + ' -- project : ' + project_name + ' stop !!!!!!!!!!!!!!!')
 
 
 def load_projects():
@@ -78,13 +78,13 @@ def load_projects():
 
 if __name__ == '__main__':
     joins = []
-    gID = 0  # 作为 gevent 的ID标识
+    gevent_id = 0  # 作为 gevent 的ID标识
     for project in load_projects():
         print project
-        gID += 1
-        joins.append(gevent.spawn(run, gID, project['name'], project['code']))
+        gevent_id += 1
+        joins.append(gevent.spawn(run, gevent_id, project['name'], project['code']))
 
-        gID += 1
-        joins.append(gevent.spawn(run, gID, project['name'], project['code']))
+        gevent_id += 1
+        joins.append(gevent.spawn(run, gevent_id, project['name'], project['code']))
 
     gevent.joinall(joins)
