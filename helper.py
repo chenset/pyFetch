@@ -9,7 +9,9 @@ import json
 import sys
 
 from mongo_single import Mongo
+
 from functions import socket_client
+
 from tld import get_tld
 
 reload(sys)
@@ -237,7 +239,10 @@ class QueueCtrl():
     @classmethod
     def add_parsed(cls, url):
         # 获取主域名并更新该域名的访问频率
-        cls.__update_host_freq(get_tld(url))
+        try:
+            cls.__update_host_freq(get_tld(url))
+        except:
+            cls.__update_host_freq(url)
 
     @classmethod
     def __update_host_freq(cls, host):
@@ -303,7 +308,11 @@ class UrlsSortCtrl(QueueCtrl):
         """
         sorted_urls = {}
         for url in urls:
-            sorted_urls[url] = len(cls.host_freq_pool.get(get_tld(url), []))
+            try:
+                sorted_urls[url] = len(cls.host_freq_pool.get(get_tld(url), []))
+            except:
+                sorted_urls[url] = len(cls.host_freq_pool.get(url, []))
+
         return cls.__sort_dict_by_value_return_keys(sorted_urls)
 
     @classmethod
