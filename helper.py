@@ -340,6 +340,8 @@ class Slave():
         self.data = {}
         self.project_name = ''
         self.project_name = project_name
+        self.original_receive_json = {}
+        self.last_change_time = 0
         self.__init_data()
 
     def get_data(self):
@@ -353,6 +355,10 @@ class Slave():
 
         QueueCtrl.clear_host_freq_pool()
         response = self.__request_server(self.data)
+        if not response:
+            return None
+
+        self.original_receive_json = response
         urls = list(set(response.get('urls', [])))
         urls = UrlsSortCtrl.sort_urls_by_freq(urls)
 
@@ -383,6 +389,21 @@ class Slave():
 
         if save:
             self.data['save'].append(save)
+
+    def has_project_change(self):
+        current_change_time = int(self.original_receive_json.get('change_time', self.last_change_time))
+
+        if self.last_change_time == 0:
+            self.last_change_time = current_change_time
+
+        if current_change_time == self.last_change_time:
+            return False
+
+        self.last_change_time = current_change_time
+        return True
+
+    def get_origin_receive_json(self):
+        return self.original_receive_json
 
     @classmethod
     def __request_server(cls, data):

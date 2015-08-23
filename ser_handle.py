@@ -22,7 +22,7 @@ class SerHandle():
         response_url_list = []
         ids = []
         for doc in Mongo.get()['queue_' + self.project_name].find({'flag_time': {'$lt': int(time.time() - 300)}}).limit(
-                10).sort('_id', pymongo.ASCENDING):  # 取标识时间早于当前时间300秒之前的url
+                2).sort('_id', pymongo.ASCENDING):  # 取标识时间早于当前时间300秒之前的url
             ids.append(doc['_id'])
             response_url_list.append(doc['url'])
 

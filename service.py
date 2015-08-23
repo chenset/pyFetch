@@ -42,8 +42,7 @@ def request_handle(data, address):
     if 'get_urls' in request:
         response_url_list = handle.get_urls()
 
-    projects = SlaveCtrl().code_ctrl()  # todo 这里目前是每次都发送
-    return json.dumps({'msg': '', 'urls': response_url_list, 'projects': projects})
+    return json.dumps({'msg': '', 'urls': response_url_list, 'change_time': 2231522})  # 客户端会通过判断change_time的不同而reload项目
 
 
 def socket_server(host, port):
