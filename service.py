@@ -42,7 +42,8 @@ def request_handle(data, address):
     if 'get_urls' in request:
         response_url_list = handle.get_urls()
 
-    return json.dumps({'msg': '', 'urls': response_url_list, 'change_time': 2231522})  # 客户端会通过判断change_time的不同而reload项目
+    return json.dumps({'msg': '', 'urls': response_url_list,
+                       'change_time': handle.get_project()['update_time']})  # 客户端会通过判断change_time的不同而reload项目
 
 
 def socket_server(host, port):

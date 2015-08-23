@@ -97,7 +97,9 @@ def get_project_by_name(name):
 def save_project():
     form_data = json.loads(request.data)  # todo 需要验证表单数据
 
-    if 'edit' not in form_data and list(Mongo.get()['projects'].find({'name': form_data['name']}, {'_id': 1}).limit(1)):
+    exists_project = list(Mongo.get()['projects'].find({'name': form_data['name']}, {'_id': 1, 'add_time': 1}).limit(1))
+
+    if 'edit' not in form_data and exists_project:
         return jsonify({'success': False, 'msg': '计划名称已经存在!'})
 
     # 新增计划或更新计划
@@ -107,7 +109,8 @@ def save_project():
         'desc': form_data['desc'] if 'desc' in form_data else '',
         'code': form_data['code'],
         'static': '测试中',
-        'add_time': int(time.time()),
+        'update_time': int(time.time()),
+        'add_time': exists_project[0]['add_time'] if exists_project else int(time.time()),
     }
     Mongo.get()['projects'].update({'name': form_data['name']}, data, True)
 
