@@ -197,6 +197,14 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', function ($scope
     $scope.refresh = function () {
         load(true);
     };
+
+    $scope.runToggle = function (slaveID) {
+        $http.get('/api/slave/' + slaveID + '/toggle').success(function (data) {
+            if (data.success) {
+                load();
+            }
+        });
+    }
 }]);
 
 app.controller('NavBarCtrl', function ($scope, $location) {

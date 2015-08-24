@@ -37,6 +37,7 @@ class SlaveRecord():
 
         if not self.slave_record:
             for item in Mongo.get().slave_record.find():
+                item['data']['_id'] = str(item['_id'])
                 self.slave_record[item['ip']] = item['data']
 
         self.refresh_connect_status()
@@ -75,6 +76,9 @@ class SlaveRecord():
     def refresh_connect_status(self):
         now = int(time.time())
         for k, item in self.slave_record.items():
+            if self.slave_record[k]['static'] == '暂停中':
+                continue
+
             leave_second = now - item['last_connected_time']
             if leave_second > 60 * 60:  # 失联1小时以上
                 self.slave_record[k]['static'] = '已丢失'

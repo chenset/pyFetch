@@ -4,6 +4,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from mongo_single import Mongo
 import time
 import os
+import traceback
 from functions import get_project_list, md5
 from helper import GlobalHelper
 from spider_for_test import test_run
@@ -91,6 +92,14 @@ def get_project_by_name(name):
     if not res:
         return jsonify({})
     return jsonify(res[0])
+
+
+@app.route('/api/slave/<id>/toggle')
+def toggle_project(id):
+    # print id
+    # slave_record = Mongo.get()['slave_record'].find('_id', "ObjectId('555ddaafe9cd13c6fa80f01d')")
+    # print dict(slave_record)
+    return jsonify({'success': True, 'msg': '切换成功!'})
 
 
 @app.route('/api/project/save', methods=['POST'])
