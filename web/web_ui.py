@@ -8,6 +8,7 @@ import traceback
 from functions import get_project_list, md5
 from helper import GlobalHelper
 from spider_for_test import test_run
+from bson import ObjectId
 
 # from gevent import monkey
 # monkey.patch_socket()  # fixme patch_all 会影响跨进程通讯或者异步抓取 1/2
@@ -96,9 +97,18 @@ def get_project_by_name(name):
 
 @app.route('/api/slave/<id>/toggle')
 def toggle_project(id):
-    # print id
-    # slave_record = Mongo.get()['slave_record'].find('_id', "ObjectId('555ddaafe9cd13c6fa80f01d')")
+    try:
+        slave_record = Mongo.get()['slave_record'].find_one({'_id': ObjectId(id)})
+        if not slave_record:
+            raise Exception('不能存在的记录!')
+    except:
+        return jsonify({'success': False, 'msg': '不存在的记录!'})
+
     # print dict(slave_record)
+    slave_record['data']['static'] = u'抓取中' if slave_record['data']['static'] == u'暂停中' else u'暂停中'
+    Mongo.get()['slave_record'].update({'_id': ObjectId(id)}, slave_record)
+
+    print Mongo.get()['slave_record'].find_one({'_id': ObjectId(id)})
     return jsonify({'success': True, 'msg': '切换成功!'})
 
 
