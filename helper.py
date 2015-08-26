@@ -75,17 +75,21 @@ class SlaveRecord():
 
     def refresh_connect_status(self):
         now = int(time.time())
-        for k, item in self.slave_record.items():
-            if self.slave_record[k]['static'] == '暂停中':
-                continue
 
+        global_slave_record = GlobalHelper.get('salve_record')
+        if not global_slave_record:
+            global_slave_record = self.slave_record
+
+        for k, item in global_slave_record.items():
             leave_second = now - item['last_connected_time']
             if leave_second > 60 * 60:  # 失联1小时以上
-                self.slave_record[k]['static'] = '已丢失'
+                self.slave_record[k]['static'] = u'已丢失'
             elif leave_second > 60 * 10:  # 失联10分钟以上
-                self.slave_record[k]['static'] = '断开中'
+                self.slave_record[k]['static'] = u'断开中'
+            elif global_slave_record[k]['static'] == '暂停中':
+                self.slave_record[k]['static'] = u'暂停中'
             else:
-                self.slave_record[k]['static'] = '抓取中'
+                self.slave_record[k]['static'] = u'抓取中'
 
     def __set_connect_record(self, ip):
         now = int(time.time())

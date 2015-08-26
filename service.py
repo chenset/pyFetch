@@ -20,6 +20,9 @@ def request_handle(data, address):
 
     request = json.loads(data)
 
+    if slave_record.slave_record[address[0]]['static'] == '暂停中':
+        return json.dumps({'msg': '. 该客户端被手动暂停中!'})
+
     if 'init' in request:
         projects = SlaveCtrl().code_ctrl()
         return json.dumps({'msg': '', 'projects': projects})

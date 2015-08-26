@@ -50,7 +50,7 @@ def run(gevent_id, project_name, source_code):
                 continue
 
             if 'urls' not in response or not response['urls']:
-                echo_err('无法从远程获取url队列, 10秒后重试 ' + response['msg'] or '')
+                echo_err('无法从远程获取url队列, 10秒后重试' + response['msg'] or '')
                 gevent.sleep(10)
                 continue
 
@@ -70,7 +70,7 @@ def load_projects():
     res = init()
     while not res or 'projects' not in res or not res['projects']:
         res = init()
-        echo_err('无法连接远程服务器, 初始化失败, 10秒后重试!')
+        echo_err('无法连接远程服务器, 初始化失败, 10秒后重试' + res.get('msg', ''))
         time.sleep(10)
 
     return res['projects']

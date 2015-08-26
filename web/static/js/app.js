@@ -189,6 +189,20 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', function ($scope
             setTimeout(function () {
                 $scope.show_load_icon = false;
             }, 1);
+
+            var i;
+            for (i in data) {
+                if (data[i]['static'] === '暂停中') {
+                    data[i]['button_text'] = '开始';
+                    data[i]['button_class'] = 'btn-success';
+                } else if (data[i]['static'] === '抓取中') {
+                    data[i]['button_text'] = '暂停';
+                    data[i]['button_class'] = 'btn-danger';
+                } else {
+                    data[i]['button_text'] = '无效';
+                    data[i]['button_class'] = 'disabled';
+                }
+            }
             $scope.slave = data;
         });
     };
