@@ -3,12 +3,12 @@ import zlib
 import base64
 import json
 import traceback
+from multiprocessing import Process, Manager
 
 import gevent
 from gevent import socket
 
 from ser_handle import SerHandle
-from multiprocessing import Process, Manager
 from web.web_ui import web_start
 from helper import GlobalHelper, SlaveRecord
 from slave_ctrl import SlaveCtrl

@@ -1,18 +1,15 @@
 # coding=utf-8
-import requests
 import random
-
 import time
-
 import json
-
 import sys
 
-from mongo_single import Mongo
+import requests
+from tld import get_tld
 
+from mongo_single import Mongo
 from functions import socket_client
 
-from tld import get_tld
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
