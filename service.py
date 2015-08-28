@@ -41,6 +41,9 @@ def request_handle(data, address):
     if 'save' in request and request['save'] and isinstance(request['save'], list):
         handle.result_save()
 
+    if handle.get_project() and handle.get_project()['static'] == '暂停中':
+        return json.dumps({'msg': '. 该项目"' + request['project_name'] + '"被手动暂停中!'})
+
     response_url_list = []
     if 'get_urls' in request:
         response_url_list = handle.get_urls()

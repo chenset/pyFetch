@@ -4,6 +4,7 @@ import pymongo
 from mongo_single import Mongo
 from functions import md5
 import sys
+import traceback
 from helper import SlaveRecord
 
 reload(sys)
@@ -77,7 +78,18 @@ class SerHandle():
 
         Mongo.get()['queue_' + self.project_name].remove({'url_md5': {'$in': [md5(l) for l in url_list]}},
                                                          multi=True)  # 删除抓取完毕的队列
-        urls_data and Mongo.get()['parsed_' + self.project_name].insert(urls_data)
+
+        try:
+            urls_data and Mongo.get()['parsed_' + self.project_name].insert(urls_data)
+        except:
+            try:
+                for single_url in urls_data:
+                    single_url and Mongo.get()['parsed_' + self.project_name].insert_one(single_url)
+            except Exception, error:
+                print traceback.format_exc()
+                print error
+                print u'下面链接重复抓取的并重复保存到parsed_*中的记录'
+                print single_url
 
     def result_save(self):
         Mongo.get()['result_' + self.project_name].insert(self.__request_json['save'])

@@ -77,13 +77,14 @@ def toggle_slave(id):
     try:
         slave_record = Mongo.get()['slave_record'].find_one({'_id': ObjectId(id)})
         if not slave_record:
-            raise Exception('不能存在的记录!')
+            raise Exception('不存在的记录!')
     except:
         return jsonify({'success': False, 'msg': '不存在的记录!'})
 
     slave_record['data']['static'] = '抓取中' if slave_record['data']['static'] == '暂停中' else '暂停中'
     try:
-        Mongo.get()['slave_record'].update({'_id': ObjectId(id)}, slave_record)
+        Mongo.get()['slave_record'].update({'_id': ObjectId(id)},
+                                           {'$set': {'data.static': slave_record['data']['static']}})
         global_salve_record = GlobalHelper.get('salve_record')
         global_salve_record[slave_record['ip']]['static'] = slave_record['data']['static']
         GlobalHelper.set('salve_record', global_salve_record)
@@ -92,11 +93,28 @@ def toggle_slave(id):
     return jsonify({'success': True, 'msg': '切换成功!'})
 
 
+@app.route('/api/project/<id>/toggle')
+def toggle_project(id):
+    try:
+        project = Mongo.get()['projects'].find_one({'_id': ObjectId(id)})
+        if not project:
+            raise Exception('不存在的记录!')
+    except:
+        return jsonify({'success': False, 'msg': '不存在的记录!'})
+
+    project['static'] = '抓取中' if project['static'] == '暂停中' else '暂停中'
+
+    Mongo.get()['projects'].update({'_id': ObjectId(id)},
+                                   {'$set': {'static': project['static']}})
+    return jsonify({'success': True, 'msg': '切换成功!'})
+
+
 @app.route('/api/project')
 def get_projects():
     project_dict = {}
     for project in get_project_list():
         project_dict[project['name']] = {
+            '_id': str(project['_id']),
             'name': project['name'],
             'static': project['static'],
             'queue_len': Mongo.get()['queue_' + project['name']].count(),
@@ -130,7 +148,7 @@ def save_project():
         'init_url': form_data['init_url'],
         'desc': form_data['desc'] if 'desc' in form_data else '',
         'code': form_data['code'],
-        'static': '测试中',
+        'static': '暂停中',
         'update_time': int(time.time()),
         'add_time': exists_project[0]['add_time'] if exists_project else int(time.time()),
     }

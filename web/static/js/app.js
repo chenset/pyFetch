@@ -179,6 +179,14 @@ app.controller('projectCtrl', function ($scope, $http) {
     $scope.refresh = function () {
         load(true);
     };
+
+    $scope.runToggle = function (projectID) {
+        $http.get('/api/project/' + projectID + '/toggle').success(function (data) {
+            if (data.success) {
+                load();
+            }
+        });
+    }
 });
 
 app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {

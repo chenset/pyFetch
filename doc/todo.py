@@ -7,4 +7,4 @@
 # todo 类似http://gamersky.com的302跳转
 # todo 避免抓取非html类型
 # todo 参数可配置化
-
+# todo 动态增加项目时, 虫子要自动启动线程抓取

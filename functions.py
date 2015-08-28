@@ -29,7 +29,8 @@ def get_project_list():
     todo 测试是否支持中文
     :return:
     """
-    get_project_list.cache = [v for v in Mongo.get().projects.find({}, {'_id': 0})]
+    # get_project_list.cache = [v for v in Mongo.get().projects.find({}, {'_id': 0})]
+    get_project_list.cache = [v for v in Mongo.get().projects.find()]
 
     return get_project_list.cache
 
