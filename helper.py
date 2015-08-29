@@ -236,7 +236,6 @@ class HttpHelper():
         except requests.Timeout, e:
             return None, str(e.message), round((time.time() - start_time) * 1000, 2)
         except Exception, e:
-            print traceback.format_exc()
             return None, str(e.message), round((time.time() - start_time) * 1000, 2)
         else:
             return str(content), req.status_code, round((time.time() - start_time) * 1000, 2)
