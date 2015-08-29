@@ -38,19 +38,20 @@ def run(gevent_id, project_name, source_code):
                     if item['name'] == project_name:
                         spider = context_rebuild(item['name'], item['code'])
 
-                        print 'gevent ID:' + str(gevent_id) + ' -- project : ' + project_name + ' reload !!!!!!!!!!'
+                        print 'gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' reload !!!!!!!!!!'
                         break
 
                 continue
 
             response = spider.get_data()
             if not response:
-                echo_err('远程响应异常, 60秒后重试')
+                echo_err('gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' - 远程响应异常, 60秒后重试')
                 gevent.sleep(60)
                 continue
 
             if 'urls' not in response or not response['urls']:
-                echo_err('无法从远程获取url队列, 10秒后重试' + response['msg'] or '')
+                echo_err('gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' - 无法从远程获取url队列, 10秒后重试' +
+                         response['msg'] or '')
                 gevent.sleep(10)
                 continue
 
@@ -63,7 +64,7 @@ def run(gevent_id, project_name, source_code):
     except Exception, e:
         print traceback.format_exc()
 
-    echo_err('gevent ID:' + str(gevent_id) + ' -- project : ' + project_name + ' stop !!!!!!!!!!!!!!!')
+    echo_err('gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' stop !!!!!!!!!!!!!!!')
 
 
 def load_projects():

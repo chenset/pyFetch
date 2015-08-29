@@ -98,3 +98,15 @@ def socket_client(content):
     sock.close()
 
     return data
+
+
+def switch_encode(text):
+    decode_list = ["utf-8", 'gb18030', 'ISO-8859-2', 'ISO-8859-1', 'gb2312', "gbk", "Error"]
+    for k in decode_list:
+        try:
+            # return text.decode('gb2312').encode('utf-8')
+            return unicode(text, k)
+        except:
+            if k == "Error":
+                raise Exception('had no way to decode')
+            continue

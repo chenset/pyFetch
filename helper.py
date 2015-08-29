@@ -3,13 +3,14 @@ import random
 import time
 import json
 import sys
-
+import traceback
 import requests
+from functions import switch_encode
 from tld import get_tld
 
 from mongo_single import Mongo
 from functions import socket_client
-
+from contextlib import closing
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -153,7 +154,7 @@ class HttpHelper():
         在执行若干次后会更新cookie, 一定几率降低被封可能
         """
         if self.num >= 30 or not self.requester:
-            self.requester = requests.session()
+            self.requester = requests.Session()
             self.num = 0
 
         self.num += 1
@@ -194,13 +195,39 @@ class HttpHelper():
 
         start_time = time.time()
         try:
+            content = ''
+
             if method == 'post':
                 req = self.get_requester().post(self.url, headers=self.get_headers(), timeout=10, params=params)
-            else:
-                req = self.get_requester().get(self.url, headers=self.get_headers(), timeout=10, params=params)
+                if not req.encoding == 'utf-8':
+                    req.encoding = 'utf-8'
 
-            if not req.encoding == 'utf-8':
-                req.encoding = 'utf-8'
+            else:
+                with closing(
+                        requests.session().get(self.url, headers=self.get_headers(), timeout=10, params=params,
+                                               allow_redirects=True, stream=True)) as req:
+                    # if not req.encoding == 'utf-8':
+                    # req.encoding = 'utf-8'
+
+                    size_limit = 1024000  # 最大接收content-length
+                    if 'content-length' in req.headers:
+                        if int(req.headers['content-length']) > size_limit:
+                            raise Exception(
+                                'content-length too many. content-length: ' + str(req.headers['content-length']))
+
+                        content = req.content
+
+                    else:
+                        size_temp = 0
+                        for line in req.iter_lines():
+                            if line:
+                                size_temp += len(line)
+                                if size_temp > size_limit:
+                                    raise Exception('content-length too many.')
+
+                                content += line
+
+            content = switch_encode(content)
 
         except requests.ConnectionError, e:
             return None, str(e.message), round((time.time() - start_time) * 1000, 2)
@@ -209,9 +236,10 @@ class HttpHelper():
         except requests.Timeout, e:
             return None, str(e.message), round((time.time() - start_time) * 1000, 2)
         except Exception, e:
+            print traceback.format_exc()
             return None, str(e.message), round((time.time() - start_time) * 1000, 2)
         else:
-            return str(req.text), req.status_code, round((time.time() - start_time) * 1000, 2)
+            return str(content), req.status_code, round((time.time() - start_time) * 1000, 2)
 
 
 class S:

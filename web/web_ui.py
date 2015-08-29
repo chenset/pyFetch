@@ -72,10 +72,10 @@ def api_slave():
     return jsonify(GlobalHelper.get('salve_record') or {})
 
 
-@app.route('/api/slave/<id>/toggle')
-def toggle_slave(id):
+@app.route('/api/slave/<slave_id>/toggle')
+def toggle_slave(slave_id):
     try:
-        slave_record = Mongo.get()['slave_record'].find_one({'_id': ObjectId(id)})
+        slave_record = Mongo.get()['slave_record'].find_one({'_id': ObjectId(slave_id)})
         if not slave_record:
             raise Exception('不存在的记录!')
     except:
@@ -83,7 +83,7 @@ def toggle_slave(id):
 
     slave_record['data']['static'] = '抓取中' if slave_record['data']['static'] == '暂停中' else '暂停中'
     try:
-        Mongo.get()['slave_record'].update({'_id': ObjectId(id)},
+        Mongo.get()['slave_record'].update({'_id': ObjectId(slave_id)},
                                            {'$set': {'data.static': slave_record['data']['static']}})
         global_salve_record = GlobalHelper.get('salve_record')
         global_salve_record[slave_record['ip']]['static'] = slave_record['data']['static']
@@ -93,10 +93,10 @@ def toggle_slave(id):
     return jsonify({'success': True, 'msg': '切换成功!'})
 
 
-@app.route('/api/project/<id>/toggle')
-def toggle_project(id):
+@app.route('/api/project/<project_id>/toggle')
+def toggle_project(project_id):
     try:
-        project = Mongo.get()['projects'].find_one({'_id': ObjectId(id)})
+        project = Mongo.get()['projects'].find_one({'_id': ObjectId(project_id)})
         if not project:
             raise Exception('不存在的记录!')
     except:
@@ -104,7 +104,7 @@ def toggle_project(id):
 
     project['static'] = '抓取中' if project['static'] == '暂停中' else '暂停中'
 
-    Mongo.get()['projects'].update({'_id': ObjectId(id)},
+    Mongo.get()['projects'].update({'_id': ObjectId(project_id)},
                                    {'$set': {'static': project['static']}})
     return jsonify({'success': True, 'msg': '切换成功!'})
 
