@@ -48,6 +48,7 @@ def echo_err(msg):
 def format_and_filter_urls(base_url, url):
     # 转换非完整的url格式
     if url.startswith('/'):  # 以根开头的绝对url地址
+        base_url = "".join(base_url.split())  # 删除所有\s+
         protocol, rest = urllib2.splittype(base_url)
         host, rest = urllib2.splithost(rest)
         url = (protocol + "://" + host).rstrip('/') + "/" + url.lstrip('/')
@@ -65,7 +66,7 @@ def get_urls_form_html(base_url, html):
     match = r.findall(html)
     urls = []
     for url in match:
-        urls.append(format_and_filter_urls(base_url, url))
+        url and urls.append(format_and_filter_urls(base_url, url))
 
     return urls
 
@@ -100,13 +101,11 @@ def socket_client(content):
     return data
 
 
-def switch_encode(text):
-    decode_list = ["utf-8", 'gb18030', 'ISO-8859-2', 'ISO-8859-1', 'gb2312', "gbk", "Error"]
-    for k in decode_list:
+def smarty_encode(text):
+    for k in ['utf-8', 'gb18030', 'ISO-8859-2', 'ISO-8859-1', 'gb2312', 'gbk']:
         try:
-            # return text.decode('gb2312').encode('utf-8')
             return unicode(text, k)
         except:
-            if k == "Error":
-                raise Exception('had no way to decode')
             continue
+
+    raise Exception('Had no way to encode')

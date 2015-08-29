@@ -70,7 +70,7 @@ class Spider(Slave):
         :param string url:
         :return:
         """
-        self.put_data(urls_add=(format_and_filter_urls(self.current_url, url),))
+        url and self.put_data(urls_add=(format_and_filter_urls(self.current_url, url),))
 
 # from gevent import monkey
 #

@@ -3,9 +3,8 @@ import random
 import time
 import json
 import sys
-import traceback
 import requests
-from functions import switch_encode
+from functions import smarty_encode
 from tld import get_tld
 
 from mongo_single import Mongo
@@ -227,7 +226,7 @@ class HttpHelper():
 
                                 content += line
 
-            content = switch_encode(content)
+            content = smarty_encode(content)
 
         except requests.ConnectionError, e:
             return None, str(e.message), round((time.time() - start_time) * 1000, 2)
