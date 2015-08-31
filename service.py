@@ -25,10 +25,16 @@ def request_handle(data, address):
 
     if 'init' in request:
         projects = SlaveCtrl().code_ctrl()
-        return json.dumps({'msg': '', 'projects': projects})
+        if not projects:
+            return json.dumps({'msg': '. 暂无项目, 请通过WEB添加项目!'})
+
+        return json.dumps({'msg': '获取项目成功!', 'projects': projects})
 
     if 'project_name' not in request:
         return json.dumps({'msg': '未设置该项目名称'})
+
+    if 'urls_fail' in request and request['urls_fail']:
+        slave_record.add_fails_record(address[0], request['urls_fail'])
 
     handle = SerHandle(request['project_name'], request, address)
 
@@ -48,8 +54,9 @@ def request_handle(data, address):
     if 'get_urls' in request:
         response_url_list = handle.get_urls()
 
+    # 客户端会通过判断change_time的不同而reload项目
     return json.dumps({'msg': '', 'urls': response_url_list,
-                       'change_time': handle.get_project()['update_time']})  # 客户端会通过判断change_time的不同而reload项目
+                       'change_time': handle.get_project()['update_time']})
 
 
 def socket_server(host, port):
@@ -62,6 +69,7 @@ def socket_server(host, port):
 
 
 def socket_accept(sock, address):
+    data = ''
     try:
         buff_size = 1024
         data = sock.recv(buff_size)
@@ -79,6 +87,8 @@ def socket_accept(sock, address):
     except Exception, error:
         print traceback.format_exc()
         print error
+        print address
+        print data
     finally:
 
         sock.close()

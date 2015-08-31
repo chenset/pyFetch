@@ -10,7 +10,7 @@ import zlib
 import base64
 # from gevent import socket
 import socket
-
+from tld import get_tld
 from mongo_single import Mongo
 
 
@@ -109,3 +109,13 @@ def smarty_encode(text):
             continue
 
     raise Exception('Had no way to encode')
+
+
+def get_domain(url):
+    try:
+        return get_tld(url)
+    except:
+        base_url = "".join(url)  # 删除所有\s+
+        protocol, rest = urllib2.splittype(base_url)
+        host, rest = urllib2.splithost(rest)
+        return host

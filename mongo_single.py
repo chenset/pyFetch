@@ -7,7 +7,7 @@ class Mongo:
     cursor = None
 
     def __init__(self):
-        self.conn = pymongo.MongoClient("127.0.0.1", 27017).test
+        self.conn = pymongo.MongoClient("127.0.0.1", 27017).tttdtt
 
     @classmethod
     def get(cls):

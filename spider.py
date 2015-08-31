@@ -1,6 +1,7 @@
 # coding=utf-8
 import helper
-from functions import echo_err, get_urls_form_html, format_and_filter_urls
+import time
+from functions import echo_err, get_urls_form_html, format_and_filter_urls, get_domain
 from helper import S
 from helper import Slave
 import gevent
@@ -47,6 +48,13 @@ class Spider(Slave):
                      ' -- URL: ' + self.current_url + ' 获取失败 HTTP code: ' + str(crawl_result[1]) + ' Runtime: ' + str(
                 crawl_result[2]) + 'ms')
             # continue
+            self.put_data(
+                urls_fail=(
+                    get_domain(self.current_url),
+                    int(crawl_result[1] if str(crawl_result[1]).isdigit() else 0),
+                    int(time.time()),
+                ),
+            )
             return
 
         # 如果抓取自定义函数存在dict返回值则将dict推送至服务器

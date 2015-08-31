@@ -1,6 +1,9 @@
 # coding=utf-8
+import urllib2
 import time
 import pymongo
+from functions import get_domain
+
 from mongo_single import Mongo
 from functions import md5
 import sys
@@ -28,7 +31,15 @@ class SerHandle():
         # SerHandle.__init_project(self.project_name)
         response_url_list = []
         ids = []
-        for doc in Mongo.get()['queue_' + self.project_name].find({'flag_time': {'$lt': int(time.time() - 300)}}).limit(
+
+        print self.__slave_record.slave_record[self.__request_address[0]]['deny_domains']
+
+        # todo need to test
+        deny_domains = [x['domain'] for x in
+                        self.__slave_record.slave_record[self.__request_address[0]]['deny_domains']]
+
+        for doc in Mongo.get()['queue_' + self.project_name].find(
+                {'domain': {'$nin': deny_domains}, 'flag_time': {'$lt': int(time.time() - 300)}}).limit(
                 2).sort('_id', pymongo.ASCENDING):  # 取标识时间早于当前时间300秒之前的url
             ids.append(doc['_id'])
             response_url_list.append(doc['url'])
@@ -62,8 +73,13 @@ class SerHandle():
         add_urls_data = []
         for url in add_url_list:
             if url not in exist_queue_url_list and url not in exist_parsed_url_list:  # 不存在queue不存在parsed中才加入队列
-                add_urls_data.append({'url': url, 'url_md5': md5(url), 'flag_time': 0, 'add_time': int(time.time()),
-                                      'slave_ip': self.__request_address[0]})
+                add_urls_data.append(
+                    {'domain': get_domain(url),
+                     'url': url,
+                     'url_md5': md5(url),
+                     'flag_time': 0,
+                     'add_time': int(time.time()),
+                     'slave_ip': self.__request_address[0]})
 
         add_urls_data and Mongo.get()['queue_' + self.project_name].insert(add_urls_data)
 

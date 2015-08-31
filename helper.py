@@ -5,7 +5,7 @@ import json
 import sys
 import requests
 from functions import smarty_encode
-from tld import get_tld
+from functions import get_domain
 
 from mongo_single import Mongo
 from functions import socket_client
@@ -28,9 +28,15 @@ class SlaveRecord():
     __instance = None
 
     def __init__(self):
-        self.__init_format = {'parsed_count': 0, 'connected_count': 0, 'last_connected_time': 0, 'work_time_count': 1,
+        self.__init_format = {'parsed_count': 0,
+                              'connected_count': 0,
+                              'last_connected_time': 0,
+                              'work_time_count': 1,
+                              'deny_domains': [],
                               'static': '抓取中'}
         self.slave_record = {}
+
+        self.fails_urls_temp = {}
 
         if not self.slave_record:
             for item in Mongo.get().slave_record.find():
@@ -60,6 +66,51 @@ class SlaveRecord():
     def add_parsed_record(self, ip):
         self.__init_key(ip)
         self.slave_record[ip]['parsed_count'] += 1
+
+    def add_fails_record(self, ip, fails=()):
+        """
+        根据失败的url抓取记录且一定时间达到一定数量则将url加入该slave (IP)的禁止名单中
+        """
+        self.__init_key(ip)
+        start_time = int(time.time()) - 30 * 60  # 半小时前
+        start_time_clean = int(time.time()) - 120 * 60  # 两个小时前
+
+        # 判断时间清理掉一段时间之前的禁止名单
+        deny_domains = []
+        deny_domains_temp = self.slave_record[ip]['deny_domains'][:]  # 深复制
+        for item in deny_domains_temp:
+            deny_domains.append(item['domain'])
+
+            if item['add_time'] < start_time_clean:  # 如果是指定时间之前添加的则清除掉该slave (IP)禁止名单
+                self.slave_record[ip]['deny_domains'].remove(item)
+                print self.slave_record[ip]
+
+        for item in fails:
+            if item[0] in deny_domains:
+                continue
+
+            if int(item[1]) == 403:  # 目前仅403
+                self.fails_urls_temp.setdefault(ip, {})
+                res = self.fails_urls_temp[ip].setdefault(item[0], {'count': 0, 'time': []})
+                self.fails_urls_temp[ip][item[0]]['count'] += 1
+                self.fails_urls_temp[ip][item[0]]['time'].append(item[2])
+
+                # 403 一定时间达到一定次数就加禁止入名单
+                if res['count'] == 10:
+
+                    # 半小时内达到一定次数
+                    time_count = 0
+                    for t in self.fails_urls_temp[ip][item[0]]['time']:
+                        print (t, start_time)
+                        if t > start_time:
+                            time_count += 1
+                    if time_count < 10:  # 未达到次数下限
+                        continue
+
+                    # 加入禁止名单和清空临时数据
+                    self.slave_record[ip]['deny_domains'].append({'domain': item[0], 'add_time': int(time.time())})
+                    del self.fails_urls_temp[ip][item[0]]
+                    continue
 
     def add_request_record(self, ip):
         self.__init_key(ip)
@@ -270,10 +321,7 @@ class QueueCtrl():
     @classmethod
     def add_parsed(cls, url):
         # 获取主域名并更新该域名的访问频率
-        try:
-            cls.__update_host_freq(get_tld(url))
-        except:
-            cls.__update_host_freq(url)
+        cls.__update_host_freq(get_domain(url))
 
     @classmethod
     def __update_host_freq(cls, host):
@@ -339,10 +387,7 @@ class UrlsSortCtrl(QueueCtrl):
         """
         sorted_urls = {}
         for url in urls:
-            try:
-                sorted_urls[url] = len(cls.host_freq_pool.get(get_tld(url), []))
-            except:
-                sorted_urls[url] = len(cls.host_freq_pool.get(url, []))
+            sorted_urls[url] = len(cls.host_freq_pool.get(get_domain(url), []))
 
         return cls.__sort_dict_by_value_return_keys(sorted_urls)
 
@@ -374,6 +419,7 @@ class Slave():
             'urls_parsed': [],
             'urls_add': [],
             'save': [],
+            'urls_fail': [],
         }
 
     def __init__(self, project_name):
@@ -412,7 +458,7 @@ class Slave():
 
         return response
 
-    def put_data(self, urls_parsed=(), urls_add=(), save=()):
+    def put_data(self, urls_parsed=(), urls_add=(), save=(), urls_fail=()):
         """
         不会真正推送数据, 只先加入缓存属性中, 当执行self.get_data时再一并推送
         :param urls_parsed:
@@ -420,6 +466,7 @@ class Slave():
         :param save:
         :return:
         """
+
         for url in urls_parsed:
             QueueCtrl.add_parsed(url)
             self.data['urls_parsed'].append(url)
@@ -427,8 +474,9 @@ class Slave():
         for url in urls_add:
             self.data['urls_add'].append(url)
 
-        if save:
-            self.data['save'].append(save)
+        urls_fail and self.data['urls_fail'].append(urls_fail)
+
+        save and self.data['save'].append(save)
 
     def has_project_change(self):
         current_change_time = int(self.original_receive_json.get('change_time', self.last_change_time))
