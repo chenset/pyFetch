@@ -83,7 +83,6 @@ class SlaveRecord():
 
             if item['add_time'] < start_time_clean:  # 如果是指定时间之前添加的则清除掉该slave (IP)禁止名单
                 self.slave_record[ip]['deny_domains'].remove(item)
-                print self.slave_record[ip]
 
         for item in fails:
             if item[0] in deny_domains:
@@ -101,7 +100,6 @@ class SlaveRecord():
                     # 半小时内达到一定次数
                     time_count = 0
                     for t in self.fails_urls_temp[ip][item[0]]['time']:
-                        print (t, start_time)
                         if t > start_time:
                             time_count += 1
                     if time_count < 10:  # 未达到次数下限
