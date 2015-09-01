@@ -1,10 +1,10 @@
 # coding=utf-8
+import click
 import zlib
 import base64
 import json
 import traceback
 from multiprocessing import Process, Manager
-
 import gevent
 from gevent import socket
 
@@ -94,19 +94,30 @@ def socket_accept(sock, address):
         sock.close()
 
 
-if __name__ == '__main__':
+@click.command()
+@click.option('--host', '-h', default='0.0.0.0', type=str,
+              help='pyFetch Service host and WEB service host. 0.0.0.0 is represent open to public network.',
+              prompt='Entry the service host')
+@click.option('--port', '-p', default=17265, type=int, help='pyFetch Service port.',
+              prompt='Entry the pyFetch service port')
+@click.option('--wwwport', default=80, type=int, help='WEB Service port.', prompt='Entry the WEB service port')
+def init(host, port, wwwport):
     global_process_var = Manager().dict()
     GlobalHelper.init(global_process_var)
 
-    web_ui = Process(target=web_start, args=(global_process_var,))
+    web_ui = Process(target=web_start, args=(global_process_var, host, wwwport))
     web_ui.start()
 
+    global slave_record
     slave_record = SlaveRecord.get_instance()
     GlobalHelper.set('salve_record', slave_record.slave_record)
 
-    socket_server('0.0.0.0', 7777)
+    socket_server(host, port)
     web_ui.join()
 
+
+if __name__ == '__main__':
+    init()
 
 
 

@@ -14,7 +14,7 @@ windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Pytho
     pip install flask-compress
     pip install gevent
     pip install tld
-
+    pip install click
 ### 执行
 服务器
 

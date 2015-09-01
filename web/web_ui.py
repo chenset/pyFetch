@@ -213,12 +213,13 @@ def exec_test():
     return json.dumps({'success': True, 'msg': '成功', 'result': result})
 
 
-def web_start(dd):
+def web_start(dd, host, web_port):
     """
     当service.py为入口时会调用这里
     """
     GlobalHelper.init(dd)
-    http_server = WSGIServer(('0.0.0.0', 80), app)
+
+    http_server = WSGIServer((host, web_port), app)
     http_server.serve_forever()
 
 

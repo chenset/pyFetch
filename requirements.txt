@@ -1,0 +1,7 @@
+click
+requests
+pymongo
+flask
+flask-compress
+gevent
+tld
