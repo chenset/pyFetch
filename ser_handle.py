@@ -31,8 +31,7 @@ class SerHandle():
         # SerHandle.__init_project(self.project_name)
         response_url_list = []
         ids = []
-
-        print self.__slave_record.slave_record[self.__request_address[0]]['deny_domains']
+        # print self.__slave_record.slave_record[self.__request_address[0]]['deny_domains']
 
         # todo need to test
         deny_domains = [x['domain'] for x in

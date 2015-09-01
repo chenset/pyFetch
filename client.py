@@ -1,8 +1,10 @@
 # coding=utf8
+import click
 import json
 import time
 import traceback
-from functions import socket_client, echo_err
+from functions import echo_err
+from helper import Socket_client
 from spider import Spider
 from gevent import monkey
 
@@ -12,7 +14,7 @@ import gevent
 
 def init():
     try:
-        json_string = socket_client(json.dumps({'init': 1}))
+        json_string = Socket_client.run(json.dumps({'init': 1}))
         return json.loads(json_string)
     except:
         return None
@@ -77,7 +79,17 @@ def load_projects():
     return res['projects']
 
 
-if __name__ == '__main__':
+@click.command()
+@click.option('--host', '-h', default='127.0.0.1', type=str,
+              help='pyFetch Service host.',
+              prompt='Entry the service host')
+@click.option('--port', '-p', default=17265, type=int, help='pyFetch Service port.',
+              prompt='Entry the pyFetch service port')
+def cli(host, port):
+    Socket_client.set_host(host)
+    Socket_client.set_port(port)
+    click.echo('Connecting %s:%s ...' % (host, port))
+
     joins = []
     gevent_id = 0  # 作为 gevent 的ID标识
     for project in load_projects():
@@ -89,3 +101,7 @@ if __name__ == '__main__':
         joins.append(gevent.spawn(run, gevent_id, project['name'], project['code']))
 
     gevent.joinall(joins)
+
+
+if __name__ == '__main__':
+    cli()

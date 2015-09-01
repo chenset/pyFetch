@@ -4,11 +4,14 @@ import time
 import json
 import sys
 import requests
+import zlib
+import base64
+import socket
 from functions import smarty_encode
 from functions import get_domain
 
 from mongo_single import Mongo
-from functions import socket_client
+# from functions import socket_client
 from contextlib import closing
 
 reload(sys)
@@ -495,7 +498,50 @@ class Slave():
     def __request_server(cls, data):
         response = None
         try:
-            json_string = socket_client(json.dumps(data))
+            json_string = Socket_client.run(json.dumps(data))
             response = json.loads(json_string)
         finally:
             return response
+
+
+class Socket_client:
+    host = ''
+    port = 0
+
+    @classmethod
+    def set_host(cls, host):
+        cls.host = host
+
+    @classmethod
+    def set_port(cls, port):
+        cls.port = port
+
+    @classmethod
+    def run(cls, content):
+        """
+        Slave与Master的socket通讯client端
+        使用特定格式传输
+        传输时会压缩数据
+        """
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((cls.host, cls.port))
+
+        send_date = base64.b64encode(zlib.compress(content))  # 压缩编码
+
+        # content前10个字符串用于标识内容长度.
+        response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
+        sock.sendall(response_len + send_date)
+        buff_size = 1024
+        data = sock.recv(buff_size)
+
+        # content前10个字符串用于标识内容长度.
+        data_len = int(data[0:10])
+        while len(data) < data_len:
+            s = sock.recv(buff_size)
+            data += s
+
+        data = zlib.decompress(base64.b64decode(data[10:]))  # 解码解压
+
+        sock.close()
+
+        return data

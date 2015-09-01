@@ -12,6 +12,7 @@ from ser_handle import SerHandle
 from web.web_ui import web_start
 from helper import GlobalHelper, SlaveRecord
 from slave_ctrl import SlaveCtrl
+from functions import get_wan_ip
 
 
 def request_handle(data, address):
@@ -101,7 +102,34 @@ def socket_accept(sock, address):
 @click.option('--port', '-p', default=17265, type=int, help='pyFetch Service port.',
               prompt='Entry the pyFetch service port')
 @click.option('--wwwport', default=80, type=int, help='WEB Service port.', prompt='Entry the WEB service port')
-def init(host, port, wwwport):
+def cli(host, port, wwwport):
+    click.echo('\r\nService listening on %s:%s' % (host, port,))
+
+    web_list = list()
+    client_connect_list = list()
+    web_list.append('local: http://127.0.0.1:%s' % wwwport)
+    client_connect_list.append('local: python client.py --host 127.0.0.1 --port %s' % port)
+    if host == '0.0.0.0':
+        wan_ip = get_wan_ip()
+        lan_ip = socket.gethostbyname(socket.gethostname())
+        if lan_ip != wan_ip:
+            web_list.append('lan  : http://%s:%s' % (lan_ip, wwwport))
+            client_connect_list.append('lan  : python client.py --host %s --port %s' % (lan_ip, port))
+
+        if wan_ip:
+            web_list.append('wan  : http://%s:%s  PS: Maybe need to set up port forwarding' % (wan_ip, wwwport))
+            client_connect_list.append(
+                'wan  : python client.py --host %s --port %s  PS: Maybe need to set up port forwarding' %
+                (wan_ip, port))
+
+    click.echo('Access console via:')
+    for item in web_list:
+        click.echo(item)
+
+    click.echo('\r\nClient connection use:')
+    for item in client_connect_list:
+        click.echo(item)
+
     global_process_var = Manager().dict()
     GlobalHelper.init(global_process_var)
 
@@ -117,7 +145,7 @@ def init(host, port, wwwport):
 
 
 if __name__ == '__main__':
-    init()
+    cli()
 
 
 

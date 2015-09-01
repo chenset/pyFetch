@@ -6,13 +6,9 @@ import re
 import sys
 import StringIO
 import contextlib
-import zlib
-import base64
-# from gevent import socket
-import socket
 from tld import get_tld
 from mongo_single import Mongo
-
+import requests
 
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
@@ -71,36 +67,6 @@ def get_urls_form_html(base_url, html):
     return urls
 
 
-def socket_client(content):
-    """
-    Slave与Master的socket通讯client端
-    使用特定格式传输
-    传输时会压缩数据
-    """
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('127.0.0.1', 7777))
-
-    send_date = base64.b64encode(zlib.compress(content))  # 压缩编码
-
-    # content前10个字符串用于标识内容长度.
-    response_len = (str(len(send_date) + 10) + ' ' * 10)[0:10]
-    sock.sendall(response_len + send_date)
-    buff_size = 1024
-    data = sock.recv(buff_size)
-
-    # content前10个字符串用于标识内容长度.
-    data_len = int(data[0:10])
-    while len(data) < data_len:
-        s = sock.recv(buff_size)
-        data += s
-
-    data = zlib.decompress(base64.b64decode(data[10:]))  # 解码解压
-
-    sock.close()
-
-    return data
-
-
 def smarty_encode(text):
     for k in ['utf-8', 'gb18030', 'ISO-8859-2', 'ISO-8859-1', 'gb2312', 'gbk']:
         try:
@@ -119,3 +85,33 @@ def get_domain(url):
         protocol, rest = urllib2.splittype(base_url)
         host, rest = urllib2.splithost(rest)
         return host
+
+
+def fetch_ip(content):
+    result = re.search(
+        '((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))',
+        content)
+    if not result:
+        return None
+    return result.group(0)
+
+
+def get_wan_ip():
+    server_list = (
+        # 获取wan ip的网站地址, 可以自己添加更多
+        'http://wanip.sinaapp.com/',
+        'http://1111.ip138.com/ic.asp',
+        'http://city.ip138.com/ip2city.asp',
+        'http://www.ip38.com/',
+    )
+
+    for url in server_list:
+        try:
+            html = requests.get(url)
+            ip = fetch_ip(html.content)
+
+        except:
+            continue
+        else:
+            return ip
+

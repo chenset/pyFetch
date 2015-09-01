@@ -4,7 +4,6 @@ import time
 from functions import echo_err, get_urls_form_html, format_and_filter_urls, get_domain
 from helper import S
 from helper import Slave
-import gevent
 import sys
 
 reload(sys)
