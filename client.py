@@ -8,8 +8,6 @@ from functions import echo_err
 from helper import Socket_client
 from spider import Spider
 from gevent import monkey
-
-monkey.patch_all()
 import gevent
 
 
@@ -87,6 +85,8 @@ def cli(host, port):
     Socket_client.set_host(host)
     Socket_client.set_port(port)
     click.echo('Connecting %s:%s ...' % (host, port))
+
+    monkey.patch_all()
 
     joins = []
     gevent_id = 0  # 作为 gevent 的ID标识
