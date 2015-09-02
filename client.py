@@ -80,11 +80,8 @@ def load_projects():
 
 
 @click.command()
-@click.option('--host', '-h', default='127.0.0.1', type=str,
-              help='pyFetch Service host.',
-              prompt='Entry the service host')
-@click.option('--port', '-p', default=17265, type=int, help='pyFetch Service port.',
-              prompt='Entry the pyFetch service port')
+@click.option('--host', '-h', default='127.0.0.1', type=str, help='pyFetch Service host.')
+@click.option('--port', '-p', default=17265, type=int, help='pyFetch Service port.')
 def cli(host, port):
     Socket_client.set_host(host)
     Socket_client.set_port(port)

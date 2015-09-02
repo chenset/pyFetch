@@ -97,11 +97,9 @@ def socket_accept(sock, address):
 
 @click.command()
 @click.option('--host', '-h', default='0.0.0.0', type=str,
-              help='pyFetch Service host and WEB service host. 0.0.0.0 is represent open to public network.',
-              prompt='Entry the service host')
-@click.option('--port', '-p', default=17265, type=int, help='pyFetch Service port.',
-              prompt='Entry the pyFetch service port')
-@click.option('--wwwport', default=80, type=int, help='WEB Service port.', prompt='Entry the WEB service port')
+              help='pyFetch Service host and WEB service host. 0.0.0.0 is represent open to public network.')
+@click.option('--port', '-p', default=17265, type=int, help='pyFetch Service port.')
+@click.option('--wwwport', default=80, type=int, help='WEB Service port.')
 def cli(host, port, wwwport):
     click.echo('\r\nService listening on %s:%s' % (host, port,))
 
