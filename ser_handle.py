@@ -38,7 +38,7 @@ class SerHandle():
                         self.__slave_record.slave_record[self.__request_address[0]]['deny_domains']]
 
         for doc in Mongo.get()['queue_' + self.project_name].find(
-                {'domain': {'$nin': deny_domains}, 'flag_time': {'$lt': int(time.time() - 300)}}).limit(20) \
+                {'domain': {'$nin': deny_domains}, 'flag_time': {'$lt': int(time.time() - 300)}}).limit(3) \
                 .sort('_id', pymongo.ASCENDING):  # 取标识时间早于当前时间300秒之前的url
             ids.append(doc['_id'])
             response_url_list.append(doc['url'])
@@ -104,7 +104,7 @@ class SerHandle():
                 print traceback.format_exc()
                 print error
                 print u'下面链接重复抓取的并重复保存到parsed_*中的记录'
-                print single_url
+                print single_url, '\r\n\r\n'
 
     def result_save(self):
         Mongo.get()['result_' + self.project_name].insert(self.__request_json['save'])

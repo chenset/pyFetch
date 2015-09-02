@@ -20,6 +20,7 @@ def init():
 
 
 def run(gevent_id, project_name, source_code):
+    run.restart = False
     context = {}
 
     def start(callback):
@@ -49,6 +50,11 @@ def run(gevent_id, project_name, source_code):
                 echo_err('gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' - 远程响应异常, 60秒后重试')
                 gevent.sleep(60)
                 continue
+
+            if run.restart or ('restart' in response and response['restart']):
+                run.restart = True
+                echo_err('gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' - 准备重启中...')
+                return  # 当该轮全部协程返回后, 调用处会再次重新开启新一轮. 以此达到重启的目的
 
             if 'urls' not in response or not response['urls']:
                 echo_err('gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' - 无法从远程获取url队列, 10秒后重试' +
@@ -88,17 +94,19 @@ def cli(host, port):
 
     monkey.patch_all()
 
-    joins = []
-    gevent_id = 0  # 作为 gevent 的ID标识
-    for project in load_projects():
-        print project
-        gevent_id += 1
-        joins.append(gevent.spawn(run, gevent_id, project['name'], project['code']))
+    while True:
+        joins = []
+        gevent_id = 0  # 作为 gevent 的ID标识
+        for project in load_projects():
+            print project
+            gevent_id += 1
+            joins.append(gevent.spawn(run, gevent_id, project['name'], project['code']))
 
-        gevent_id += 1
-        joins.append(gevent.spawn(run, gevent_id, project['name'], project['code']))
+            gevent_id += 1
+            joins.append(gevent.spawn(run, gevent_id, project['name'], project['code']))
 
-    gevent.joinall(joins)
+        gevent.joinall(joins)
+        print click.echo('重启中......')
 
 
 if __name__ == '__main__':

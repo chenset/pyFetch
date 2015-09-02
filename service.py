@@ -22,6 +22,15 @@ def request_handle(data, address):
 
     request = json.loads(data)
 
+    restart_slave_list = GlobalHelper.get('restart_slave_list') or []
+    if address[0] in restart_slave_list:
+        print restart_slave_list
+        restart_slave_list.remove(address[0])
+        GlobalHelper.set('restart_slave_list', restart_slave_list)
+        print restart_slave_list
+        print GlobalHelper.get('restart_slave_list')
+        return json.dumps({'msg': '该客户端被手动重启中!', 'restart': 1})
+
     if slave_record.slave_record[address[0]]['static'] == '暂停中':
         return json.dumps({'msg': '. 该客户端被手动暂停中!'})
 

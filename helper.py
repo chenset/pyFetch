@@ -44,6 +44,7 @@ class SlaveRecord():
         if not self.slave_record:
             for item in Mongo.get().slave_record.find():
                 item['data']['_id'] = str(item['_id'])
+                item['data']['ip'] = str(item['ip'])
                 self.slave_record[item['ip']] = item['data']
 
         self.refresh_connect_status()

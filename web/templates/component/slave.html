@@ -18,7 +18,7 @@
         <tbody>
         <tr class="" ng-repeat="(key,item) in slave">
             <td>{{$index+1}}</td>
-            <td>{{key}}</td>
+            <td>{{item.ip}}</td>
             <td>{{item.static}}</td>
             <td>{{item.connected_count}}</td>
             <td>{{item.parsed_count}}</td>
@@ -27,6 +27,9 @@
             <td style="width: 200px;text-align: right;">
                 <button type="button" class="btn btn-sm {{item.button_class}}" ng-click="runToggle(item._id);">
                     {{item.button_text}}
+                </button>
+                <button type="button" class="btn btn-sm {{item.restart_button_class}}" ng-click="restart(item._id);">
+                    {{item.restart_button_text}}
                 </button>
                 <a class="btn btn-default btn-sm" href="/slave/task/{{key}}">历史</a>
             </td>

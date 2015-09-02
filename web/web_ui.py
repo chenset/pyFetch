@@ -69,7 +69,38 @@ def api_test():
 
 @app.route('/api/slave')
 def api_slave():
-    return jsonify(GlobalHelper.get('salve_record') or {})
+    salve_records = GlobalHelper.get('salve_record')
+    new_records = {}
+    for (key, value) in salve_records.items():
+        item = dict(value)
+
+        ip_fragment = key.split('.')
+        ip_fragment[1] = ip_fragment[1].zfill(3)
+        ip_fragment[2] = ip_fragment[2].zfill(3)
+        ip_fragment[1] = ip_fragment[1][0:2] + '*'
+        # ip_fragment[2] = '**' + ip_fragment[2][2:]
+        ip_fragment[2] = '***'
+        item['ip'] = '.'.join(ip_fragment)
+
+        new_records[value['_id']] = item
+
+    return jsonify(new_records)
+
+
+@app.route('/api/slave/<slave_id>/restart')
+def restart_slave(slave_id):
+    try:
+        slave_record = Mongo.get()['slave_record'].find_one({'_id': ObjectId(slave_id)})
+        if not slave_record:
+            raise Exception('不存在的记录!')
+    except:
+        return jsonify({'success': False, 'msg': '不存在的记录!'})
+
+    restart_slave_list = GlobalHelper.get('restart_slave_list') or []
+    restart_slave_list.append(slave_record['ip'])
+
+    GlobalHelper.set('restart_slave_list', list(set(restart_slave_list)))
+    return jsonify({'success': True, 'msg': '重启中!'})
 
 
 @app.route('/api/slave/<slave_id>/toggle')
