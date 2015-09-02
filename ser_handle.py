@@ -38,8 +38,8 @@ class SerHandle():
                         self.__slave_record.slave_record[self.__request_address[0]]['deny_domains']]
 
         for doc in Mongo.get()['queue_' + self.project_name].find(
-                {'domain': {'$nin': deny_domains}, 'flag_time': {'$lt': int(time.time() - 300)}}).limit(
-                20).sort('_id', pymongo.ASCENDING):  # 取标识时间早于当前时间300秒之前的url
+                {'domain': {'$nin': deny_domains}, 'flag_time': {'$lt': int(time.time() - 300)}}).limit(20) \
+                .sort('_id', pymongo.ASCENDING):  # 取标识时间早于当前时间300秒之前的url
             ids.append(doc['_id'])
             response_url_list.append(doc['url'])
 
