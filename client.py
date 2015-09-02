@@ -78,7 +78,10 @@ def load_projects():
     res = init()
     while not res or 'projects' not in res or not res['projects']:
         res = init()
-        echo_err('无法连接远程服务器, 初始化失败, 10秒后重试' + res.get('msg', ''))
+        msg = '. 无法连接远程服务器!'
+        if res:
+            msg = res.get('msg', '')
+        echo_err(' 初始化失败, 10秒后重试' + msg)
         time.sleep(10)
 
     return res['projects']
