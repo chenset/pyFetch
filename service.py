@@ -29,7 +29,7 @@ def request_handle(data, address):
         if not projects:
             return json.dumps({'msg': '. 暂无项目, 请通过WEB添加项目!'})
 
-        return json.dumps({'msg': '获取项目成功!', 'projects': projects})
+        return json.dumps({'msg': '. 获取项目成功!', 'projects': projects})
 
     if 'project_name' not in request:
         return json.dumps({'msg': '未设置该项目名称'})
