@@ -130,13 +130,15 @@ def cli(host, port, wwwport):
                 'wan  : python client.py --host %s --port %s  PS: Maybe need to set up port forwarding' %
                 (wan_ip, port))
 
-    click.echo('Access console via:')
+    click.echo('\r\nAccess console via:')
     for item in web_list:
         click.echo(item)
 
     click.echo('\r\nClient connection use:')
     for item in client_connect_list:
         click.echo(item)
+
+    click.echo('\r\nListening ...')
 
     global_process_var = Manager().dict()
     GlobalHelper.init(global_process_var)
