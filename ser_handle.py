@@ -19,7 +19,7 @@ class SerHandle():
         self.project_name = project_name
         temp = list(
             Mongo.get()['projects'].find({'name': self.project_name}).limit(1))
-        self.project = temp[0] if temp else []
+        self.project = temp[0] if temp else {}
         self.__request_json = request_json
         self.__request_address = request_address
         self.__slave_record = SlaveRecord.get_instance()
