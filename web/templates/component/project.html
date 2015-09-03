@@ -11,7 +11,7 @@
             <th>抓取数</th>
             <th>队列数</th>
             <th>结果数</th>
-            <th></th>
+            <th style="width: 180px"></th>
         </tr>
         </thead>
 
@@ -23,7 +23,7 @@
             <td>{{item.parsed_len}}</td>
             <td>{{item.queue_len}}</td>
             <td>{{item.result_len}}</td>
-            <td style="width: 200px;text-align: right;">
+            <td class="text-right">
                 <button type="button" class="btn btn-danger btn-sm" ng-show="item.static=='抓取中'" ng-click="runToggle(item._id);">暂停</button>
                 <button type="button" class="btn btn-success btn-sm" ng-show="item.static!='抓取中'" ng-click="runToggle(item._id);">开始</button>
                 <a class="btn btn-default btn-sm" href="/project/task/{{item.name}}">历史</a>

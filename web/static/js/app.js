@@ -126,7 +126,6 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', '$rootScop
                 data.result['show_result_div'] = JSON.stringify(data.result.result) != '{}';
                 $rootScope.execTestData = data.result;
 
-
                 exec_test_first && appModal.open('测试', {}, 'component/exec-test', 'lg', false, function () {
                     exec_test_first = true;
                     url_record = [];
@@ -234,10 +233,30 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
         });
     };
 
-    $scope.restart = function (slaveID) {
+    $scope.restartAll = function (event) {
+        var slaveID;
+        for (slaveID in  $scope.slave) {
+            $scope.restart(slaveID, event)
+        }
+    };
+
+    $scope.restart = function (slaveID, event) {
+
         $http.get('/api/slave/' + slaveID + '/restart').success(function (data) {
             if (data.success) {
                 load();
+
+                var sec = 10, timer_1;
+                event.target.innerText = sec + 's';
+                timer_1 = setInterval(function () {
+                    sec--;
+                    event.target.innerText = sec + 's';
+                    if (sec === 0) {
+                        clearInterval(timer_1);
+                        event.target.innerText = '重启';
+                    }
+                }, 1000);
+
             }
         });
     };
@@ -245,7 +264,7 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
     $scope.show_403 = function (slaveID) {
         var params = {
             'deny_domains': $scope.slave[slaveID]['deny_domains'],
-            'ps':'若干时间内若干次被禁止访问, 该爬虫('+$scope.slave[slaveID]['ip']+')将会停止抓取该域名的所有URL. 但会定期尝试, 直到成功后便恢复抓取.'
+            'ps': '若干时间内若干次被禁止访问, 该爬虫(' + $scope.slave[slaveID]['ip'] + ')将会停止抓取该域名的所有URL. 但会定期尝试, 直到成功后便恢复抓取.'
         };
         appModal.open(
             '403 List - ' + $scope.slave[slaveID]['ip'], params, 'component/403-list', '', false, false);
