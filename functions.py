@@ -9,6 +9,8 @@ import contextlib
 from tld import get_tld
 from mongo_single import Mongo
 import requests
+import chardet
+
 
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
@@ -68,6 +70,9 @@ def get_urls_form_html(base_url, html):
 
 
 def smarty_encode(text):
+    if chardet.detect(text[0: 100000])['encoding'] == 'utf-8':
+        return text
+
     for k in ['utf-8', 'gb18030', 'ISO-8859-2', 'ISO-8859-1', 'gb2312', 'gbk']:
         try:
             return unicode(text, k)
