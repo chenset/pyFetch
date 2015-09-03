@@ -189,7 +189,7 @@ app.controller('projectCtrl', function ($scope, $http) {
     }
 });
 
-app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', function ($scope, $routeParams, $http) {
+app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', function ($scope, $routeParams, $http, appModal) {
     var load = function (manual) {
         manual && ($scope.show_load_icon = true);
 
@@ -240,6 +240,15 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', function ($scope
                 load();
             }
         });
+    };
+
+    $scope.show_403 = function (slaveID) {
+        var params = {
+            'deny_domains': $scope.slave[slaveID]['deny_domains'],
+            'ps':'若干时间内若干次被禁止访问, 该爬虫('+$scope.slave[slaveID]['ip']+')将会停止抓取该域名的所有URL. 但会定期尝试, 直到成功后便恢复抓取.'
+        };
+        appModal.open(
+            '403 List - ' + $scope.slave[slaveID]['ip'], params, 'component/403-list', '', false, false);
     };
 }]);
 

@@ -23,7 +23,10 @@
             <td>{{item.static}}</td>
             <td>{{item.connected_count}}</td>
             <td>{{item.parsed_count}}</td>
-            <td><a href="#"><i class="fa fa-hand-stop-o"></i>123</a></td>
+            <td ng-hide="item.deny_domains.length">0</td>
+            <td ng-show="item.deny_domains.length">
+                <a href="#" ng-click="show_403(item._id)"><i class="fa fa-hand-stop-o"></i> {{item.deny_domains.length}}</a>
+            </td>
             <td>{{item.work_time_count}}秒</td>
             <td>{{item.last_connected_time+'000'|date:'MM-dd HH:mm:ss':'UTC+8'}}</td>
             <td style="width: 200px;text-align: right;">
