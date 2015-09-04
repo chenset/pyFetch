@@ -185,7 +185,7 @@ def save_project():
     }
     Mongo.get()['projects'].update({'name': form_data['name']}, data, True)
 
-    # 当时新计划时的初始化
+    # 当是新计划时的初始化
     if 'edit' not in form_data:
         Mongo.get()['queue_' + form_data['name']].insert(
             {
@@ -199,6 +199,12 @@ def save_project():
         # 在没创建集合前设置索引mongodb会自动创建该集合并赋索引
         Mongo.get()['parsed_' + form_data['name']].ensure_index('url_md5', unique=True)
         Mongo.get()['queue_' + form_data['name']].ensure_index('url_md5', unique=True)
+
+        # 有新计划加入, 重启全部slave
+        restart_slave_list = GlobalHelper.get('restart_slave_list') or []
+        for slave_record in Mongo.get()['slave_record'].find():
+            restart_slave_list.append(slave_record['ip'])
+        GlobalHelper.set('restart_slave_list', list(set(restart_slave_list)))
 
     return jsonify({'success': True, 'msg': '保存成功!'})
 

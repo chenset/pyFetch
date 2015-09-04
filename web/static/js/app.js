@@ -192,38 +192,41 @@ app.controller('projectCtrl', function ($scope, $http) {
 });
 
 app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', function ($scope, $routeParams, $http, appModal) {
+    var timer_001;
     var load = function (manual) {
         manual && ($scope.show_load_icon = true);
+        clearTimeout(timer_001);
+        timer_001 = setTimeout(function () {
+            $http.get('/api/slave').success(function (data) {
+                setTimeout(function () {
+                    $scope.show_load_icon = false;
+                }, 1);
 
-        $http.get('/api/slave').success(function (data) {
-            setTimeout(function () {
-                $scope.show_load_icon = false;
-            }, 1);
-
-            var i;
-            for (i in data) {
-                if (!data.hasOwnProperty(i)) {
-                    continue
+                var i;
+                for (i in data) {
+                    if (!data.hasOwnProperty(i)) {
+                        continue
+                    }
+                    if (data[i]['static'] === '暂停中') {
+                        data[i]['button_text'] = '开始';
+                        data[i]['button_class'] = 'btn-success';
+                        data[i]['restart_button_text'] = '重启';
+                        data[i]['restart_button_class'] = 'btn-danger';
+                    } else if (data[i]['static'] === '抓取中') {
+                        data[i]['button_text'] = '暂停';
+                        data[i]['button_class'] = 'btn-danger';
+                        data[i]['restart_button_text'] = '重启';
+                        data[i]['restart_button_class'] = 'btn-danger';
+                    } else {
+                        data[i]['button_text'] = '无效';
+                        data[i]['button_class'] = 'disabled';
+                        data[i]['restart_button_text'] = '无效';
+                        data[i]['restart_button_class'] = 'disabled';
+                    }
                 }
-                if (data[i]['static'] === '暂停中') {
-                    data[i]['button_text'] = '开始';
-                    data[i]['button_class'] = 'btn-success';
-                    data[i]['restart_button_text'] = '重启';
-                    data[i]['restart_button_class'] = 'btn-danger';
-                } else if (data[i]['static'] === '抓取中') {
-                    data[i]['button_text'] = '暂停';
-                    data[i]['button_class'] = 'btn-danger';
-                    data[i]['restart_button_text'] = '重启';
-                    data[i]['restart_button_class'] = 'btn-danger';
-                } else {
-                    data[i]['button_text'] = '无效';
-                    data[i]['button_class'] = 'disabled';
-                    data[i]['restart_button_text'] = '无效';
-                    data[i]['restart_button_class'] = 'disabled';
-                }
-            }
-            $scope.slave = data;
-        });
+                $scope.slave = data;
+            });
+        }, manual ? 1000 : 0);
     };
     load(false);
 
@@ -234,13 +237,16 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
     $scope.runToggle = function (slaveID) {
         $http.get('/api/slave/' + slaveID + '/toggle').success(function (data) {
             if (data.success) {
-                load();
+                load(true);
             }
         });
     };
 
     var timer_1;
     $scope.restartAll = function (event) {
+        if (event.target.tagName.toLowerCase() !== 'button') {
+            return;
+        }
         var slaveID, index, slaveIDs = [],
             restartButtons = document.getElementsByClassName('slave-restart');
 
@@ -283,8 +289,6 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
 
         $http.get('/api/slave/' + slaveID + '/restart').success(function (data) {
             if (data.success) {
-                load();
-
                 var sec = 10;
                 buttonDom.innerText = sec + 's';
                 timer_i_arr[slaveID] = setInterval(function () {
@@ -293,6 +297,7 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
                     if (sec === 0) {
                         clearInterval(timer_i_arr[slaveID]);
                         buttonDom.innerText = '重启';
+                        load(true);
                     }
                 }, 1000);
 
