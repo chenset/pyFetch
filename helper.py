@@ -31,12 +31,15 @@ class SlaveRecord():
     __instance = None
 
     def __init__(self):
-        self.__init_format = {'parsed_count': 0,
-                              'connected_count': 0,
-                              'last_connected_time': 0,
-                              'work_time_count': 1,
-                              'deny_domains': [],
-                              'static': '抓取中'}
+        self.__init_format = {
+            '_id': '',
+            'ip': '',
+            'parsed_count': 0,
+            'connected_count': 0,
+            'last_connected_time': 0,
+            'work_time_count': 1,
+            'deny_domains': [],
+            'static': '抓取中'}
         self.slave_record = {}
 
         self.fails_urls_temp = {}

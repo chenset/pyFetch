@@ -69,22 +69,29 @@ def api_test():
 
 @app.route('/api/slave')
 def api_slave():
-    salve_records = GlobalHelper.get('salve_record')
-    new_records = {}
-    for (key, value) in salve_records.items():
-        item = dict(value)
+    try:
+        new_records = {}
+        salve_records = GlobalHelper.get('salve_record')
 
-        ip_fragment = key.split('.')
-        ip_fragment[1] = ip_fragment[1].zfill(3)
-        ip_fragment[2] = ip_fragment[2].zfill(3)
-        ip_fragment[1] = ip_fragment[1][0:2] + '*'
-        # ip_fragment[2] = '**' + ip_fragment[2][2:]
-        ip_fragment[2] = '***'
-        item['ip'] = '.'.join(ip_fragment)
+        if not salve_records:
+            return jsonify(new_records)
 
-        new_records[value['_id']] = item
+        for (key, value) in salve_records.items():
+            item = dict(value)
 
-    return jsonify(new_records)
+            ip_fragment = key.split('.')
+            ip_fragment[1] = ip_fragment[1].zfill(3)
+            ip_fragment[2] = ip_fragment[2].zfill(3)
+            ip_fragment[1] = ip_fragment[1][0:2] + '*'
+            # ip_fragment[2] = '**' + ip_fragment[2][2:]
+            ip_fragment[2] = '***'
+            item['ip'] = '.'.join(ip_fragment)
+
+            new_records[value['_id']] = item
+
+        return jsonify(new_records)
+    except:
+        print traceback.format_exc()
 
 
 @app.route('/api/slave/<slave_id>')
@@ -98,7 +105,8 @@ def get_slave_tasks(slave_id):
         return json.dumps(res)
 
     for project in get_project_list():
-        for doc in Mongo.get()['parsed_' + project['name']].find({'slave_ip': slave_record['ip']}).sort('_id', -1).limit(100):
+        for doc in Mongo.get()['parsed_' + project['name']].find({'slave_ip': slave_record['ip']}).sort('_id',
+                                                                                                        -1).limit(100):
             del doc['_id']
             res.append(doc)
     print res

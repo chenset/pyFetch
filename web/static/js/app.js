@@ -226,7 +226,7 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
                 }
                 $scope.slave = data;
             });
-        }, manual ? 1000 : 0);
+        }, manual ? 200 : 0);
     };
     load(false);
 
@@ -276,7 +276,7 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
                 clearInterval(timer_1);
                 event.target.innerHTML = '<i class="fa fa-circle-o-notch"></i> 重启';
             }
-        }, 500);
+        }, 1000);
     };
 
     var timer_i_arr = {};

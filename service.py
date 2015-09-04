@@ -37,7 +37,7 @@ def request_handle(data, address):
     if 'init' in request:
         projects = SlaveCtrl().code_ctrl()
         if not projects:
-            return json.dumps({'msg': '. 暂无项目, 请通过WEB添加项目!'})
+            return json.dumps({'msg': '. 暂无项目, 请访问WEB控制台添加项目!'})
 
         return json.dumps({'msg': '. 获取项目成功!', 'projects': projects})
 
