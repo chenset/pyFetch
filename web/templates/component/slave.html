@@ -34,7 +34,7 @@
                 <button type="button" class="btn btn-sm {{item.button_class}}" ng-click="runToggle(item._id);">
                     {{item.button_text}}
                 </button>
-                <button type="button" class="btn btn-sm {{item.restart_button_class}}" ng-click="restart(item._id,$event);">
+                <button type="button" class="btn btn-sm {{item.restart_button_class}} slave-restart" ng-click="restart(item._id,$event);">
                     {{item.restart_button_text}}
                 </button>
                 <a class="btn btn-default btn-sm" href="/slave/task/{{key}}">历史</a>

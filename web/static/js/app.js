@@ -144,6 +144,9 @@ app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function
     $http.get('/api/result/' + $routeParams.projectName).success(function (data) {
         $scope.th_title = [];
         for (var key in data[0]) {
+            if (!data[0].hasOwnProperty(key)) {
+                continue;
+            }
             $scope.th_title.push(key);
         }
         $scope.results = data;
@@ -151,7 +154,7 @@ app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function
 }]);
 
 app.controller('slaveTaskCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
-    $http.get('/api/slave/' + $routeParams.ip).success(function (data) {
+    $http.get('/api/slave/' + $routeParams['ip']).success(function (data) {
         $scope.tasks = data;
     });
 }]);
@@ -199,6 +202,9 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
 
             var i;
             for (i in data) {
+                if (!data.hasOwnProperty(i)) {
+                    continue
+                }
                 if (data[i]['static'] === '暂停中') {
                     data[i]['button_text'] = '开始';
                     data[i]['button_class'] = 'btn-success';
@@ -233,27 +239,60 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
         });
     };
 
+    var timer_1;
     $scope.restartAll = function (event) {
-        var slaveID;
+        var slaveID, index, slaveIDs = [],
+            restartButtons = document.getElementsByClassName('slave-restart');
+
         for (slaveID in  $scope.slave) {
-            $scope.restart(slaveID, event)
+            if (!$scope.slave.hasOwnProperty(slaveID)) {
+                continue
+            }
+            slaveIDs.push(slaveID);
         }
+
+        for (index in restartButtons) {
+            if (!restartButtons.hasOwnProperty(index)) {
+                continue
+            }
+
+            $scope.restart(slaveIDs.shift(), null, restartButtons[index]);
+        }
+
+        var sec = 10;
+        clearInterval(timer_1);
+        event.target.style.width = parseInt(event.target.offsetWidth) + 'px';//固定宽度, 避免抖动
+        event.target.innerText = sec + 's';
+        timer_1 = setInterval(function () {
+            sec--;
+            event.target.innerText = sec + 's';
+            if (sec === 0) {
+                clearInterval(timer_1);
+                event.target.innerHTML = '<i class="fa fa-circle-o-notch"></i> 重启';
+            }
+        }, 1000);
     };
 
-    $scope.restart = function (slaveID, event) {
+    var timer_i_arr = {};
+
+    $scope.restart = function (slaveID, event, buttonDom) {
+        buttonDom = event ? event.target : buttonDom;
+        buttonDom.style.width = parseInt(buttonDom.offsetWidth) + 'px';//固定宽度, 避免抖动
+
+        clearInterval(timer_i_arr[slaveID]);
 
         $http.get('/api/slave/' + slaveID + '/restart').success(function (data) {
             if (data.success) {
                 load();
 
-                var sec = 10, timer_1;
-                event.target.innerText = sec + 's';
-                timer_1 = setInterval(function () {
+                var sec = 10;
+                buttonDom.innerText = sec + 's';
+                timer_i_arr[slaveID] = setInterval(function () {
                     sec--;
-                    event.target.innerText = sec + 's';
+                    buttonDom.innerText = sec + 's';
                     if (sec === 0) {
-                        clearInterval(timer_1);
-                        event.target.innerText = '重启';
+                        clearInterval(timer_i_arr[slaveID]);
+                        buttonDom.innerText = '重启';
                     }
                 }, 1000);
 
