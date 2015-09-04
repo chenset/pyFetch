@@ -203,28 +203,44 @@ class HttpHelper():
 
     def __init__(self):
         self.url = ''
-        self.host_url = ''
-        self.num = 0
+        self.domain = ''
+        self.domain_crawl_history = {}
         self.requester = None
+
+    def __init_domain_crawl_history_keys(self):
+        self.domain_crawl_history.setdefault(self.domain, {
+            'counter': 0,
+            'last_url': '',
+        })
 
     def get_requester(self):
         """
         获取固定会话信息的requester
         在执行若干次后会更新cookie, 一定几率降低被封可能
         """
-        if self.num >= 30 or not self.requester:
-            self.requester = requests.Session()
-            self.num = 0
+        self.__init_domain_crawl_history_keys()
 
-        self.num += 1
+        if self.domain_crawl_history[self.domain]['counter'] >= 10 or not self.requester:
+            self.requester = requests.Session()
+            self.domain_crawl_history[self.domain]['counter'] = 0
+
+        self.domain_crawl_history[self.domain]['counter'] += 1
         return self.requester
 
-    @staticmethod
-    def get_headers():
+    def get_refer_url(self):
+        self.__init_domain_crawl_history_keys()
+        last_url = self.domain_crawl_history[self.domain]['last_url']
+        self.domain_crawl_history[self.domain]['last_url'] = self.url  # 获取后会更新
+        return last_url
+
+    def get_headers(self):
         """
-        每次随机获取header, 一定几率降低被封可能
+        以该域名的上次一次访问url做为Referer
+        每次随机获取user_agent
         """
         user_agent = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+            'Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240',
             'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
             'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 ' +
             '(KHTML, like Gecko) Chrome/30.0.1599.69 Safari/537.36',
@@ -233,7 +249,8 @@ class HttpHelper():
             'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 ' +
             '(KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36',
         ]
-        return {
+
+        headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
             'Accept-Encoding': 'gzip',
             'Accept-Language': 'zh-CN,zh;q=0.8',
@@ -242,16 +259,22 @@ class HttpHelper():
             'User-Agent': random.choice(user_agent),
         }
 
-    def post(self, url, params=()):
-        return self.__request('post', url, params)
+        # 以该域名的上次一次访问url做为refer
+        refer_url = self.get_refer_url()
+        if refer_url:
+            headers['Referer'] = refer_url
+
+        return headers
+
+    # def post(self, url, params=()):
+    # return self.__request('post', url, params)
 
     def get(self, url, params=()):
-        return self.__request('get', url, params)
-
-    def __request(self, method, url, params=()):
-
+        self.domain = get_domain(url)
         self.url = url
+        return self.__request('get', params)
 
+    def __request(self, method, params=()):
         start_time = time.time()
         try:
             content = ''
@@ -262,12 +285,12 @@ class HttpHelper():
                     req.encoding = 'utf-8'
 
             else:
-                with closing(
-                        requests.session().get(self.url, headers=self.get_headers(), timeout=10, params=params,
-                                               allow_redirects=True, stream=True)) as req:
+                with closing(self.get_requester().get(self.url, headers=self.get_headers(), timeout=10, params=params,
+                                                      allow_redirects=True, stream=True)) as req:
                     # if not req.encoding == 'utf-8':
                     # req.encoding = 'utf-8'
 
+                    # print req.headers
                     size_limit = 1024000  # 最大接收content-length
                     if 'content-length' in req.headers:
                         if int(req.headers['content-length']) > size_limit:
