@@ -109,7 +109,6 @@ def get_slave_tasks(slave_id):
                                                                                                         -1).limit(100):
             del doc['_id']
             res.append(doc)
-    print res
     return json.dumps(res)
 
 

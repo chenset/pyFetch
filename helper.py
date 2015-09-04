@@ -154,9 +154,13 @@ class SlaveRecord():
 
     def __storage_record(self):
         for ip, data in self.slave_record.items():
-            Mongo.get().slave_record.update(
+            res = Mongo.get().slave_record.update(
                 {'ip': ip},
                 {'ip': ip, 'data': data}, True)  # 有着更新, 无则插入
+
+            if not res['updatedExisting'] and 'upserted' in res:  # 插入时
+                self.slave_record[ip]['_id'] = str(res['upserted'])
+
 
     def __del__(self):
         self.__storage_record()
