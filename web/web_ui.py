@@ -87,6 +87,24 @@ def api_slave():
     return jsonify(new_records)
 
 
+@app.route('/api/slave/<slave_id>')
+def get_slave_tasks(slave_id):
+    res = []
+    try:
+        slave_record = Mongo.get()['slave_record'].find_one({'_id': ObjectId(slave_id)})
+        if not slave_record:
+            raise Exception('不存在的记录!')
+    except:
+        return json.dumps(res)
+
+    for project in get_project_list():
+        for doc in Mongo.get()['parsed_' + project['name']].find({'slave_ip': slave_record['ip']}).sort('_id', -1).limit(100):
+            del doc['_id']
+            res.append(doc)
+    print res
+    return json.dumps(res)
+
+
 @app.route('/api/slave/<slave_id>/restart')
 def restart_slave(slave_id):
     try:
@@ -207,16 +225,6 @@ def save_project():
         GlobalHelper.set('restart_slave_list', list(set(restart_slave_list)))
 
     return jsonify({'success': True, 'msg': '保存成功!'})
-
-
-@app.route('/api/slave/<ip>')
-def get_slave_tasks(ip):
-    res = []
-    for project in get_project_list():
-        for doc in Mongo.get()['parsed_' + project['name']].find({'slave_ip': ip}).sort('_id', -1).limit(100):
-            del doc['_id']
-            res.append(doc)
-    return json.dumps(res)
 
 
 @app.route('/api/task/<project_name>')

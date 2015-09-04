@@ -276,7 +276,7 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
                 clearInterval(timer_1);
                 event.target.innerHTML = '<i class="fa fa-circle-o-notch"></i> 重启';
             }
-        }, 1000);
+        }, 500);
     };
 
     var timer_i_arr = {};
@@ -289,6 +289,8 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
 
         $http.get('/api/slave/' + slaveID + '/restart').success(function (data) {
             if (data.success) {
+                load(true);
+
                 var sec = 10;
                 buttonDom.innerText = sec + 's';
                 timer_i_arr[slaveID] = setInterval(function () {
@@ -297,7 +299,6 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
                     if (sec === 0) {
                         clearInterval(timer_i_arr[slaveID]);
                         buttonDom.innerText = '重启';
-                        load(true);
                     }
                 }, 1000);
 

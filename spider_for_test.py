@@ -28,6 +28,7 @@ class SpiderForTest():
         self.rest_result['current_url'] = self.current_url
         self.rest_result['http_code'] = crawl_result[1]
 
+        current_url = self.current_url  # 缓存一下,self.current_url会被下面代码改写
         # 如果抓取自定义函数存在dict返回值则将dict推送至服务器
         parse_result = self.handle_method(
             helper.S(self, crawl_result[0], urls))
@@ -36,7 +37,7 @@ class SpiderForTest():
             return self.rest_result
 
         if 'url' not in parse_result:
-            parse_result['url'] = self.current_url
+            parse_result['url'] = current_url
         if 'runtime' not in parse_result:
             parse_result['runtime'] = crawl_result[2]
 

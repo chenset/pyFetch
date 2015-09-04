@@ -70,7 +70,8 @@ def get_urls_form_html(base_url, html):
 
 
 def smarty_encode(text):
-    if chardet.detect(text[0: 100000])['encoding'] == 'utf-8':
+    chars = text[0: 1000].lower()
+    if chars.find('charset=utf-8') != -1 and chars.find('chiphell') != -1:  # 一些编码不标准的站点的特殊处理
         return text
 
     for k in ['utf-8', 'gb18030', 'ISO-8859-2', 'ISO-8859-1', 'gb2312', 'gbk']:

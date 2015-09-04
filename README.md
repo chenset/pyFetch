@@ -36,4 +36,4 @@ windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Pytho
 - 抓取频率控制
 - 避免抓取非html类型
 - 参数可配置化
-
+- 历史列表的分页
