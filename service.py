@@ -17,10 +17,13 @@ from functions import get_wan_ip
 
 
 def request_handle(data, address):
-    slave_record.add_request_record(address[0])
-    GlobalHelper.set('salve_record', slave_record.slave_record)
-
     request = json.loads(data)
+
+    slave_record.add_request_record(address[0])
+    if 'urls_fail' in request and request['urls_fail']:
+        slave_record.add_fails_record(address[0], request['urls_fail'])
+
+    GlobalHelper.set('salve_record', slave_record.slave_record)
 
     restart_slave_list = GlobalHelper.get('restart_slave_list') or []
     if address[0] in restart_slave_list:
@@ -43,9 +46,6 @@ def request_handle(data, address):
 
     if 'project_name' not in request:
         return json.dumps({'msg': '未设置该项目名称'})
-
-    if 'urls_fail' in request and request['urls_fail']:
-        slave_record.add_fails_record(address[0], request['urls_fail'])
 
     handle = SerHandle(request['project_name'], request, address)
 

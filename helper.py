@@ -7,6 +7,7 @@ import requests
 import zlib
 import base64
 import socket
+import copy
 from functions import smarty_encode
 from functions import get_domain
 
@@ -65,10 +66,9 @@ class SlaveRecord():
     def __init_key(self, ip):
         """
         避免key未初始化而报错的问题
-        应该有更优雅的方式
         """
         if ip not in self.slave_record:
-            self.slave_record[ip] = dict(self.__init_format)
+            self.slave_record[ip] = copy.deepcopy(self.__init_format)
 
     def add_parsed_record(self, ip):
         self.__init_key(ip)
@@ -84,7 +84,7 @@ class SlaveRecord():
 
         # 判断时间清理掉一段时间之前的禁止名单
         deny_domains = []
-        deny_domains_temp = self.slave_record[ip]['deny_domains'][:]  # 深复制
+        deny_domains_temp = copy.deepcopy(self.slave_record[ip]['deny_domains'])  # 深复制
         for item in deny_domains_temp:
             deny_domains.append(item['domain'])
 
@@ -114,7 +114,7 @@ class SlaveRecord():
 
                     # 加入禁止名单和清空临时数据
                     self.slave_record[ip]['deny_domains'].append({'domain': item[0], 'add_time': int(time.time())})
-                    del self.fails_urls_temp[ip][item[0]]
+                    del self.fails_urls_temp[ip]
                     continue
 
     def add_request_record(self, ip):
@@ -402,10 +402,12 @@ class QueueSleepCtrl(QueueCtrl):
 
     @classmethod
     def get_sleep_times(cls, url):
-        parsed_list = cls.host_freq_pool.get(get_domain(url), [])
+        domain = get_domain(url)
+        parsed_list = cls.host_freq_pool.get(domain, [])
         if not parsed_list:
             return 0
 
+        list_403 = ['jandan.net', 'meizu.com', 'meizu.cn']  # 一些防爬虫机制比较严格的站点
         parsed_list_len = len(parsed_list)
 
         if parsed_list_len < 5:
@@ -415,18 +417,28 @@ class QueueSleepCtrl(QueueCtrl):
             return 1
 
         if parsed_list_len < 20:
+            if domain in list_403:
+                return random.randint(5, 20)
             return 2
 
         if parsed_list_len < 30:
+            if domain in list_403:
+                return random.randint(5, 35)
             return 4
 
         if parsed_list_len < 40:
+            if domain in list_403:
+                return random.randint(5, 40)
             return 6
 
         if parsed_list_len < 50:
+            if domain in list_403:
+                return random.randint(5, 56)
             return 8
 
         if parsed_list_len < 60:
+            if domain in list_403:
+                return random.randint(5, 70)
             return 10
 
         if parsed_list_len < 70:
@@ -435,7 +447,7 @@ class QueueSleepCtrl(QueueCtrl):
         if parsed_list_len < 80:
             return 14
 
-        return 20
+        return 40
 
 
 class UrlsSortCtrl(QueueCtrl):

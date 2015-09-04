@@ -43,7 +43,6 @@ class SerHandle():
             ids.append(doc['_id'])
             response_url_list.append(doc['url'])
 
-        # todo 多线程情况下, 这里线程非安全
         ids and Mongo.get()['queue_' + self.project_name].update({'_id': {'$in': ids}},
                                                                  {'$set': {'flag_time': int(time.time())}},
                                                                  multi=True)
