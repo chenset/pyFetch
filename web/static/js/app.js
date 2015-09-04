@@ -107,6 +107,8 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', '$rootScop
         formData['init_url'] = init_url ? init_url : $scope.project.init_url;
         formData['code'] = window._editor.getValue();//从全局变量_editor中获取code
         formData['edit'] = true; //标识为编辑计划
+        formData['real_init_url'] = $scope.project.init_url;
+        formData['project_name'] = $scope.project.name;
 
         //返回功能
         if (back) {

@@ -5,6 +5,7 @@ from functions import echo_err, get_urls_form_html, format_and_filter_urls, get_
 from helper import S
 from helper import Slave
 import sys
+import traceback
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -24,7 +25,7 @@ class Spider(Slave):
         self.http_helper = helper.HttpHelper()
         Slave.__init__(self, project_name)
 
-    def run(self, func, current_url, gevent_id):
+    def run(self, func, current_url, project_name, init_url, gevent_id):
         """
         :param func:
         :return:
@@ -57,8 +58,13 @@ class Spider(Slave):
             return
 
         # 如果抓取自定义函数存在dict返回值则将dict推送至服务器
-        parse_result = self.handle_method(
-            S(self, crawl_result[0], get_urls_form_html(self.current_url, crawl_result[0])))
+        try:
+            parse_result = self.handle_method(
+                S(self, crawl_result[0], get_urls_form_html(self.current_url, crawl_result[0]), project_name, init_url))
+        except:
+            print traceback.format_exc()
+            return
+
         if not isinstance(parse_result, dict):
             # continue
             return

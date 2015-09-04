@@ -305,12 +305,14 @@ class S:
     用户自定义抓取回调时的参数对象
     """
 
-    def __init__(self, spider, html, urls):
+    def __init__(self, spider, html, urls, project_name, init_url):
         self.__spider = None
         self.html = ''
         self.urls = []
         self.__spider = spider
         self.html = html
+        self.project_name = project_name
+        self.init_url = init_url
         self.urls = urls
 
     def crawl(self, url):

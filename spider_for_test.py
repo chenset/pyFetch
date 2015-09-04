@@ -14,7 +14,7 @@ class SpiderForTest():
         self.rest_result = {'urls': [], 'current_url': '', 'http_code': 0, 'result': {}}
         self.http_helper = helper.HttpHelper()
 
-    def run(self, func):
+    def run(self, func, project_name, init_url):
         self.handle_method = func
 
         crawl_result = self.http_helper.get(self.current_url)
@@ -31,7 +31,7 @@ class SpiderForTest():
         current_url = self.current_url  # 缓存一下,self.current_url会被下面代码改写
         # 如果抓取自定义函数存在dict返回值则将dict推送至服务器
         parse_result = self.handle_method(
-            helper.S(self, crawl_result[0], urls))
+            helper.S(self, crawl_result[0], urls, project_name, init_url))
 
         if not isinstance(parse_result, dict):
             return self.rest_result
@@ -66,7 +66,7 @@ def test_run(form_data):
             exec code in {'start': start}
             spider = SpiderForTest()
             spider.crawl(form_data['init_url'], False)
-            result = spider.run(context['callback'])
+            result = spider.run(context['callback'], form_data['project_name'], form_data['real_init_url'])
         except Exception, e:
             print traceback.format_exc()
 

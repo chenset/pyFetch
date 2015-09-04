@@ -49,14 +49,18 @@
             style="display: none;">
 import time
 import re
-
+from tld import get_tld
 
 def page(spider):
     """
     在此方法体编写逻辑代码
     """
+    print spider.project_name
+    print spider.init_url
+
     for url in spider.urls:
-	    spider.crawl(url)
+      	if url.find(get_tld(spider.init_url)) != -1:
+	    	spider.crawl(url)
 
     #time.sleep(5)
     # print len(spider.urls)
@@ -73,7 +77,6 @@ def page(spider):
     }
 
 start(page)
-
 
     </textarea>
 </form>

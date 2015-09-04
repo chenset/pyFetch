@@ -19,7 +19,7 @@ def init():
         return None
 
 
-def run(gevent_id, project_name, source_code):
+def run(gevent_id, project_name, source_code, init_url):
     run.restart = False
     context = {}
 
@@ -66,9 +66,9 @@ def run(gevent_id, project_name, source_code):
 
             while spider.pre_url_queue:
                 url = spider.pre_url_queue.pop(0)  # 出栈首位
-                spider.run(context['callback'], url, gevent_id)
+                spider.run(context['callback'], url, project_name, init_url, gevent_id)
 
-    except Exception, e:
+    except :
         print traceback.format_exc()
 
     echo_err('gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' stop !!!!!!!!!!!!!!!')
@@ -103,10 +103,10 @@ def cli(host, port):
         for project in load_projects():
             print project
             gevent_id += 1
-            joins.append(gevent.spawn(run, gevent_id, project['name'], project['code']))
+            joins.append(gevent.spawn(run, gevent_id, project['name'], project['code'], project['init_url']))
 
             gevent_id += 1
-            joins.append(gevent.spawn(run, gevent_id, project['name'], project['code']))
+            joins.append(gevent.spawn(run, gevent_id, project['name'], project['code'], project['init_url']))
 
         gevent.joinall(joins)
         print click.echo('重启中......')
