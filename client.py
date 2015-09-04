@@ -10,6 +10,8 @@ from spider import Spider
 from gevent import monkey
 import gevent
 
+from helper import QueueSleepCtrl
+
 
 def init():
     try:
@@ -35,6 +37,7 @@ def run(gevent_id, project_name, source_code, init_url):
         spider = context_rebuild(project_name, source_code)
 
         while True:
+            # 项目有修改, 重新编码执行
             if spider.has_project_change():
                 for item in load_projects():
                     if item['name'] == project_name:
@@ -51,6 +54,7 @@ def run(gevent_id, project_name, source_code, init_url):
                 gevent.sleep(60)
                 continue
 
+            # 准备重启
             if run.restart or ('restart' in response and response['restart']):
                 run.restart = True
                 echo_err('gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' - 准备重启中...')
@@ -64,11 +68,15 @@ def run(gevent_id, project_name, source_code, init_url):
 
             spider.pre_url_queue += response['urls']
 
+            # 执行爬取
             while spider.pre_url_queue:
                 url = spider.pre_url_queue.pop(0)  # 出栈首位
+                sleep = QueueSleepCtrl.get_sleep_times(url)
+                print sleep, ' -- gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' - ' + url
+                gevent.sleep(sleep)
                 spider.run(context['callback'], url, project_name, init_url, gevent_id)
 
-    except :
+    except:
         print traceback.format_exc()
 
     echo_err('gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' stop !!!!!!!!!!!!!!!')
@@ -104,9 +112,9 @@ def cli(host, port):
             print project
             gevent_id += 1
             joins.append(gevent.spawn(run, gevent_id, project['name'], project['code'], project['init_url']))
-
-            gevent_id += 1
-            joins.append(gevent.spawn(run, gevent_id, project['name'], project['code'], project['init_url']))
+            #
+            # gevent_id += 1
+            # joins.append(gevent.spawn(run, gevent_id, project['name'], project['code'], project['init_url']))
 
         gevent.joinall(joins)
         print click.echo('重启中......')

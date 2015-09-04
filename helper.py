@@ -401,9 +401,41 @@ class QueueSleepCtrl(QueueCtrl):
         QueueCtrl.__init__(self)
 
     @classmethod
-    def sleep(cls, urls):
-        # yield urls
-        return urls
+    def get_sleep_times(cls, url):
+        parsed_list = cls.host_freq_pool.get(get_domain(url), [])
+        if not parsed_list:
+            return 0
+
+        parsed_list_len = len(parsed_list)
+
+        if parsed_list_len < 5:
+            return 0.5
+
+        if parsed_list_len < 10:
+            return 1
+
+        if parsed_list_len < 20:
+            return 2
+
+        if parsed_list_len < 30:
+            return 4
+
+        if parsed_list_len < 40:
+            return 6
+
+        if parsed_list_len < 50:
+            return 8
+
+        if parsed_list_len < 60:
+            return 10
+
+        if parsed_list_len < 70:
+            return 12
+
+        if parsed_list_len < 80:
+            return 14
+
+        return 20
 
 
 class UrlsSortCtrl(QueueCtrl):
@@ -481,8 +513,6 @@ class Slave():
         self.original_receive_json = response
         urls = list(set(response.get('urls', [])))
         urls = UrlsSortCtrl.sort_urls_by_freq(urls)
-
-        # urls = QueueSleepCtrl.sleep(urls)
 
         response['urls'] = urls
 
