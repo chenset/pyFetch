@@ -9,7 +9,6 @@ import contextlib
 from tld import get_tld
 from mongo_single import Mongo
 import requests
-import chardet
 
 
 @contextlib.contextmanager
