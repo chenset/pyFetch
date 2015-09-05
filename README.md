@@ -37,5 +37,7 @@ windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Pytho
 - 避免抓取非html类型
 - 参数可配置化
 - 历史列表的分页
+- 结果页面的下载
 - 50X页面 超时页面
 - 尽量避免403, 学习禁爬虫原理: 如,请求带上referer
+- slave 执行环境安全

@@ -1,6 +1,7 @@
 # coding=utf-8
 import random
 import time
+import urllib2
 import json
 import sys
 import requests
@@ -206,10 +207,12 @@ class HttpHelper():
         self.domain = ''
         self.domain_crawl_history = {}
         self.requester = None
+        self.user_agent = ''
 
     def __init_domain_crawl_history_keys(self):
         self.domain_crawl_history.setdefault(self.domain, {
-            'counter': 0,
+            'user_agent_counter': 0,
+            'requester_counter': 0,
             'last_url': '',
         })
 
@@ -220,11 +223,11 @@ class HttpHelper():
         """
         self.__init_domain_crawl_history_keys()
 
-        if self.domain_crawl_history[self.domain]['counter'] >= 10 or not self.requester:
+        if self.domain_crawl_history[self.domain]['requester_counter'] >= 20 or not self.requester:
             self.requester = requests.Session()
-            self.domain_crawl_history[self.domain]['counter'] = 0
+            self.domain_crawl_history[self.domain]['requester_counter'] = 0
 
-        self.domain_crawl_history[self.domain]['counter'] += 1
+        self.domain_crawl_history[self.domain]['requester_counter'] += 1
         return self.requester
 
     def get_refer_url(self):
@@ -236,28 +239,60 @@ class HttpHelper():
     def get_headers(self):
         """
         以该域名的上次一次访问url做为Referer
-        每次随机获取user_agent
+        随机获取user_agent
         """
         user_agent = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' +
-            'Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240',
-            'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
-            'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 ' +
-            '(KHTML, like Gecko) Chrome/30.0.1599.69 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.' + str(random.randint(10, 99)) +
+            ' (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240 ' + str(random.randint(10, 99)),
+            'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.' + str(random.randint(10, 99)) +
+            ' (KHTML, like Gecko) Chrome/30.0.1599.69 Safari/537.36 ' + str(random.randint(10, 99)),
             'Mozilla/5.0 (Windows NT 6.3; Win64; x64) ' +
-            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.93 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 ' +
-            '(KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36',
+            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.' +
+            str(random.randint(10, 99)) + ' Safari/537.' + str(random.randint(10, 99)),
+            'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.' + str(random.randint(10, 99)) +
+            ' (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.' + str(random.randint(10, 99)),
+            'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko ' + str(random.randint(10, 99))
         ]
 
+        accept = [
+            'text/html, application/xhtml+xml, image/jxr, */*',
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+        ]
+
+        base_url = "".join(self.url.split())
+        protocol, rest = urllib2.splittype(base_url)
+        host, rest = urllib2.splithost(rest)
+
+        if self.domain_crawl_history[self.domain]['user_agent_counter'] >= 15 or not self.user_agent:
+            self.user_agent = random.choice(user_agent)
+            self.domain_crawl_history[self.domain]['user_agent_counter'] = 0
+
+        self.domain_crawl_history[self.domain]['user_agent_counter'] += 1
+
         headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Encoding': 'gzip',
+            'Host': host,
+            'Accept': random.choice(accept),
+            # 'Pragma': 'no-cache',
+            # 'Cache-Control': 'no-cache',
+            'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
             'Connection': 'keep-alive',
-            'User-Agent': random.choice(user_agent),
+            'User-Agent': self.user_agent,
         }
+
+        # headers_ms_edge = {
+        # 'Accept': 'text/html, application/xhtml+xml, image/jxr, */*',
+        # 'Accept-Language': 'zh-Hans-CN,zh-Hans;q=0.5',
+        # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'+
+        # ' (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240 1235',
+        # 'Accept-Encoding': 'gzip, deflate',
+        # 'Host': host,
+        # 'Connection': 'Keep-Alive',
+        # }
+        #
+        # headers = headers_ms_edge
+
+        # print headers
 
         # 以该域名的上次一次访问url做为refer
         refer_url = self.get_refer_url()

@@ -65,8 +65,12 @@ def request_handle(data, address):
     if 'get_urls' in request:
         response_url_list = handle.get_urls()
 
+    msg = ''
+    if not response_url_list:
+        msg = ', 目前该项目已无可取的队列.'
+
     # 客户端会通过判断change_time的不同而reload项目
-    return json.dumps({'msg': '', 'urls': response_url_list,
+    return json.dumps({'msg': msg, 'urls': response_url_list,
                        'change_time': handle.get_project()['update_time']})
 
 
