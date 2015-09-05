@@ -29,7 +29,10 @@
             <td ng-show="item.deny_domains.length">
                 <a href="#" ng-click="show_403(item._id)" class="text-danger"><i class="fa fa-minus-circle"></i> {{item.deny_domains.length}}个</a>
             </td>
-            <td> <a href="#" ng-click="show_error(item._id)" class="text-danger"><i class="fa fa-times-circle"></i> {{item.error_domain_count}}组</a></td>
+            <td ng-hide="item.error_domain_count">0</td>
+            <td ng-show="item.error_domain_count">
+                <a href="#" ng-click="show_error(item._id)" class="text-danger"><i class="fa fa-times-circle"></i> {{item.error_domain_count}}组</a>
+            </td>
             <td>{{item.work_time_count}}秒</td>
             <td>{{item.last_connected_time+'000'|date:'MM-dd HH:mm:ss':'UTC+8'}}</td>
             <td class="text-right">

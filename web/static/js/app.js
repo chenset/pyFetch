@@ -225,15 +225,16 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
                         data[i]['restart_button_text'] = '无效';
                         data[i]['restart_button_class'] = 'disabled';
                     }
+
+                    data[i]['error_domain_count'] = 0;
+                    for (tempK in data[i]['error_domains']) {
+                        if (!data[i]['error_domains'].hasOwnProperty(tempK)) {
+                            continue
+                        }
+                        data[i]['error_domain_count']++;
+                    }
                 }
 
-                data[i]['error_domain_count'] = 0;
-                for (tempK in data[i]['error_domains']) {
-                    if (!data[i]['error_domains'].hasOwnProperty(tempK)) {
-                        continue
-                    }
-                    data[i]['error_domain_count']++;
-                }
 
                 $scope.slave = data;
             });
