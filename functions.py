@@ -32,6 +32,16 @@ def get_project_list():
     return get_project_list.cache
 
 
+def mix_ip(ip):
+    ip_fragment = ip.split('.')
+    ip_fragment[1] = ip_fragment[1].zfill(3)
+    ip_fragment[2] = ip_fragment[2].zfill(3)
+    ip_fragment[1] = ip_fragment[1][0:2] + '*'
+    # ip_fragment[2] = '**' + ip_fragment[2][2:]
+    ip_fragment[2] = '***'
+    return '.'.join(ip_fragment)
+
+
 def md5(s):
     __md5 = hashlib.md5()
     __md5.update(str(s))

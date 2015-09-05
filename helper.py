@@ -491,12 +491,41 @@ class QueueSleepCtrl(QueueCtrl):
             return 10
 
         if parsed_list_len < 70:
+            if domain in list_403:
+                return random.randint(5, 90)
             return 12
 
         if parsed_list_len < 80:
+            if domain in list_403:
+                return random.randint(5, 100)
             return 14
 
-        return 40
+        if parsed_list_len < 90:
+            if domain in list_403:
+                return random.randint(5, 110)
+            return 16
+
+        if parsed_list_len < 100:
+            if domain in list_403:
+                return random.randint(5, 120)
+            return 18
+
+        if parsed_list_len < 110:
+            if domain in list_403:
+                return random.randint(5, 130)
+            return 20
+
+        if parsed_list_len < 120:
+            if domain in list_403:
+                return random.randint(5, 140)
+            return 22
+
+        if parsed_list_len < 130:
+            if domain in list_403:
+                return random.randint(5, 150)
+            return 24
+
+        return 200
 
 
 class UrlsSortCtrl(QueueCtrl):

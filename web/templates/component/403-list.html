@@ -4,6 +4,7 @@
     <i class="pull-right fa fa-remove modal-remove" title="取消" ng-click="cancel()"></i>
 </div>
 <div class="modal-body">
+    <small class="text-muted">若干时间内若干次被禁止访问, 该爬虫会停止抓取该域名的所有URL. 定期尝试, 直到成功后恢复抓取.</small>
     <table class="table table-hover table-striped" ng-show="params.deny_domains.length">
         <thead>
         <tr>
@@ -18,7 +19,6 @@
         </tr>
         </tbody>
     </table>
-    <small class="text-muted">若干时间内若干次被禁止访问, 该爬虫会停止抓取该域名的所有URL. 定期尝试, 直到成功后恢复抓取.</small>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-show="modal.show_ok" ng-click="ok()">确定</button>

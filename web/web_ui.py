@@ -4,8 +4,9 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from mongo_single import Mongo
 import time
 import os
+import re
 import traceback
-from functions import get_project_list, md5
+from functions import get_project_list, md5, mix_ip
 from helper import GlobalHelper
 from spider_for_test import test_run
 from bson import ObjectId
@@ -78,15 +79,7 @@ def api_slave():
 
         for (key, value) in salve_records.items():
             item = dict(value)
-
-            ip_fragment = key.split('.')
-            ip_fragment[1] = ip_fragment[1].zfill(3)
-            ip_fragment[2] = ip_fragment[2].zfill(3)
-            ip_fragment[1] = ip_fragment[1][0:2] + '*'
-            # ip_fragment[2] = '**' + ip_fragment[2][2:]
-            ip_fragment[2] = '***'
-            item['ip'] = '.'.join(ip_fragment)
-
+            item['ip'] = mix_ip(key)
             new_records[value['_id']] = item
 
         return jsonify(new_records)
@@ -108,6 +101,7 @@ def get_slave_tasks(slave_id):
         for doc in Mongo.get()['parsed_' + project['name']].find({'slave_ip': slave_record['ip']}).sort('_id',
                                                                                                         -1).limit(20):
             del doc['_id']
+            doc['slave_ip'] = mix_ip(doc['slave_ip'])
             res.append(doc)
 
             res.sort(key=lambda x: x['add_time'])
@@ -195,6 +189,10 @@ def get_project_by_name(name):
 def save_project():
     form_data = json.loads(request.data)  # todo 需要验证表单数据
 
+    name_r = re.compile(r'^[0-9a-zA-Z_-]+$')
+    if not name_r.search(form_data['name']):
+        return jsonify({'success': False, 'msg': '计划名称必须满足正则规则: ^[0-9a-zA-Z_-]+$ '})
+
     exists_project = list(Mongo.get()['projects'].find({'name': form_data['name']}, {'_id': 1, 'add_time': 1}).limit(1))
 
     if 'edit' not in form_data and exists_project:
@@ -241,6 +239,7 @@ def get_project_tasks(project_name):
     res = []
     for doc in Mongo.get()['parsed_' + project_name].find().sort('_id', -1).limit(100):
         del doc['_id']
+        doc['slave_ip'] = mix_ip(doc['slave_ip'])
         res.append(doc)
     return json.dumps(res)
 
