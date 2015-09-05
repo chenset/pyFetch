@@ -2,7 +2,6 @@
 # coding=utf8
 import click
 import json
-import time
 import traceback
 from functions import echo_err
 from helper import Socket_client
@@ -90,7 +89,7 @@ def load_projects():
         if res:
             msg = res.get('msg', '')
         echo_err(' 初始化失败, 10秒后重试' + msg)
-        time.sleep(10)
+        gevent.sleep(10)
 
     return res['projects']
 

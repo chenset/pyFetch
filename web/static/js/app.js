@@ -204,7 +204,7 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
                     $scope.show_load_icon = false;
                 }, 1);
 
-                var i;
+                var i, tempK;
                 for (i in data) {
                     if (!data.hasOwnProperty(i)) {
                         continue
@@ -226,6 +226,15 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
                         data[i]['restart_button_class'] = 'disabled';
                     }
                 }
+
+                data[i]['error_domain_count'] = 0;
+                for (tempK in data[i]['error_domains']) {
+                    if (!data[i]['error_domains'].hasOwnProperty(tempK)) {
+                        continue
+                    }
+                    data[i]['error_domain_count']++;
+                }
+
                 $scope.slave = data;
             });
         }, manual ? 200 : 0);
@@ -310,11 +319,32 @@ app.controller('slaveCtrl', ['$scope', '$routeParams', '$http', 'appModal', func
 
     $scope.show_403 = function (slaveID) {
         var params = {
-            'deny_domains': $scope.slave[slaveID]['deny_domains'],
-            'ps': '若干时间内若干次被禁止访问, 该爬虫(' + $scope.slave[slaveID]['ip'] + ')将会停止抓取该域名的所有URL. 但会定期尝试, 直到成功后便恢复抓取.'
+            'deny_domains': $scope.slave[slaveID]['deny_domains']
         };
         appModal.open(
             '403 List - ' + $scope.slave[slaveID]['ip'], params, 'component/403-list', '', false, false);
+    };
+
+    $scope.show_error = function (slaveID) {
+        var i, code, errorDomainData = [], tdList = [];
+        for (i in $scope.slave[slaveID]['error_domains']) {
+            if ($scope.slave[slaveID]['error_domains'].hasOwnProperty(i)) {
+                errorDomainData.push($scope.slave[slaveID]['error_domains'][i]);
+                for (code in $scope.slave[slaveID]['error_domains'][i]['http_code']) {
+                    if ($scope.slave[slaveID]['error_domains'][i]['http_code'].hasOwnProperty(code)) {
+                        if (tdList.indexOf(code) == -1) {
+                            tdList.push(code);
+                        }
+                    }
+                }
+            }
+        }
+        var params = {
+            'error_domains': errorDomainData,
+            'td_list': tdList
+        };
+        appModal.open(
+            '各类失败HTTP状态码统计 - ' + $scope.slave[slaveID]['ip'], params, 'component/error-list', 'lg', false, false);
     };
 }]);
 

@@ -106,9 +106,11 @@ def get_slave_tasks(slave_id):
 
     for project in get_project_list():
         for doc in Mongo.get()['parsed_' + project['name']].find({'slave_ip': slave_record['ip']}).sort('_id',
-                                                                                                        -1).limit(100):
+                                                                                                        -1).limit(20):
             del doc['_id']
             res.append(doc)
+
+            res.sort(key=lambda x: x['add_time'])
     return json.dumps(res)
 
 

@@ -9,8 +9,7 @@ import zlib
 import base64
 import socket
 import copy
-from functions import smarty_encode
-from functions import get_domain
+from functions import smarty_encode, get_domain, md5
 
 from mongo_single import Mongo
 # from functions import socket_client
@@ -41,10 +40,11 @@ class SlaveRecord():
             'last_connected_time': 0,
             'work_time_count': 1,
             'deny_domains': [],
+            'error_domains': {},
             'static': '抓取中'}
         self.slave_record = {}
 
-        self.fails_urls_temp = {}
+        self.deny_urls_temp = {}
 
         if not self.slave_record:
             for item in Mongo.get().slave_record.find():
@@ -93,30 +93,44 @@ class SlaveRecord():
                 self.slave_record[ip]['deny_domains'].remove(item)
 
         for item in fails:
-            if item[0] in deny_domains:
-                continue
+            domain = item[0]
+            http_code = int(item[1])
+            add_time = item[2]
 
-            if int(item[1]) == 403:  # 目前仅403
-                self.fails_urls_temp.setdefault(ip, {})
-                res = self.fails_urls_temp[ip].setdefault(item[0], {'count': 0, 'time': []})
-                self.fails_urls_temp[ip][item[0]]['count'] += 1
-                self.fails_urls_temp[ip][item[0]]['time'].append(item[2])
+            if http_code == 403 and domain not in deny_domains:
+                self.deny_urls_temp.setdefault(ip, {})
+                res = self.deny_urls_temp[ip].setdefault(domain, {'count': 0, 'time': []})
+                self.deny_urls_temp[ip][domain]['count'] += 1
+                self.deny_urls_temp[ip][domain]['time'].append(add_time)
 
                 # 403 一定时间达到一定次数就加禁止入名单
                 if res['count'] == 10:
 
                     # 半小时内达到一定次数
                     time_count = 0
-                    for t in self.fails_urls_temp[ip][item[0]]['time']:
+                    for t in self.deny_urls_temp[ip][domain]['time']:
                         if t > start_time:
                             time_count += 1
                     if time_count < 10:  # 未达到次数下限
                         continue
 
                     # 加入禁止名单和清空临时数据
-                    self.slave_record[ip]['deny_domains'].append({'domain': item[0], 'add_time': int(time.time())})
-                    del self.fails_urls_temp[ip]
+                    self.slave_record[ip]['deny_domains'].append({'domain': domain, 'add_time': int(time.time())})
+                    del self.deny_urls_temp[ip]
                     continue
+
+            # 其他非403的处理
+            if http_code != 403:
+                domain_md5 = md5(domain)  # mongoDB不支持带.的key
+                self.slave_record[ip]['error_domains'].setdefault(domain_md5, {})
+                self.slave_record[ip]['error_domains'][domain_md5].setdefault('domain', domain)
+                self.slave_record[ip]['error_domains'][domain_md5].setdefault('add_time', int(time.time()))
+                self.slave_record[ip]['error_domains'][domain_md5]['update_time'] = int(time.time())
+                self.slave_record[ip]['error_domains'][domain_md5].setdefault('http_code', {})
+                self.slave_record[ip]['error_domains'][domain_md5]['http_code'].setdefault(str(http_code), 0)
+                self.slave_record[ip]['error_domains'][domain_md5]['http_code'][str(http_code)] += 1
+                continue
+
 
     def add_request_record(self, ip):
         self.__init_key(ip)
@@ -440,13 +454,13 @@ class QueueSleepCtrl(QueueCtrl):
         domain = get_domain(url)
         parsed_list = cls.host_freq_pool.get(domain, [])
         if not parsed_list:
-            return 0
+            return 1
 
         list_403 = ['jandan.net', 'meizu.com', 'meizu.cn']  # 一些防爬虫机制比较严格的站点
         parsed_list_len = len(parsed_list)
 
         if parsed_list_len < 5:
-            return 0.5
+            return 1
 
         if parsed_list_len < 10:
             return 1

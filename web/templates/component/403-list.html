@@ -1,5 +1,5 @@
 <div class="modal-header" id="modal-header">
-    <i class="fa fa-hand-stop-o"></i> <span class="modal-title">{{title}}</span>
+    <i class="fa fa-minus-circle"></i> <span class="modal-title">{{title}}</span>
 
     <i class="pull-right fa fa-remove modal-remove" title="取消" ng-click="cancel()"></i>
 </div>
@@ -13,12 +13,12 @@
         </thead>
         <tbody>
         <tr ng-repeat="item in params.deny_domains">
-            <td>{{item.domain}}</td>
+            <td><a target="_blank" href="http://{{item.domain}}/">{{item.domain}}</a></td>
             <td class="text-right">{{item.add_time+'000'|date:'MM-dd HH:mm:ss':'UTC+8'}}</td>
         </tr>
         </tbody>
     </table>
-    <small class="text-muted">PS: {{params['ps']}}</small>
+    <small class="text-muted">若干时间内若干次被禁止访问, 该爬虫会停止抓取该域名的所有URL. 定期尝试, 直到成功后恢复抓取.</small>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-show="modal.show_ok" ng-click="ok()">确定</button>

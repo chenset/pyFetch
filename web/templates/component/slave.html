@@ -10,9 +10,10 @@
             <th>状态</th>
             <th>通信次数</th>
             <th>抓取页面</th>
-            <th>403页面</th>
+            <th>403域名</th>
+            <th>失败统计</th>
             <th>在线时长</th>
-            <th>最近通信时间</th>
+            <th>最近通信</th>
             <th style="width: 180px"></th>
         </tr>
         </thead>
@@ -26,8 +27,9 @@
             <td>{{item.parsed_count}}</td>
             <td ng-hide="item.deny_domains.length">0</td>
             <td ng-show="item.deny_domains.length">
-                <a href="#" ng-click="show_403(item._id)"><i class="fa fa-hand-stop-o"></i> {{item.deny_domains.length}}</a>
+                <a href="#" ng-click="show_403(item._id)" class="text-danger"><i class="fa fa-minus-circle"></i> {{item.deny_domains.length}}个</a>
             </td>
+            <td> <a href="#" ng-click="show_error(item._id)" class="text-danger"><i class="fa fa-times-circle"></i> {{item.error_domain_count}}组</a></td>
             <td>{{item.work_time_count}}秒</td>
             <td>{{item.last_connected_time+'000'|date:'MM-dd HH:mm:ss':'UTC+8'}}</td>
             <td class="text-right">

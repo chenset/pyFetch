@@ -1,0 +1,33 @@
+<div class="modal-header" id="modal-header">
+    <i class="fa fa-time-circle"></i> <span class="modal-title">{{title}}</span>
+
+    <i class="pull-right fa fa-remove modal-remove" title="取消" ng-click="cancel()"></i>
+</div>
+<div class="modal-body">
+    <table class="table table-hover table-striped">
+        <thead>
+        <tr>
+            <th>域名</th>
+            <th ng-repeat="code in params.td_list">{{code==0?'其他':code}}</th>
+            <th class="text-right">更新时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="item in params.error_domains">
+            <td><a target="_blank" href="http://{{item.domain}}/">{{item.domain}}</a></td>
+            <td ng-repeat="code in params.td_list">
+
+                <strong ng-if="item.http_code[code]">{{item.http_code[code]}}</strong>
+                <span ng-if="!item.http_code[code]">-</span>
+            </td>
+            <td class="text-right">{{item.update_time+'000'|date:'MM-dd HH:mm:ss':'UTC+8'}}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <small class="text-muted">"<strong>其他</strong>" 列包括请求超时,重定向循环等无HTTP状态码的错误</small>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-show="modal.show_ok" ng-click="ok()">确定</button>
+    <button class="btn btn-default" ng-click="cancel()">取消</button>
+</div>

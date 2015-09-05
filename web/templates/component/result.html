@@ -8,7 +8,11 @@
 
         <tbody>
         <tr ng-repeat="item in results">
-            <td ng-repeat="title in th_title" title="{{item[title]}}">{{item[title]|limitTo: 150}}</td>
+
+            <td ng-repeat="title in th_title" title="{{item[title]}}">
+                <span ng-if="title != 'url'">{{item[title]|limitTo: 150}}</span>
+                <a ng-if="title == 'url'" target="_blank" href="{{item[title]}}">{{item[title]|limitTo: 150}}</a>
+            </td>
         </tr>
         </tbody>
     </table>
