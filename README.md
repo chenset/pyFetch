@@ -39,3 +39,4 @@ windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Pytho
 - 尽量避免403, 学习禁爬虫原理: 如,请求带上referer
 - slave 执行环境安全
 - setup.py
+- 列表的时间排序有问题
