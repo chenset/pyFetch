@@ -143,6 +143,7 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', '$rootScop
 }]);
 
 app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
+    $scope.projectName = $routeParams.projectName;
     $http.get('/api/result/' + $routeParams.projectName).success(function (data) {
         $scope.th_title = [];
         for (var key in data[0]) {

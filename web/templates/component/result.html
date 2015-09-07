@@ -1,19 +1,30 @@
-<div class="table-responsive">
-    <table class="table table-hover table-striped">
-        <thead>
-        <tr>
-            <th ng-repeat="title in th_title">{{title}}</th>
-        </tr>
-        </thead>
+<div class="row">
+    <div class="col-md-12 text-right">
+        <a target="_blank" href="/download/{{projectName}}.json" class="btn btn-success">下载json格式</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                <tr>
+                    <th ng-repeat="title in th_title">{{title}}</th>
+                </tr>
+                </thead>
 
-        <tbody>
-        <tr ng-repeat="item in results">
+                <tbody>
+                <tr ng-repeat="item in results">
 
-            <td ng-repeat="title in th_title" title="{{item[title]}}">
-                <span ng-if="title != 'url'">{{item[title]|limitTo: 150}}</span>
-                <a ng-if="title == 'url'" target="_blank" href="{{item[title]}}">{{item[title]|limitTo: 150}}</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+                    <td ng-repeat="title in th_title" title="{{item[title]}}">
+                        <span ng-if="title != 'url'">{{item[title]|limitTo: 150}}</span>
+                        <a ng-if="title == 'url'"
+                                target="_blank"
+                                href="{{item[title]}}">{{item[title]|limitTo: 150}}</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

@@ -1,6 +1,6 @@
 #! coding=utf8
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-    render_template, flash, jsonify, json
+    render_template, flash, jsonify, json, make_response
 from mongo_single import Mongo
 import time
 import os
@@ -251,6 +251,15 @@ def get_results(project_name):
         del doc['_id']
         res.append(doc)
     return json.dumps(res)
+
+
+@app.route('/download/<project_name>.json')
+def get_json_results(project_name):
+    res = make_response(json.dumps(list(Mongo.get()['result_' + project_name].find({}, {'_id': 0}))), 200)
+    # header("Content-Disposition:attachment;filename={$fileName}");
+    res.headers['Content-Disposition'] = 'attachment'
+    res.headers['filename'] = project_name + '/json'
+    return res
 
 
 @app.route('/api/project/exec_test', methods=['POST'])
