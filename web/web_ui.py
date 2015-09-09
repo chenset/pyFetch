@@ -10,6 +10,7 @@ from functions import get_project_list, md5, mix_ip
 from helper import GlobalHelper
 from spider_for_test import test_run
 from bson import ObjectId
+from pagination import paginate
 
 # from gevent import monkey
 # monkey.patch_socket()  # fixme patch_all 会影响跨进程通讯或者异步抓取 1/2
@@ -60,11 +61,26 @@ def default(path):
 def page(page):
     return get_template('component/' + page + '.html')
 
+from pymongo import MongoClient
 
 @app.route('/api/test')
 def api_test():
-    print GlobalHelper.get('salve_record')
-    # time.sleep(10)
+    try:
+        client = MongoClient('localhost', 27017)
+        res = client['pyfetch']['result_cnbeta'].find().limit(10)
+
+        # print GlobalHelper.get('salve_record')
+        # time.sleep(10)
+        pagination = paginate(Mongo.get()['result_cnbeta'].find(), 1, 30)
+        if pagination:
+            for row in pagination.current_page():
+                print row
+
+                # print pagination.next()
+                # print pagination.prev()
+
+    except:
+        print traceback.format_exc()
     return jsonify({'fd': 1})
 
 
@@ -247,9 +263,12 @@ def get_project_tasks(project_name):
 @app.route('/api/result/<project_name>')
 def get_results(project_name):
     res = []
-    for doc in Mongo.get()['result_' + project_name].find().sort('_id', -1).limit(100):
-        del doc['_id']
-        res.append(doc)
+    pagination = paginate(Mongo.get()['result_' + project_name].find().sort('_id', -1), 1, 10)
+    if pagination:
+        for doc in pagination.current_page():
+            del doc['_id']
+            res.append(doc)
+
     return json.dumps(res)
 
 
