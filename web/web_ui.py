@@ -280,9 +280,9 @@ def web_start(dd, host, web_port):
     当service.py为入口时会调用这里
     """
     GlobalHelper.init(dd)
-
-    http_server = WSGIServer((host, web_port), app)
-    http_server.serve_forever()
+    # http_server = WSGIServer((host, web_port), app)
+    app.run(host=host, port=web_port)
+    # http_server.serve_forever()
 
 
 if __name__ == '__main__':
