@@ -71,7 +71,7 @@ def run(gevent_id, project_name, source_code, init_url):
             while spider.pre_url_queue:
                 url = spider.pre_url_queue.pop(0)  # 出栈首位
                 sleep = QueueSleepCtrl.get_sleep_times(url)
-                print sleep, ' -- gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' - ' + url
+                # print sleep, ' -- gevent ID:' + str(gevent_id) + ' - project : ' + project_name + ' - ' + url
                 gevent.sleep(sleep)
                 spider.run(context['callback'], url, project_name, init_url, gevent_id)
 
