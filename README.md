@@ -6,6 +6,15 @@ https://www.mongodb.org/downloads
 默认端口运行mongoDB
 
 ### 安装依赖
+
+linux 安装
+
+    #ubuntu
+    pip install python-dev
+    #centos
+    yum install python-devel
+
+
 windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Python 2.7 http://www.microsoft.com/en-us/download/confirmation.aspx?id=44266
 
     pip install requests
