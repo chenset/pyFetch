@@ -1,4 +1,4 @@
-from math import ceil
+from math import ceil, floor
 
 
 def paginate(mongo_cursor, page, per_page=20, error_out=True):
@@ -22,46 +22,91 @@ class Pagination(object):
     def __init__(self, query, page, per_page, items):
         #: query object used to create this
         #: pagination object.
-        self.query = query
+        self._query = query
         #: current page number
-        self.page = page
+        self._page = page
         #: number of items to be displayed per page
         self.per_page = per_page
         #: total number of items matching the query
-        self.total = None
+        self._total = None
         #: list of items for the current page
-        self.items = items
+        self._items = items
 
-    def pages(self):
-        """The total number of pages"""
-        if self.total is None:
-            self.total = self.query.count()
+    def render_json(self, page_limit, url_patten='page='):
+        page_list = []
+        start_page = int(self.current_page() - floor(page_limit / 2))
+        end_page = int(self.current_page() + ceil(page_limit / 2))
 
-        return int(ceil(self.total / float(self.per_page)))
+        if start_page < 1:
+            end_page += 1 - start_page
+
+        if end_page > self.count():
+            start_page -= self.count() - end_page
+            end_page = self.count()
+
+        if start_page < 1:
+            start_page = 1
+
+        for i in xrange(start_page, end_page):
+            page_list.append(url_patten + str(i))
+
+        return {
+            'total': self.total(),
+            'count': self.count(),
+            'page_list': page_list,
+            'current_page': url_patten + str(self._page),
+            'prev_page': url_patten + str(self.prev_page()) if self.prev_page() else '',
+            'next_page': url_patten + str(self.next_page()) if self.next_page() else '',
+            'first_page': url_patten + '1',
+            'last_page': url_patten + str(self.count()),
+        }
+
+    def render_view(self, url_patten='page='):
+        pass
+
+    def total(self):
+        """The total number of documents"""
+        if self._total is None:
+            self._total = self._query.count()
+
+        return self._total
+
+    def count(self):
+        """The count number of pages"""
+        return int(ceil(self.total() / float(self.per_page)))
 
     def current_page(self):
-        return self.items
+        return self._page
+
+    def result(self):
+        return self._items
 
     def next_page(self):
         """The next page number."""
-        return self.page + 1
+        return self._page + 1 if self.has_next() else None
 
     def has_next(self):
         """Returns ``True`` if a next page exists."""
-        return self.page < self.pages
+        return self._page < self.count()
 
     def next(self, error_out=False):
         """Return a :class:`Pagination` object for the next page."""
-        return paginate(self.query, self.page + 1, self.per_page, error_out)
+        if not self.has_next():
+            return None
+
+        return paginate(self._query, self._page + 1, self.per_page, error_out)
 
     def prev_page(self):
         """The previous page number."""
-        return self.page - 1
+        return self._page - 1 if self.has_prev() else None
 
     def has_prev(self):
         """Returns ``True`` if a previous page exists."""
-        return self.page > 1
+        return self._page > 1
 
     def prev(self, error_out=False):
         """Return a :class:`Pagination` object for the previous page."""
-        return self.query.paginate(self.query, self.page - 1, self.per_page, error_out)
+        if not self.has_prev():
+            return None
+
+        return self._query.paginate(self._query, self._page - 1, self.per_page, error_out)
