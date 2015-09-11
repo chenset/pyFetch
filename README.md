@@ -45,3 +45,4 @@ windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Pytho
 - setup.py
 - 列表的时间排序有问题
 - 每个项目都可以添加多个url抓取入口
+- 项目与爬虫的抓取频率显示

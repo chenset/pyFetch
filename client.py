@@ -108,7 +108,6 @@ def cli(host, port):
         joins = []
         gevent_id = 0  # 作为 gevent 的ID标识
         for project in load_projects():
-            print project
             gevent_id += 1
             joins.append(gevent.spawn(run, gevent_id, project['name'], project['code'], project['init_url']))
             #
