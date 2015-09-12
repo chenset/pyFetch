@@ -58,10 +58,12 @@ def default(path):
 
 @app.route('/component/<page>')
 @app.route('/component/task/<page>')
-def page(page):
+def get_page(page):
     return get_template('component/' + page + '.html')
 
+
 from pymongo import MongoClient
+
 
 @app.route('/api/test')
 def api_test():
@@ -260,16 +262,16 @@ def get_project_tasks(project_name):
     return json.dumps(res)
 
 
-@app.route('/api/result/<project_name>')
-def get_results(project_name):
+@app.route('/api/result/<project_name>/<int:page>')
+def get_results(project_name, page=1):
     res = []
-    pagination = paginate(Mongo.get()['result_' + project_name].find().sort('_id', -1), 1, 10)
+    pagination = paginate(Mongo.get()['result_' + project_name].find().sort('_id', -1), page, 20)
     if pagination:
-        for doc in pagination.current_page():
+        for doc in pagination.result():
             del doc['_id']
             res.append(doc)
 
-    return json.dumps(res)
+    return json.dumps({'result': res, 'render_json': pagination.render_json(10)})
 
 
 @app.route('/download/<project_name>.json')

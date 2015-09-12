@@ -143,16 +143,31 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', '$rootScop
 }]);
 
 app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function ($scope, $http, $routeParams) {
+    var page = $routeParams.page ? $routeParams.page : 1;
     $scope.projectName = $routeParams.projectName;
-    $http.get('/api/result/' + $routeParams.projectName).success(function (data) {
+
+    $scope.inArray = function (key, arr) {
+        var i = arr.length;
+        while (i--) {
+            if (arr[i] === key) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    $http.get('/api/result/' + $routeParams.projectName + '/' + page).success(function (data) {
         $scope.th_title = [];
-        for (var key in data[0]) {
-            if (!data[0].hasOwnProperty(key)) {
+        for (var key in data.result[0]) {
+            if (!data.result[0].hasOwnProperty(key)) {
                 continue;
             }
             $scope.th_title.push(key);
         }
-        $scope.results = data;
+        $scope.first_page_hide = $scope.inArray(data.render_json.first_page, data.render_json.page_list);
+        $scope.last_page_hide = $scope.inArray(data.render_json.last_page, data.render_json.page_list);
+        $scope.render = data.render_json;
+        $scope.results = data.result;
     });
 }]);
 

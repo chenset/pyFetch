@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-12 text-right">
-        <a target="_blank" href="/download/{{projectName}}.json" class="btn btn-success">下载json格式</a>
+        <a target="_blank" href="/download/{{ projectName }}.json" class="btn btn-success">下载json格式</a>
     </div>
 </div>
 <div class="row">
@@ -9,22 +9,42 @@
             <table class="table table-hover table-striped">
                 <thead>
                 <tr>
-                    <th ng-repeat="title in th_title">{{title}}</th>
+                    <th ng-repeat="title in th_title">{{ title }}</th>
                 </tr>
                 </thead>
 
                 <tbody>
                 <tr ng-repeat="item in results">
 
-                    <td ng-repeat="title in th_title" title="{{item[title]}}">
-                        <span ng-if="title != 'url'">{{item[title]|limitTo: 150}}</span>
+                    <td ng-repeat="title in th_title" title="{{ item[title] }}">
+                        <span ng-if="title != 'url'">{{ item[title]|limitTo: 150}}</span>
                         <a ng-if="title == 'url'"
                                 target="_blank"
-                                href="{{item[title]}}">{{item[title]|limitTo: 150}}</a>
+                                href="{{ item[title] }}">{{ item[title]|limitTo: 150}}</a>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
+        <nav>
+            <ul class="pagination">
+                <li ng-show="render.prev_page"><a href="/project/result/{{ projectName }}?page={{ render.prev_page }}">&laquo;</a></li>
+
+                <li ng-hide="first_page_hide"><a href="/project/result/{{ projectName }}?page={{ render.first_page }}">{{ render.first_page }}</a>
+                </li>
+                <li ng-hide="first_page_hide" class="disabled"><a href="#">..</a></li>
+
+                <li ng-class="{true:'active'}[item==render.current_page]" ng-repeat="item in render.page_list">
+                    <a href="/project/result/{{ projectName }}?page={{ item }}">{{ item }}</a>
+                </li>
+
+                <li ng-hide="last_page_hide" class="disabled"><a href="#">..</a></li>
+                <li ng-hide="last_page_hide"><a href="/project/result/{{ projectName }}?page={{ render.last_page }}">{{ render.last_page }}</a>
+                </li>
+
+                <li ng-show="render.next_page"><a href="/project/result/{{ projectName }}?page={{ render.next_page }}">&raquo;</a></li>
+            </ul>
+        </nav>
     </div>
 </div>

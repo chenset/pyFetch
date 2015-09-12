@@ -32,7 +32,7 @@ class Pagination(object):
         #: list of items for the current page
         self._items = items
 
-    def render_json(self, page_limit, url_patten='page='):
+    def render_json(self, page_limit, url_patten=''):
         page_list = []
         start_page = int(self.current_page() - floor(page_limit / 2))
         end_page = int(self.current_page() + ceil(page_limit / 2))
@@ -41,8 +41,8 @@ class Pagination(object):
             end_page += 1 - start_page
 
         if end_page > self.count():
-            start_page -= self.count() - end_page
-            end_page = self.count()
+            start_page -= end_page - self.count()
+            end_page = self.count()+1
 
         if start_page < 1:
             start_page = 1
