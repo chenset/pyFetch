@@ -40,12 +40,7 @@ windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Pytho
 
 ## Todo list
 
-- 项目队列为空的处理, 如:队列已经跑完,将init_url插入到queue中再来一遍
 - 参数可配置化, 还有mongo的连接配置
-- 历史列表的分页
-- 结果页面的下载
-- 50X页面 超时页面
-- 尽量避免403, 学习禁爬虫原理: 如,请求带上referer
 - slave 执行环境安全
 - setup.py
 - 列表的时间排序有问题
