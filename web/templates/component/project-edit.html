@@ -55,8 +55,6 @@ def page(spider):
     """
     在此方法体编写逻辑代码
     """
-    print spider.project_name
-    print spider.init_url
 
     for url in spider.urls:
       	if url.find(get_tld(spider.init_url)) != -1:
