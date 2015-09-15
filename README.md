@@ -1,7 +1,9 @@
 # pyFetch
+
 基于python的分布式爬虫
 
 ### 安装mongoDB
+
 https://www.mongodb.org/downloads
 默认端口运行mongoDB
 
@@ -25,6 +27,7 @@ windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Pytho
     pip install tld
     pip install click
 ### 执行
+
 服务器
 
     python service.py
