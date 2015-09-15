@@ -27,7 +27,7 @@
             </table>
         </div>
 
-        <nav>
+        <nav ng-show="render.page_list">
             <ul class="pagination">
                 <li ng-show="render.prev_page"><a href="/project/result/{{ projectName }}?page={{ render.prev_page }}">&laquo;</a></li>
 
