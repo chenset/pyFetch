@@ -49,6 +49,9 @@ def request_handle(data, address):
 
     handle = SerHandle(request['project_name'], request, address)
 
+    if not handle.get_project():
+        return json.dumps({'msg': '操作不存在的项目, 将该客户端重启!', 'restart': 1})
+
     if 'urls_parsed' in request and request['urls_parsed']:
         handle.urls_parsed()
 
