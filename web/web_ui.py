@@ -15,7 +15,6 @@ from pagination import paginate
 # from gevent import monkey
 # monkey.patch_socket()  # fixme patch_all 会影响跨进程通讯或者异步抓取 1/2
 
-from gevent.wsgi import WSGIServer
 from flask.ext.compress import Compress
 
 app = Flask(__name__)
@@ -301,13 +300,16 @@ def web_start(dd, host, web_port):
     当service.py为入口时会调用这里
     """
     GlobalHelper.init(dd)
-    # http_server = WSGIServer((host, web_port), app)
-    app.run(host=host, port=web_port)
+    # wsgi.WSGIServer((host, web_port), app, backlog=1).serve_forever(3)
+    app.run(host=host, port=web_port, threaded=True)
     # http_server.serve_forever()
+    # http_server.
 
 
 if __name__ == '__main__':
     """
     当前文件为入口时会调用这里
     """
-    app.run('0.0.0.0', 80, debug=True, threaded=True)
+    # app.run('0.0.0.0', 80, debug=True, threaded=True)
+    from gevent import wsgi
+    wsgi.WSGIServer(('0.0.0.0', 81), app).serve_forever()
