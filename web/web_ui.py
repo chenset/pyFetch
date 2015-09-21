@@ -48,6 +48,7 @@ def index():
 @app.route('/slave/task/<path>')
 @app.route('/slave/result/<path>')
 @app.route('/project/result/<path>')
+@app.route('/project/result/<path>/image')
 def default(path):
     """
     首次全新请求(即不经过angular的请求)url地址的route规则
@@ -121,7 +122,7 @@ def get_slave_tasks(slave_id):
             doc['slave_ip'] = mix_ip(doc['slave_ip'])
             res.append(doc)
 
-            res.sort(key=lambda x: x['add_time'])
+    res.sort(key=lambda x: x['add_time'], reverse=True)
     return json.dumps(res)
 
 
@@ -312,4 +313,5 @@ if __name__ == '__main__':
     """
     # app.run('0.0.0.0', 80, debug=True, threaded=True)
     from gevent import wsgi
+
     wsgi.WSGIServer(('0.0.0.0', 81), app).serve_forever()

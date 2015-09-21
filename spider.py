@@ -71,8 +71,8 @@ class Spider(Slave):
 
         if 'url' not in parse_result:
             parse_result['url'] = self.current_url
-        if 'runtime' not in parse_result:
-            parse_result['runtime'] = crawl_result[2]
+        # if 'runtime' not in parse_result:
+        #     parse_result['runtime'] = crawl_result[2]
 
         self.put_data(save=parse_result)
 

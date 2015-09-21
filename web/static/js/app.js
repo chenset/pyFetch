@@ -37,6 +37,10 @@ app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$ht
                 templateUrl: 'component/result',
                 controller: 'projectResultCtrl'
             }).
+            when('/project/result/:projectName/image', {
+                templateUrl: 'component/result-image',
+                controller: 'projectResultCtrl'
+            }).
             when('/project/task/:projectName', {
                 templateUrl: 'component/task',
                 controller: 'projectTaskCtrl'

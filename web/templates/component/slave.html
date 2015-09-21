@@ -1,62 +1,71 @@
-<div class="table-responsive ">
-    <button ng-click="restartAll($event)" class="btn btn-danger btn-sm"><i class="fa fa-circle-o-notch"></i> 重启</button>
-    <button ng-click="refresh();" class="btn btn-success btn-sm"><i class="fa fa-refresh"></i> 刷新</button>
-    <i class="fa fa-spinner fa-pulse" ng-show="show_load_icon"></i>
-    <table class="table table-hover table-striped">
-        <thead>
-        <tr>
-            <th>序</th>
-            <th>IP</th>
-            <th>状态</th>
-            <th>通信次数</th>
-            <th>抓取页面</th>
-            <th>403域名</th>
-            <th>失败统计</th>
-            <th>在线时长</th>
-            <th>最近通信</th>
-            <th style="width: 180px"></th>
-        </tr>
-        </thead>
+<div class="row">
+    <div class="col-md-12">
+        <button ng-click="restartAll($event)" class="btn btn-danger btn-sm"><i class="fa fa-circle-o-notch"></i> 重启
+        </button>
+        <button ng-click="refresh();" class="btn btn-success btn-sm"><i class="fa fa-refresh"></i> 刷新</button>
+        <i class="fa fa-spinner fa-pulse" ng-show="show_load_icon"></i>
 
-        <tbody>
-        <tr class="" ng-repeat="(key,item) in slave">
-            <td>{{$index+1}}</td>
-            <td>{{item.ip}}</td>
-            <td>{{item.static}}</td>
-            <td>{{item.connected_count}}</td>
-            <td>{{item.parsed_count}}</td>
-            <td ng-hide="item.deny_domains.length">0</td>
-            <td ng-show="item.deny_domains.length">
-                <a href="#" ng-click="show_403(item._id)" class="text-danger"><i class="fa fa-minus-circle"></i> {{item.deny_domains.length}}个</a>
-            </td>
-            <td ng-hide="item.error_domain_count">0</td>
-            <td ng-show="item.error_domain_count">
-                <a href="#" ng-click="show_error(item._id)" class="text-danger"><i class="fa fa-times-circle"></i> {{item.error_domain_count}}组</a>
-            </td>
-            <td>{{item.work_time_count}}秒</td>
-            <td>{{item.last_connected_time+'000'|date:'MM-dd HH:mm:ss':'UTC+8'}}</td>
-            <td class="text-right">
-                <button type="button" class="btn btn-sm {{item.button_class}}" ng-click="runToggle(item._id);">
-                    {{item.button_text}}
-                </button>
-                <button type="button"
-                        class="btn btn-sm {{item.restart_button_class}} slave-restart"
-                        ng-click="restart(item._id,$event);">
-                    {{item.restart_button_text}}
-                </button>
-                <a class="btn btn-default btn-sm" href="/slave/task/{{key}}">历史</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <p>
-        <small class="text-muted">
-            1. 点击 <kbd>暂停</kbd> 或 <kbd>重启</kbd> 会先发送指令, 真正的暂停或重启会在该爬虫本地剩余队列全部处理完毕后.
-        </small>
-    </p>
-    <p>
-        <small class="text-muted">
-            2. 使用命令 <code>python client.py -h 服务器IP -p 服务器端口</code> 添加爬虫
-        </small>
-    </p>
+        <div class="table-responsive ">
+            <table class="table table-hover table-striped">
+                <thead>
+                <tr>
+                    <th>序</th>
+                    <th>IP</th>
+                    <th>状态</th>
+                    <th>通信次数</th>
+                    <th>抓取页面</th>
+                    <th>403域名</th>
+                    <th>失败统计</th>
+                    <th>在线时长</th>
+                    <th>最近通信</th>
+                    <th style="width: 180px"></th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr class="" ng-repeat="(key,item) in slave">
+                    <td>{{$index+1}}</td>
+                    <td>{{ item.ip }}</td>
+                    <td>{{ item.static }}</td>
+                    <td>{{ item.connected_count }}</td>
+                    <td>{{ item.parsed_count }}</td>
+                    <td ng-hide="item.deny_domains.length">0</td>
+                    <td ng-show="item.deny_domains.length">
+                        <a href="#" ng-click="show_403(item._id)" class="text-danger"><i
+                                class="fa fa-minus-circle"></i> {{ item.deny_domains.length }}个</a>
+                    </td>
+                    <td ng-hide="item.error_domain_count">0</td>
+                    <td ng-show="item.error_domain_count">
+                        <a href="#" ng-click="show_error(item._id)" class="text-danger"><i
+                                class="fa fa-times-circle"></i> {{ item.error_domain_count }}组</a>
+                    </td>
+                    <td>{{ item.work_time_count }}秒</td>
+                    <td>{{ item.last_connected_time+'000'|date:'MM-dd HH:mm:ss':'UTC+8'}}</td>
+                    <td class="text-right">
+                        <button type="button" class="btn btn-sm {{ item.button_class }}"
+                                ng-click="runToggle(item._id);">
+                            {{ item.button_text }}
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm {{ item.restart_button_class }} slave-restart"
+                                ng-click="restart(item._id,$event);">
+                            {{ item.restart_button_text }}
+                        </button>
+                        <a class="btn btn-default btn-sm" href="/slave/task/{{ key }}">历史</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <p>
+                <small class="text-muted">
+                    1. 点击 <kbd>暂停</kbd> 或 <kbd>重启</kbd> 会先发送指令, 真正的暂停或重启会在该爬虫本地剩余队列全部处理完毕后.
+                </small>
+            </p>
+            <p>
+                <small class="text-muted">
+                    2. 使用命令 <code>python client.py -h 服务器IP -p 服务器端口</code> 添加爬虫
+                </small>
+            </p>
+        </div>
+    </div>
 </div>

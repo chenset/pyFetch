@@ -49,3 +49,5 @@ windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Pytho
 - 列表的时间排序有问题
 - 每个项目都可以添加多个url抓取入口
 - 项目与爬虫的抓取频率显示
+- 结果页面图片浏览模式
+- 新建项目且修改代码时，会有缓存且爬虫会使用旧代码进行抓取
