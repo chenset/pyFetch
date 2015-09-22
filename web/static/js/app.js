@@ -78,15 +78,13 @@ app.controller('projectAddCtrl', ['$scope', '$rootScope', '$http', '$location', 
 }]);
 
 app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', '$rootScope', 'appAlert', 'appModal', function ($scope, $routeParams, $http, $rootScope, appAlert, appModal) {
-    load_and_exec_CodeMirror();
     $scope.showTest = true;
     $scope.projectName = $routeParams.projectName;
 
     $scope.project = {};
-
     $http.get('/api/project/' + $scope.projectName).success(function (data) {
         $scope.project = data;
-        document.getElementById('project_code_editor').value = data.code;
+         load_and_exec_CodeMirror(data.code);
     });
 
     //表单与提交
