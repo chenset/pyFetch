@@ -35,9 +35,9 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <div ng-repeat="item in results">
-            <div ng-repeat="img in item['images']">
-                <img src="{{ img }}"/>
+        <div masonry="{columnWidth: 480, transitionDuration: '.5s', hiddenStyle: {opacity: .001}, visibleStyle: {opacity: 1}}">
+            <div class="masonry-brick" ng-repeat="brick in images track by $index">
+                <img ng-src="{{ brick }}" style="max-width: 480px" alt="无法加载">
             </div>
         </div>
     </div>

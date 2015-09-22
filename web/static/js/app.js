@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('PyFetch', ['ngRoute', 'angular-loading-bar', 'ui.bootstrap']);
+var app = angular.module('PyFetch', ['ngRoute', 'angular-loading-bar', 'ui.bootstrap', 'wu.masonry']);
 
 app.config(['$routeProvider', '$locationProvider', 'cfpLoadingBarProvider', '$httpProvider',
     function ($routeProvider, $locationProvider, cfpLoadingBarProvider, $httpProvider) {
@@ -84,7 +84,7 @@ app.controller('projectEditCtrl', ['$scope', '$routeParams', '$http', '$rootScop
     $scope.project = {};
     $http.get('/api/project/' + $scope.projectName).success(function (data) {
         $scope.project = data;
-         load_and_exec_CodeMirror(data.code);
+        load_and_exec_CodeMirror(data.code);
     });
 
     //表单与提交
@@ -160,6 +160,7 @@ app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function
 
     $http.get('/api/result/' + $routeParams.projectName + '/' + page).success(function (data) {
         $scope.th_title = [];
+
         for (var key in data.result[0]) {
             if (!data.result[0].hasOwnProperty(key)) {
                 continue;
@@ -170,6 +171,17 @@ app.controller('projectResultCtrl', ['$scope', '$http', '$routeParams', function
         $scope.last_page_hide = $scope.inArray(data.render_json.last_page, data.render_json.page_list);
         $scope.render = data.render_json;
         $scope.results = data.result;
+
+        $scope.images = [];
+        var img, len = 0, i = 0;
+        for (key in data.result) {
+            if (!data.result.hasOwnProperty(key)) {
+                continue;
+            }
+            for (i = 0, len = data.result[key].images.length; i < len; i++) {
+                $scope.images.push(data.result[key].images[i]);
+            }
+        }
     });
 }]);
 
