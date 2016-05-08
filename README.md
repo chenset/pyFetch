@@ -12,8 +12,10 @@ https://www.mongodb.org/downloads
 linux 安装
 
     #ubuntu
-    pip install python-dev
+	apt-get install build-essential
+    apt-get install python-dev
     #centos
+	yum groupinstall "Development Tools"
     yum install python-devel
 
 
