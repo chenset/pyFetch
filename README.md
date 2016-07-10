@@ -55,3 +55,4 @@ windows 下的 gevent 可能需要安装 Microsoft Visual C++ Compiler for Pytho
 - 项目与爬虫的抓取频率显示
 - 结果页面图片浏览模式
 - 新建项目且修改代码时，会有缓存且爬虫会使用旧代码进行抓取
+- 当有域名403时, mongod CPU占用较高
