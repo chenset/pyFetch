@@ -2,7 +2,7 @@
 
 基于python的分布式爬虫
 
-[https://fetch.flysay.com DEMO](https://fetch.flysay.com)
+[DEMO: https://fetch.flysay.com](https://fetch.flysay.com)
 
 ### 安装mongoDB
 
