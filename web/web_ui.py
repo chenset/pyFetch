@@ -205,6 +205,7 @@ def get_project_by_name(name):
 
 @app.route('/api/project/save', methods=['POST'])
 def save_project():
+    return jsonify({'success': False, 'msg': '禁止修改!'})
     form_data = json.loads(request.data)  # todo 需要验证表单数据
 
     name_r = re.compile(r'^[0-9a-zA-Z_-]+$')
@@ -285,6 +286,7 @@ def get_json_results(project_name):
 
 @app.route('/api/project/exec_test', methods=['POST'])
 def exec_test():
+    return jsonify({'success': False, 'msg': '禁止修改!'})
     form_data = json.loads(request.data)  # todo 需要验证表单数据
 
     result = test_run(form_data)
